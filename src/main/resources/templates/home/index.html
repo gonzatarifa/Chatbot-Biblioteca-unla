@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<title>Chatbot</title>
+
+	<!-- Bootstrap core CSS -->
+	<link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+	<!-- Custom styles for this template -->
+	<link href="css/modern-business.css" rel="stylesheet">
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.5.5/css/simple-line-icons.min.css" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
+
+</head>
+
+<body>
+	
+	<!-- Navigation -->
+	<nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark fixed-top">
+		<div class="container">
+			<a class="navbar-brand" href="/index">
+    	    <img src="/images/Unla_logo.png" width="58" height="45" alt="">
+  		   </a>
+			<button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
+				data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false"
+				aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarResponsive">
+				<ul class="navbar-nav ml-auto">
+					
+					<li class="nav-item">
+						<a class="nav-link" sec:authorize="hasAuthority('Administrador')"
+							th:href="@{/usuarios/lista/}">Usuarios</a>
+					</li>
+
+					<li class="nav-item">
+						<a class="nav-link" sec:authorize="hasAuthority('Administrador')"
+							th:href="@{/perfiles/lista/}">Perfiles</a>
+					</li>
+					
+										
+					<li class="nav-item dropdown">
+						<a aria-expanded="false" aria-haspopup="true" class="nav-link dropdown-toggle"
+							data-toggle="dropdown" href="#" id="navbarDropdownBlog">Sesion</a>
+						<div aria-labelledby="navbarDropdownBlog" class="dropdown-menu dropdown-menu-right">
+							<a class="dropdown-item" sec:authorize="anonymous" th:href="@{/login}">Iniciar sesión</a>
+
+							<form sec:authorize="authenticated" th:action="@{/logout}" method="post">
+								<input class="dropdown-item" style="cursor:pointer" type="submit"
+									value="Cerrar sesión" />
+							</form>
+
+						</div>
+					</li>
+					
+			</div>
+			
+			</li>	
+			</ul>
+		</div>
+		</div>
+	</nav>
+	
+	<header>
+		<div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+			<ol class="carousel-indicators">
+				<li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+			</ol>
+			<div class="carousel-inner" role="listbox">
+				<div class="carousel-item active"
+					style="background-image: url('https://img.freepik.com/vector-premium/lindo-sonriente-robot-chatbot-sosteniendo-megafono-sobre-fondo-burbujas-burbujas-horizontal-bannner_48369-17177.jpg')">
+					<div class="carousel-caption d-none d-md-block">
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</header>
+
+	<!-- /.container -->
+	<div class="container" id="documentacion">
+		<h1 class="bg-white text-center text-secondary">Servicio de Referencia Virtual potenciado por IA con base del conocimiento y sistema de tickets</h1>
+		
+		<p class="bg-white text-center text-dark"><i>Proyecto TFI para UNLa 2025</i></p>
+
+		<p></p>
+
+	</div>
+	<!-- Footer -->
+		<footer th:fragment="footer" class="bg-dark text-center text-white fixed-bottom">
+		<div class="container">
+			<p>Chatbot</p>
+		</div>
+
+		<script type="text/javascript" th:src="@{vendor/bootstrap/jquery/jquery.slim.min.js}"></script>
+		<script type="text/javascript" th:src="@{vendor/bootstrap/js/popper.min.js}"></script>
+		<script type="text/javascript" th:src="@{vendor/bootstrap/js/bootstrap.min.js}"></script>
+	</footer>
+	
+	<!-- Bootstrap core JavaScript -->
+	<script src="vendor/jquery/jquery.min.js"></script>
+	<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+	
+</body>
+
+</html>

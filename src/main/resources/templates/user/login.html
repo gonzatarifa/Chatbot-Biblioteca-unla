@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8" />
+  <title>Consultorio</title>
+  <!-- Bootstrap core CSS -->
+  <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="/css/modern-business.css" rel="stylesheet" />
+  <!-- Custom styles -->
+  <link href="/css/style-custom.css" rel="stylesheet" />
+</head>
+<body>
+  <div class="login-container">
+    <h1>Login</h1>
+
+    <form th:action="@{/login}" method="post">
+      <input type="text" name="username" id="username" placeholder="Usuario" class="form-control mb-2" />
+      <input type="password" name="password" id="password" placeholder="Contraseña" class="form-control mb-2" />
+      <input type="submit" class="btn btn-primary" value="Iniciar sesión" />
+    </form>
+
+    <div th:if="${param.error}" class="alert alert-danger">
+      Usuario o contraseña incorrectos.
+    </div>
+  </div>
+
+  <!-- Bootstrap core JavaScript -->
+  <script src="/vendor/jquery/jquery.min.js"></script>
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
