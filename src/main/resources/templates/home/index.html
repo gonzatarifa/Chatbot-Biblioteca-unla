@@ -88,6 +88,32 @@
 		<h1 class="bg-white text-center text-secondary">Servicio de Referencia Virtual potenciado por IA con base del conocimiento y sistema de tickets</h1>
 		
 		<p class="bg-white text-center text-dark"><i>Proyecto TFI para UNLa 2025</i></p>
+		
+		<!-- Chatbox -->
+		<div class="container my-4">
+			<div class="card shadow-sm">
+				<div class="card-header bg-primary text-white">
+					Chat con IA
+				</div>
+				<div class="card-body">
+					<form method="post" action="/">
+						<div class="form-group">
+							<input type="text" name="pregunta" placeholder="Escribí tu pregunta..." class="form-control" required>
+						</div>
+						<button type="submit" class="btn btn-primary">Enviar</button>
+					</form>
+		
+					<div class="mt-4" th:if="${pregunta}">
+						<p><strong>🧑 Tú:</strong> <span th:text="${pregunta}"></span></p>
+					</div>
+		
+					<div class="mt-2" th:if="${respuesta}">
+						<p><strong>🤖 Respuesta:</strong> <span th:text="${respuesta}"></span></p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Chatbox -->
 
 		<p></p>
 
