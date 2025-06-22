@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.chatbot.unla.helpers.ViewRouteHelper;
 import com.chatbot.unla.services.IChatService;
@@ -34,23 +35,23 @@ public class HomeController {
 		}
 		
 		@PostMapping("/")
-		public ModelAndView procesarPregunta(@RequestParam("pregunta") String preguntaUsuario) {
-		    ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.INDEX);
+		public String procesarPregunta(@RequestParam("pregunta") String preguntaUsuario,
+		                               RedirectAttributes redirectAttributes) {
 		    String respuestaModelo = chatService.obtenerRespuestaSimilar(preguntaUsuario);
 
 		    String respuestaFinal = "🤐 Pregunta no reconocida. No se responderá nada.";
 		    if (!respuestaModelo.equalsIgnoreCase("NINGUNA")) {
 		        String respuesta = chatService.buscarRespuesta(respuestaModelo);
 		        if (respuesta != null) {
-		            respuestaFinal = "🤖 " + respuesta;
+		            respuestaFinal = respuesta;
 		        } else {
 		            respuestaFinal = "❌ Pregunta no reconocida: " + respuestaModelo;
 		        }
 		    }
 
-		    modelAndView.addObject("pregunta", preguntaUsuario);
-		    modelAndView.addObject("respuesta", respuestaFinal);
-		    return modelAndView;
+		    redirectAttributes.addFlashAttribute("pregunta", preguntaUsuario);
+		    redirectAttributes.addFlashAttribute("respuesta", respuestaFinal);
+		    return "redirect:/";
 		}
 
 }

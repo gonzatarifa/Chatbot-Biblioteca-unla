@@ -1,138 +1,97 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-
 <head>
-
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<meta name="description" content="">
-	<meta name="author" content="">
-	<title>Chatbot</title>
-
-	<!-- Bootstrap core CSS -->
-	<link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-	<!-- Custom styles for this template -->
-	<link href="css/modern-business.css" rel="stylesheet">
-	<link href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.5.5/css/simple-line-icons.min.css" rel="stylesheet">
-	<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chatbot</title>
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  
+  <link href="/css/style-custom.css" rel="stylesheet" />
+  
 </head>
-
 <body>
-	
-	<!-- Navigation -->
-	<nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark fixed-top">
-		<div class="container">
-			<a class="navbar-brand" href="/index">
-    	    <img src="/images/Unla_logo.png" width="58" height="45" alt="">
-  		   </a>
-			<button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
-				data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false"
-				aria-label="Toggle navigation">
-				<span class="navbar-toggler-icon"></span>
-			</button>
-			<div class="collapse navbar-collapse" id="navbarResponsive">
-				<ul class="navbar-nav ml-auto">
-					
-					<li class="nav-item">
-						<a class="nav-link" sec:authorize="hasAuthority('Administrador')"
-							th:href="@{/usuarios/lista/}">Usuarios</a>
-					</li>
+  <div class="wrapper">
+   <div class="sidebar" id="sidebar">
+  <button class="toggle-btn" onclick="toggleSidebar()">
+    <i class="bi bi-list"></i>
+  </button>
+  <ul class="nav flex-column w-100">
+    <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
+      <a class="nav-link" href="/index"><i class="bi bi-house-door"></i> <span>Inicio</span></a>
+    </li>
+    <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
+      <a class="nav-link" th:href="@{/usuarios/lista/}"><i class="bi bi-people"></i> <span>Usuarios</span></a>
+    </li>
+    <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
+      <a class="nav-link" th:href="@{/perfiles/lista/}"><i class="bi bi-person-badge"></i> <span>Perfiles</span></a>
+    </li>
+    <li class="nav-item">
+      <form sec:authorize="authenticated" th:action="@{/logout}" method="post">
+        <button class="nav-link btn btn-link text-start" type="submit">
+          <i class="bi bi-box-arrow-left"></i> <span>Cerrar sesión</span>
+        </button>
+      </form>
+      <a class="nav-link" sec:authorize="anonymous" th:href="@{/login}">
+        <i class="bi bi-box-arrow-in-right"></i> <span>Iniciar sesión</span>
+      </a>
+    </li>
+  </ul>
+</div>
 
-					<li class="nav-item">
-						<a class="nav-link" sec:authorize="hasAuthority('Administrador')"
-							th:href="@{/perfiles/lista/}">Perfiles</a>
-					</li>
-					
-										
-					<li class="nav-item dropdown">
-						<a aria-expanded="false" aria-haspopup="true" class="nav-link dropdown-toggle"
-							data-toggle="dropdown" href="#" id="navbarDropdownBlog">Sesion</a>
-						<div aria-labelledby="navbarDropdownBlog" class="dropdown-menu dropdown-menu-right">
-							<a class="dropdown-item" sec:authorize="anonymous" th:href="@{/login}">Iniciar sesión</a>
+    <div class="content" id="content">
+      <div class="chat-box">
+        <h2 class="mb-4 text-center">SERVICIO DE REFENCIA VIRTUAL "RODOLFO PUIGGRÓS"</h2>
+        <form id="chatForm" method="post" action="/">
+          <div class="mb-3">
+            <input type="text" name="pregunta" class="form-control" placeholder="Escribí tu pregunta..." required />
+          </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-dark">Enviar</button>
+          </div>
+          <div id="loadingSpinner" class="text-center mt-3" style="display: none;">
+            <div class="spinner-border text-dark" role="status">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2">Procesando respuesta...</p>
+          </div>
+        </form>
 
-							<form sec:authorize="authenticated" th:action="@{/logout}" method="post">
-								<input class="dropdown-item" style="cursor:pointer" type="submit"
-									value="Cerrar sesión" />
-							</form>
+        <!-- Los divs de mostrar pregunta y respuesta con Thymeleaf (se asumen en backend) -->
+        <div class="mt-4" th:if="${pregunta}">
+          <p><strong>🧑 Tú:</strong> <span th:text="${pregunta}"></span></p>
+        </div>
+        <div class="mt-2" th:if="${respuesta}">
+          <p><strong>🤖 Respuesta:</strong> <span th:text="${respuesta}"></span></p>
+        </div>
+      </div>
+    </div>
+  </div>
 
-						</div>
-					</li>
-					
-			</div>
-			
-			</li>	
-			</ul>
-		</div>
-		</div>
-	</nav>
-	
-	<header>
-		<div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
-			<ol class="carousel-indicators">
-				<li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
-			</ol>
-			<div class="carousel-inner" role="listbox">
-				<div class="carousel-item active"
-					style="background-image: url('https://img.freepik.com/vector-premium/lindo-sonriente-robot-chatbot-sosteniendo-megafono-sobre-fondo-burbujas-burbujas-horizontal-bannner_48369-17177.jpg')">
-					<div class="carousel-caption d-none d-md-block">
-					</div>
-				</div>
-			</div>
-		</div>
+  <script>
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('sidebarToggleBtn');
 
-	</header>
+    function toggleSidebar() {
+      sidebar.classList.toggle('collapsed');
+      if(toggleBtn) toggleBtn.classList.toggle('visible');
+    }
 
-	<!-- /.container -->
-	<div class="container" id="documentacion">
-		<h1 class="bg-white text-center text-secondary">Servicio de Referencia Virtual potenciado por IA con base del conocimiento y sistema de tickets</h1>
-		
-		<p class="bg-white text-center text-dark"><i>Proyecto TFI para UNLa 2025</i></p>
-		
-		<!-- Chatbox -->
-		<div class="container my-4">
-			<div class="card shadow-sm">
-				<div class="card-header bg-primary text-white">
-					Chat con IA
-				</div>
-				<div class="card-body">
-					<form method="post" action="/">
-						<div class="form-group">
-							<input type="text" name="pregunta" placeholder="Escribí tu pregunta..." class="form-control" required>
-						</div>
-						<button type="submit" class="btn btn-primary">Enviar</button>
-					</form>
-		
-					<div class="mt-4" th:if="${pregunta}">
-						<p><strong>🧑 Tú:</strong> <span th:text="${pregunta}"></span></p>
-					</div>
-		
-					<div class="mt-2" th:if="${respuesta}">
-						<p><strong>🤖 Respuesta:</strong> <span th:text="${respuesta}"></span></p>
-					</div>
-				</div>
-			</div>
-		</div>
-		<!-- Chatbox -->
+    document.getElementById("chatForm").addEventListener("submit", function (e) {
+      // Mostrar el spinner antes que el formulario se envíe y la página recargue
+      document.getElementById("loadingSpinner").style.display = "block";
 
-		<p></p>
+      // Nota: no se previene el submit para que la página recargue normalmente
+    });
 
-	</div>
-	<!-- Footer -->
-		<footer th:fragment="footer" class="bg-dark text-center text-white fixed-bottom">
-		<div class="container">
-			<p>Chatbot</p>
-		</div>
+    window.addEventListener('DOMContentLoaded', () => {
+      if (sidebar.classList.contains('collapsed')) {
+        if(toggleBtn) toggleBtn.classList.add('visible');
+      }
+    });
+  </script>
 
-		<script type="text/javascript" th:src="@{vendor/bootstrap/jquery/jquery.slim.min.js}"></script>
-		<script type="text/javascript" th:src="@{vendor/bootstrap/js/popper.min.js}"></script>
-		<script type="text/javascript" th:src="@{vendor/bootstrap/js/bootstrap.min.js}"></script>
-	</footer>
-	
-	<!-- Bootstrap core JavaScript -->
-	<script src="vendor/jquery/jquery.min.js"></script>
-	<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-	
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>
