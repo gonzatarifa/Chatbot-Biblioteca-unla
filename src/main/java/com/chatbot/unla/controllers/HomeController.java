@@ -1,6 +1,5 @@
 package com.chatbot.unla.controllers;
 
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,8 +12,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.chatbot.unla.helpers.ViewRouteHelper;
 import com.chatbot.unla.services.IChatService;
-import com.chatbot.unla.services.implementation.ChatServiceEmbeddings;
-import com.chatbot.unla.services.implementation.ChatServiceEmbeddingsV2;
 import com.chatbot.unla.services.implementation.ChatServiceV2;
 
 @Controller
