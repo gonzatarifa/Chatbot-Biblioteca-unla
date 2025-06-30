@@ -21,21 +21,31 @@ public class ChatQuestionSelectorService implements IChatQuestionSelectorService
 
     public String obtenerPreguntaSimilar(List<String> preguntas, String preguntaUsuario) {
 
+    	if (preguntaUsuario == null || preguntaUsuario.trim().length() < 3) {
+    	    return "NINGUNA";
+    	}
+
     	String listaPreguntas = preguntas.stream()
     	        .map(p -> "- " + p)
     	        .collect(Collectors.joining("\n"));
 
-        String systemPrompt = """
-                Eres un sistema de una biblioteca que recibe una lista de preguntas predefinidas y una pregunta del usuario.
+    	String systemPrompt = """
+    			Eres un sistema de biblioteca. Se te dará una lista de preguntas predefinidas y una pregunta del usuario.
 
-                Tu tarea es entender la intencion de la pregunta y devolver **únicamente** la pregunta predefinida que mejor coincida con la pregunta del usuario, sin agregar nada más, ni explicaciones, ni comillas.
-                                
-        		En caso de que ninguna coincida o muchas preguntas puedan ser la correcta, responde solo la palabra: NINGUNA
-                
-                En el caso de encontrar la pregunta, enviar la pregunta sin modificarla de ninguna manera, como por ejemplo, respetando los signos de pregunta, sin incluir ningun tipo de razonamiento.
+    			Tu única tarea es elegir **exactamente una** de las preguntas predefinidas que represente claramente la intención de la pregunta del usuario.
 
-                Lista de preguntas predefinidas:
-                """ + listaPreguntas + "\nPregunta del usuario:\n" + preguntaUsuario;
+    			⚠️ IMPORTANTE:
+    			- Solo puedes devolver una pregunta que esté en la lista proporcionada.
+    			- No puedes escribir texto adicional, explicaciones ni emojis.
+    			- No repitas la pregunta del usuario.
+    			- No inventes frases nuevas.
+
+    			✅ Si alguna pregunta de la lista representa lo que el usuario quiere, devuélvela **exactamente como está en la lista**, sin modificarla.
+
+    			❌ Si ninguna representa claramente lo que el usuario quiere, responde solo con: NINGUNA
+
+    			Lista de preguntas predefinidas:
+    			""" + listaPreguntas + "\n\nPregunta del usuario:\n" + preguntaUsuario;
 
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -58,13 +68,20 @@ public class ChatQuestionSelectorService implements IChatQuestionSelectorService
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             JsonNode json = mapper.readTree(response.body());
-            
-            // Esto se hace para remover la parte de <think> que tiene deepseek y algunos otras IA's
+
             String rawResponse = json.get("message").get("content").asText().trim();
-            //System.out.println("Respuesta con <think>: " + rawResponse);
-            String cleanedResponse = rawResponse.replaceAll("(?s)<think>.*?</think>", "").trim();
+
+            String cleanedResponse = rawResponse
+            	    .replaceAll("(?s)<think>.*?</think>", "")
+            	    .replaceAll("^[^\\p{L}\\p{N}¿]+", "")
+            	    .trim();
+
             System.out.println("-----------> Pregunta elegida por IA: " + cleanedResponse);
-            
+
+            if (!preguntas.contains(cleanedResponse) && !cleanedResponse.equals("NINGUNA")) {
+                return "NINGUNA";
+            }
+
             return cleanedResponse;
 
         } catch (Exception e) {

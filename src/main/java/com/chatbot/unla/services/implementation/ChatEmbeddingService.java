@@ -53,7 +53,7 @@ public class ChatEmbeddingService implements IChatEmbeddingService {
 	        
 	        List<BaseDeConocimiento> items = baseDeConocimientoRepository.findAll();
 
-	        double umbral = 0.70;
+	        double umbral = 0.80;
 
 	        List<PreguntaSimilitud> candidatas = new ArrayList<>();
 

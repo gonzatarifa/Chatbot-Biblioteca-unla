@@ -28,7 +28,7 @@ public class ChatQuestionNormalizerService implements IChatQuestionNormalizerSer
                 
                 Tambien tene en cuenta que te pueden preguntar especificamente sobre nombres de libros y pueden no ponerle mayuscula, por lo que tener cuidado a la hora de borrar.
                 
-                **Unicamente** responder con la pregunta normalizada, sin agregar nada más, ni explicaciones, ni comillas.
+                **Unicamente** responder con la pregunta normalizada en español, sin agregar nada más, ni explicaciones, ni comillas.
                 
                 \nPregunta del usuario:""" + preguntaUsuario;
 
