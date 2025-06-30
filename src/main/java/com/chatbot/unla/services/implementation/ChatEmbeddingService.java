@@ -27,7 +27,7 @@ public class ChatEmbeddingService implements IChatEmbeddingService {
 	private static final String OLLAMA_URL = "http://localhost:11434/api/embeddings";
     private static final String MODEL = "nomic-embed-text";
 
-	public List<String> obtenerRespuestaSimilar(String preguntaUsuario) {
+	public List<String> obtenerPreguntasSimilares(String preguntaUsuario) {
 	    try {
 	        ObjectMapper mapper = new ObjectMapper();
 	        HttpClient client = HttpClient.newHttpClient();

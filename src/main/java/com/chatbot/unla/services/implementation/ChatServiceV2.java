@@ -36,12 +36,12 @@ public class ChatServiceV2 implements IChatServiceV2 {
 		
 		List<String> preguntasSimilares = new ArrayList<>();
 		
-		preguntasSimilares = chatEmbeddingService.obtenerRespuestaSimilar(preguntaNormalizada);
+		preguntasSimilares = chatEmbeddingService.obtenerPreguntasSimilares(preguntaNormalizada);
 		
 		if (preguntasSimilares.isEmpty()) {
 			return "NINGUNA";
 		} else {
-			return (chatQuestionSelectorService.obtenerRespuestaSimilar(preguntasSimilares, preguntaUsuario));
+			return (chatQuestionSelectorService.obtenerPreguntaSimilar(preguntasSimilares, preguntaUsuario));
 		}
 	}
 	

@@ -19,7 +19,7 @@ public class ChatQuestionSelectorService implements IChatQuestionSelectorService
 	private static final String OLLAMA_URL = "http://localhost:11434/api/chat";
     private static final String MODEL = "qwen3:0.6b";
 
-    public String obtenerRespuestaSimilar(List<String> preguntas, String preguntaUsuario) {
+    public String obtenerPreguntaSimilar(List<String> preguntas, String preguntaUsuario) {
 
     	String listaPreguntas = preguntas.stream()
     	        .map(p -> "- " + p)

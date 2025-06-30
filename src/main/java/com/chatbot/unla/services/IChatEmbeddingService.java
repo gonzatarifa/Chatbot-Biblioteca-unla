@@ -7,6 +7,6 @@ import org.springframework.stereotype.Service;
 @Service
 public interface IChatEmbeddingService {
 	
-	public List<String> obtenerRespuestaSimilar(String preguntaUsuario);
+	public List<String> obtenerPreguntasSimilares(String preguntaUsuario);
 
 }
