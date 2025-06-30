@@ -1,5 +1,7 @@
 package com.chatbot.unla.controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,13 +13,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.chatbot.unla.helpers.ViewRouteHelper;
 import com.chatbot.unla.services.IChatService;
+import com.chatbot.unla.services.implementation.ChatServiceEmbeddings;
+import com.chatbot.unla.services.implementation.ChatServiceEmbeddingsV2;
+import com.chatbot.unla.services.implementation.ChatServiceV2;
 
 @Controller
 @RequestMapping("/")
 public class HomeController {
 	
 	@Autowired
-	private IChatService chatService;
+	private ChatServiceV2 chatService;
 
 	
 	//index de la primera vista
@@ -37,7 +42,7 @@ public class HomeController {
 		@PostMapping("/")
 		public String procesarPregunta(@RequestParam("pregunta") String preguntaUsuario,
 		                               RedirectAttributes redirectAttributes) {
-		    String respuestaModelo = chatService.obtenerRespuestaSimilar(preguntaUsuario);
+		    String respuestaModelo = chatService.procesarPregunta(preguntaUsuario);
 
 		    String respuestaFinal = "🤐 Pregunta no reconocida. No se responderá nada.";
 		    if (!respuestaModelo.equalsIgnoreCase("NINGUNA")) {

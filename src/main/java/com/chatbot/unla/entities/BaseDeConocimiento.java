@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotEmpty;
@@ -29,18 +30,24 @@ public class BaseDeConocimiento {
 	@Column(name = "respuesta")
 	@NotEmpty(message="el campo no debe estar vacio") 
 	private String respuesta;
+	
+    @Lob
+    @Column(name = "embedding", columnDefinition = "TEXT")
+    private String embedding;
 
-	public BaseDeConocimiento(long id, String pregunta, String respuesta) {
+	public BaseDeConocimiento(long id, String pregunta, String respuesta, String embedding) {
 		super();
 		this.id = id;
 		this.pregunta = pregunta;
 		this.respuesta = respuesta;
+		this.embedding = embedding;
 	}
 
-	public BaseDeConocimiento(String pregunta, String respuesta) {
+	public BaseDeConocimiento(String pregunta, String respuesta, String embedding) {
 		super();
 		this.pregunta = pregunta;
 		this.respuesta = respuesta;
+		this.embedding = embedding;
 	}
 	
 }
