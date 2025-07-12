@@ -1,131 +1,130 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8" />
+    <title>Listado de Usuarios</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<head th:fragment="head">
-	<meta charset="UTF-8" />
-	<title>Chatbot</title>
-	<link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+    <link href="/css/style-custom.css" rel="stylesheet" />
 </head>
-
 <body>
-	<header th:fragment="header">
-		<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-			<a class="navbar-brand" href="/index">
-    	    <img src="/images/Unla_logo.png" width="58" height="45" alt="">
-  		   </a>
-			<button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
-				data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false"
-				aria-label="Toggle navigation">
-				<span class="navbar-toggler-icon"></span>
-			</button>
-			<div class="collapse navbar-collapse" id="navbarResponsive">
-				<ul class="navbar-nav ml-auto">
-				<li class="nav-item">
-						<a class="nav-link" sec:authorize="hasAuthority('Administrador')"
-							th:href="@{/usuarios/lista/}">Usuarios</a>
-					</li>
 
-					<li class="nav-item">
-						<a class="nav-link" sec:authorize="hasAuthority('Administrador')"
-							th:href="@{/perfiles/lista/}">Perfiles</a>
-					</li>
-						
-					<li class="nav-item">
-						<a class="nav-link" href="/logout">Cerrar sesion</a>
-					</li>
+<div class="wrapper">
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <button class="toggle-btn" onclick="toggleSidebar()">
+            <i class="bi bi-list"></i>
+        </button>
+        <ul class="nav flex-column">
+            <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
+                <a class="nav-link" href="/index"><i class="bi bi-house-door"></i> <span>Inicio</span></a>
+            </li>
+            <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
+                <a class="nav-link" th:href="@{/usuarios/lista/}"><i class="bi bi-people"></i> <span>Usuarios</span></a>
+            </li>
+            <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
+                <a class="nav-link" th:href="@{/perfiles/lista/}"><i class="bi bi-person-badge"></i> <span>Perfiles</span></a>
+            </li>
+            <li class="nav-item">
+                <form sec:authorize="authenticated" th:action="@{/logout}" method="post">
+                    <button class="nav-link btn btn-link text-start" type="submit">
+                        <i class="bi bi-box-arrow-left"></i> <span>Cerrar sesión</span>
+                    </button>
+                </form>
+                <a class="nav-link" sec:authorize="anonymous" th:href="@{/login}">
+                    <i class="bi bi-box-arrow-in-right"></i> <span>Iniciar sesión</span>
+                </a>
+            </li>
+        </ul>
+    </div>
 
-			</div>
-			</li>
-			</ul>
-			</div>
-		</nav>
-		<div class="alert alert-warning alert-dismissable" th:if="${warning != null}">
-			<label th:text="${warning}"></label>
-			<button type="button" class="close" data-dismiss="alert">&times;</button>
-		</div>
-		<div class="alert alert-success alert-dismissable" th:if="${success != null}">
-			<label th:text="${success}"></label>
-		<button type="button" class="close" data-dismiss="alert">&times;</button>
-		</div>
-		<div class="alert alert-danger alert-dismissable" th:if="${error != null}">
-			<label th:text="${error}"></label>
-			<button type="button" class="close" data-dismiss="alert">&times;</button>
-		</div>
-	</header>
+    <!-- Contenido principal -->
+    <div class="content" id="content">
+        <div class="container py-4">
+            <h2 class="mb-4 text-center" th:text="${titulo}">Listado de Usuarios</h2>
 
-	<div class="container">
-		<h1 th:text="${titulo}"></h1>
+            <!-- Alertas -->
+            <div th:if="${warning != null}" class="alert alert-warning alert-dismissible fade show" role="alert">
+                <span th:text="${warning}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${success != null}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${error != null}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
 
-	</div>
+            <!-- Botón crear usuario -->
+            <div class="mb-3" sec:authorize="hasAuthority('Administrador')">
+                <a class="btn btn-primary" th:href="@{/usuarios/}">
+                    <i class="bi bi-plus-circle"></i> Crear Usuario
+                </a>
+            </div>
 
-	<div class="container">
+            <!-- Tabla de usuarios -->
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>Tipo Documento</th>
+                            <th>Documento</th>
+                            <th>Correo Electrónico</th>
+                            <th>Usuario</th>
+                            <th>Perfil</th>
+                            <th sec:authorize="hasAuthority('Administrador')">Editar</th>
+                            <th sec:authorize="hasAuthority('Administrador')">Eliminar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="li : ${lista}" class="table-light">
+                            <td th:text="${li.nombre}"></td>
+                            <td th:text="${li.apellido}"></td>
+                            <td th:text="${li.tipoDocumento}"></td>
+                            <td th:text="${li.documento}"></td>
+                            <td th:text="${li.correoElectronico}"></td>
+                            <td th:text="${li.nombreDeUsuario}"></td>
+                            <td th:text="${li.perfiles}"></td>
+                            <td sec:authorize="hasAuthority('Administrador')">
+                                <a class="btn btn-success btn-sm" th:href="@{'/usuarios/lista/edit/' + ${li.id}}">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                            </td>
+                            <td sec:authorize="hasAuthority('Administrador')">
+                                <a class="btn btn-danger btn-sm" th:href="@{'/usuarios/lista/delete/' + ${li.id}}"
+                                   onclick="return confirm('¿Está seguro de eliminar el registro?');">
+                                    <i class="bi bi-trash3"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-		<a class="btn btn-primary btn-sm" sec:authorize="hasAuthority('Administrador')" th:href="@{/usuarios/}"
-			th:text="'Crear Usuario'" title="Crear nuevo usuario">
-		</a>
+            <!-- PDF Auditor -->
+            <div class="text-end mt-3" sec:authorize="hasAuthority('Auditor')">
+                <a th:href="@{/usuarios/lista/(format=pdf)}" target="_blank" title="Exportar a PDF">
+                    <img th:src="@{/images/IconoPDF.png}" alt="Exportar a PDF" height="40">
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 
-
-		<table class="table">
-			<thead class="thead-dark">
-				<tr>
-					<th scope="col">Nombre</th>
-					<th scope="col">Apellido</th>
-					<th scope="col">Tipo documento</th>
-					<th scope="col">Documento</th>
-					<th scope="col">Correo electronico</th>
-					<th scope="col">Usuario</th>
-					<th scope="col">Perfil</th>
-					<th scope="col" sec:authorize="hasAuthority('Administrador')">Editar</th>
-					<th scope="col" sec:authorize="hasAuthority('Administrador')">Eliminar</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr class="table-info" th:each="li:${lista}">
-
-					<th scope="row" th:text="${li.nombre}"></th>
-					<th scope="row" th:text="${li.apellido}"></th>
-					<th scope="row" th:text="${li.tipoDocumento}"></th>
-					<th scope="row" th:text="${li.documento}"></th>
-					<th scope="row" th:text="${li.correoElectronico}"></th>
-					<th scope="row" th:text="${li.nombreDeUsuario}"></th>
-					<th scope="row" th:text="${li.perfiles}"></th>
-
-
-					<td sec:authorize="hasAuthority('Administrador')">
-						<a class="btn btn-success btn-sm" th:href="@{/usuarios/lista/edit/}+${li.id}" th:text="Editar"
-							title="Editar registro">
-						</a>
-					</td>
-					<td sec:authorize="hasAuthority('Administrador')">
-						<a class="btn btn-danger btn-sm" th:href="@{/usuarios/lista/delete/}+${li.id}"
-							th:text="Eliminar" title="Eliminar registro"
-							onclick="return confirm('Esta seguro de eliminar el registro?');">
-						</a>
-					</td>
-				</tr>
-
-			</tbody>
-		</table>
-		
-		<a class="nav-link float-right" sec:authorize="hasAuthority('Auditor')"
-			th:href="@{/usuarios/lista/(format=pdf)}" title="Exportar a PDF" target="_blank">
-
-			<img class="img-responsive center-box" th:src="@{/images/IconoPDF.png}" height="auto">
-		</a>
-
-	</div>
-
-
-	<footer th:fragment="footer" class="bg-info text-center text-white fixed-bottom">
-		<div class="container">
-			<p>Chatbot</p>
-		</div>
-
-		<script type="text/javascript" th:src="@{vendor/bootstrap/jquery/jquery.slim.min.js}"></script>
-		<script type="text/javascript" th:src="@{vendor/bootstrap/js/popper.min.js}"></script>
-		<script type="text/javascript" th:src="@{vendor/bootstrap/js/bootstrap.min.js}"></script>
-	</footer>
+<!-- Scripts -->
+<script>
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('collapsed');
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
-
 </html>
