@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gestión de Preguntas</title>
+
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+	rel="stylesheet" />
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+	rel="stylesheet" />
+<link href="/css/style-custom.css" rel="stylesheet" />
+</head>
+<body>
+	<div class="wrapper d-flex">
+		<!-- Sidebar -->
+		<div class="sidebar" id="sidebar">
+			<button class="toggle-btn" onclick="toggleSidebar()">
+				<i class="bi bi-list"></i>
+			</button>
+			<ul class="nav flex-column w-100">
+				<li class="nav-item" sec:authorize="hasAuthority('Administrador')">
+					<a class="nav-link" href="/index"><i class="bi bi-house-door"></i>
+						<span>Inicio</span></a>
+				</li>
+				<li class="nav-item" sec:authorize="hasAuthority('Administrador')">
+					<a class="nav-link" th:href="@{/usuarios/lista/}"><i
+						class="bi bi-people"></i> <span>Usuarios</span></a>
+				</li>
+				<li class="nav-item" sec:authorize="hasAuthority('Administrador')">
+					<a class="nav-link" th:href="@{/perfiles/lista/}"><i
+						class="bi bi-person-badge"></i> <span>Perfiles</span></a>
+				</li>
+				<li class="nav-item" sec:authorize="hasAuthority('Administrador')">
+					<a class="nav-link" th:href="@{/preguntas/lista/}"><i
+						class="bi bi-question-circle"></i> <span>Preguntas</span></a>
+				</li>
+				<li class="nav-item">
+					<form sec:authorize="authenticated" th:action="@{/logout}"
+						method="post">
+						<button class="nav-link btn btn-link text-start" type="submit">
+							<i class="bi bi-box-arrow-left"></i> <span>Cerrar sesión</span>
+						</button>
+					</form> <a class="nav-link" sec:authorize="anonymous" th:href="@{/login}">
+						<i class="bi bi-box-arrow-in-right"></i> <span>Iniciar
+							sesión</span>
+				</a>
+				</li>
+			</ul>
+		</div>
+
+		<!-- Contenido -->
+		<div class="content p-4 w-100">
+			<div class="container">
+				<h2 class="mb-4 text-center fw-bold">📋 Preguntas de Usuarios</h2>
+
+				<!-- Mensajes -->
+				<div th:if="${warning}"
+					class="alert alert-warning alert-dismissible fade show"
+					role="alert">
+					<span th:text="${warning}"></span>
+					<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+				</div>
+				<div th:if="${success}"
+					class="alert alert-success alert-dismissible fade show"
+					role="alert">
+					<span th:text="${success}"></span>
+					<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+				</div>
+				<div th:if="${error}"
+					class="alert alert-danger alert-dismissible fade show" role="alert">
+					<span th:text="${error}"></span>
+					<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+				</div>
+
+				<!-- Lista de preguntas -->
+				<div class="row row-cols-1 row-cols-md-2 g-4"
+					th:if="${lista != null}">
+					<div class="col" th:each="p : ${lista}">
+						<div
+							class="card shadow-sm h-100 d-flex flex-column justify-content-between">
+							<div class="card-body">
+								<h5 class="card-title text-primary">
+									<i class="bi bi-question-circle-fill"></i> <span
+										th:text="${p.pregunta}"></span>
+								</h5>
+								<p class="card-text mb-1">
+									<i class="bi bi-person-fill"></i> <strong>Usuario:</strong> <span
+										th:text="${p.nombre}"></span> <span th:text="${p.apellido}"></span>
+								</p>
+								<p class="card-text mb-1">
+									<i class="bi bi-envelope-at-fill"></i> <strong>Email:</strong>
+									<span th:text="${p.email}"></span>
+								</p>
+								<p class="card-text mb-1">
+									<i class="bi bi-calendar-event"></i> <strong>Fecha:</strong> <span
+										th:text="${#temporals.format(p.fechaEnvioPregunta, 'dd/MM/yyyy HH:mm')}"></span>
+								</p>
+								<p class="card-text">
+									<i class="bi bi-send-fill"></i> <strong>Respuesta
+										Enviada:</strong> <span class="badge"
+										th:classappend="${p.respuestaEnviada} ? 'bg-success' : 'bg-secondary'">
+										<span th:text="${p.respuestaEnviada} ? 'Sí' : 'No'"></span>
+									</span>
+								</p>
+							</div>
+
+							<div
+								class="card-footer bg-transparent border-0 d-flex justify-content-between align-items-center"
+								sec:authorize="hasAuthority('Administrador')">
+								<!-- Botón Responder (solo si no fue respondida aún) -->
+								<a th:if="${!p.respuestaEnviada}"
+									th:href="@{'/preguntas/responder/' + ${p.id}}"
+									class="btn btn-sm btn-outline-primary"> <i
+									class="bi bi-reply-fill"></i> Responder
+								</a>
+
+								<!-- Botón Eliminar -->
+								<a th:href="@{'/preguntas/lista/delete/' + ${p.id}}"
+									class="btn btn-sm btn-outline-danger"
+									onclick="return confirm('¿Estás seguro que querés eliminar esta pregunta?')">
+									<i class="bi bi-trash3-fill"></i> Eliminar
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div th:if="${lista == null or #lists.isEmpty(lista)}"
+					class="alert alert-info mt-4" role="alert">No hay preguntas
+					registradas.</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		function toggleSidebar() {
+			document.getElementById('sidebar').classList.toggle('collapsed');
+		}
+	</script>
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

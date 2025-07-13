@@ -1,5 +1,7 @@
 package com.chatbot.unla.services.implementation;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -8,16 +10,30 @@ import com.chatbot.unla.entities.PreguntaUsuario;
 import com.chatbot.unla.repositories.IPreguntaUsuarioRepository;
 import com.chatbot.unla.services.IPreguntaUsuarioService;
 
-
 @Service("preguntaUsuarioService")
 public class PreguntaUsuarioService implements IPreguntaUsuarioService {
-	
+
 	@Autowired
 	@Qualifier("preguntaUsuarioRepository")
 	private IPreguntaUsuarioRepository preguntaUsuarioRepository;
-	
+
 	@Override
 	public void save(PreguntaUsuario preguntaUsuario) {
-		preguntaUsuarioRepository.save(preguntaUsuario);	
+		preguntaUsuarioRepository.save(preguntaUsuario);
+	}
+
+	@Override
+	public List<PreguntaUsuario> getAll() {
+		return preguntaUsuarioRepository.findAll();
+	}
+
+	@Override
+	public PreguntaUsuario buscar(long id) {
+		return preguntaUsuarioRepository.findById(id).orElse(null);
+	}
+
+	@Override
+	public void eliminar(long id) {
+		preguntaUsuarioRepository.deleteById(id);
 	}
 }

@@ -4,18 +4,19 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.chatbot.unla.entities.BaseDeConocimiento;
 import com.chatbot.unla.entities.PreguntaUsuario;
 import com.chatbot.unla.entities.Usuario;
 
 @Service
-public interface IPreguntaUsuarioService {
+public interface IBaseDeConocimientoService {
 	
-	public List<PreguntaUsuario> getAll();
+	public List<BaseDeConocimiento> getAll();
 
-	public PreguntaUsuario buscar(long id);
+	public BaseDeConocimiento buscar(long id);
 
 	public void eliminar(long id);
 	
-	public void save(PreguntaUsuario preguntaUsuario);
+	public void save(BaseDeConocimiento baseDeConocimiento);
 	
 }
