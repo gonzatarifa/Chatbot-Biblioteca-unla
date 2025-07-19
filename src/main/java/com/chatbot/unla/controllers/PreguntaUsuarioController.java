@@ -6,6 +6,8 @@ import com.chatbot.unla.helpers.ViewRouteHelper;
 import com.chatbot.unla.services.IPreguntaUsuarioService;
 import com.chatbot.unla.services.implementation.BaseDeConocimientoService;
 import com.chatbot.unla.services.implementation.EmailService;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -14,8 +16,14 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Controller
@@ -88,7 +96,7 @@ public class PreguntaUsuarioController {
         pregunta.setFechaEnvioRespuesta(LocalDateTime.now());
         preguntaUsuarioService.save(pregunta);
 
-        String embedding = generarEmbedding(pregunta.getPregunta(), respuesta);
+        String embedding = generarEmbedding(pregunta.getPregunta());
         BaseDeConocimiento base = new BaseDeConocimiento(pregunta.getPregunta(), respuesta, embedding);
         baseDeConocimientoService.save(base);
 
@@ -104,8 +112,31 @@ public class PreguntaUsuarioController {
         return "redirect:/preguntas/lista";
     }
     
-    ///cambiar por el embedding correcto
-    private String generarEmbedding(String pregunta, String respuesta) {
-        return "EMBEDDING_GENERATED"; 
+    private String generarEmbedding(String pregunta) {
+    	try {
+	    	ObjectMapper mapper = new ObjectMapper();
+	    	HttpClient client = HttpClient.newHttpClient();
+	    	
+	    	String preguntaBody = mapper.writeValueAsString(Map.of(
+	                "model", "nomic-embed-text",
+	                "prompt", pregunta
+	    		));
+	
+	    	HttpRequest preguntaRequest = HttpRequest.newBuilder()
+	    			.uri(URI.create("http://localhost:11434/api/embeddings"))
+	    			.header("Content-Type", "application/json")
+	    			.POST(HttpRequest.BodyPublishers.ofString(preguntaBody))
+	    			.build();
+	
+	    	HttpResponse<String> preguntaResponse = client.send(preguntaRequest, HttpResponse.BodyHandlers.ofString());
+	    	JsonNode preguntaJson = mapper.readTree(preguntaResponse.body());
+	    	List<Double> vectorPregunta = mapper.convertValue(preguntaJson.get("embedding"),
+	    			mapper.getTypeFactory().constructCollectionType(List.class, Double.class)
+	    		);
+	        return mapper.writeValueAsString(vectorPregunta); 
+    	} catch (IOException | InterruptedException e) {
+	        e.printStackTrace();
+	        return "Error al generar embedding: " + e.getMessage();
+    	}
     }
 }
