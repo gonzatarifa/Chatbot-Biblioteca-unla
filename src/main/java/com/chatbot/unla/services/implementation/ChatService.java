@@ -25,7 +25,7 @@ public class ChatService implements IChatService {
 
     public String obtenerRespuestaSimilar(String preguntaUsuario) {
     	
-    	List<String> preguntas = baseDeConocimientoRepository.findAllPreguntas();
+    	List<String> preguntas = baseDeConocimientoRepository.findAllPreguntasHabilitadas();
 
     	String listaPreguntas = preguntas.stream()
     	        .map(p -> "- " + p)

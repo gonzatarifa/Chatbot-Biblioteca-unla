@@ -18,4 +18,9 @@ public interface IBaseDeConocimientoRepository extends JpaRepository<BaseDeConoc
 	@Query("SELECT b.pregunta FROM BaseDeConocimiento b")
 	List<String> findAllPreguntas();
 	
+	@Query("SELECT b.pregunta FROM BaseDeConocimiento b WHERE b.habilitado = true")
+	List<String> findAllPreguntasHabilitadas(); 
+	
+	@Query("SELECT b FROM BaseDeConocimiento b WHERE b.habilitado = true")
+	List<BaseDeConocimiento> findAllHabilitados();
 }

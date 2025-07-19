@@ -51,7 +51,7 @@ public class ChatEmbeddingService implements IChatEmbeddingService {
 	            mapper.getTypeFactory().constructCollectionType(List.class, Double.class)
 	        );
 	        
-	        List<BaseDeConocimiento> items = baseDeConocimientoRepository.findAll();
+	        List<BaseDeConocimiento> items = baseDeConocimientoRepository.findAllHabilitados();
 
 	        double umbral = 0.80;
 
