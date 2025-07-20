@@ -20,7 +20,7 @@ public class ChatQuestionNormalizerService implements IChatQuestionNormalizerSer
 	public String ObtenerPreguntaNormalizada(String preguntaUsuario) {
 
 		String systemPrompt = """
-				Normalizá esta pregunta hecha en español para una biblioteca.
+				Tu tarea es normalizar una pregunta en español hecha a una biblioteca.
 
 				Agregá tildes, signos de pregunta y corregí errores comunes de escritura.No corrijas nombres de libros y no cambies nombres propios ni traduzcas nada.
 
