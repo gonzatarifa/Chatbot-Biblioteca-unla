@@ -7,18 +7,18 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.chatbot.unla.services.IChatService;
+import com.chatbot.unla.services.IChatServiceV2;
 
 @RestController
 @RequestMapping("/api/chat")
 public class ChatController {
 
 	@Autowired
-    private IChatService chatService;
+    private IChatServiceV2 chatService;
 
 	@PostMapping
     public String responder(@RequestBody String preguntaUsuario) {
-        String preguntaCoincidente = chatService.obtenerRespuestaSimilar(preguntaUsuario);
+        String preguntaCoincidente = chatService.procesarPregunta(preguntaUsuario);
 
         if (preguntaCoincidente.equalsIgnoreCase("NINGUNA")) {
             return "🤐 Pregunta no reconocida. No se responderá nada.";
