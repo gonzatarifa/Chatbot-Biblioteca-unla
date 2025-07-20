@@ -19,19 +19,14 @@ public class ChatQuestionNormalizerService implements IChatQuestionNormalizerSer
 	
 	public String ObtenerPreguntaNormalizada(String preguntaUsuario) {
 
-        String systemPrompt = """
-                Eres un sistema que va a recibir una pregunta que un usuario realizara a una biblioteca.
-                
-                Tu funcion es normalizar esta pregunta para que posteriormente sea procesada por medio de embeddings.
-                
-                Tene en cuenta que te van a hablar en español siempre, por que cosas como "hs" se puede traducir a horas.
-                
-                Tambien tene en cuenta que te pueden preguntar especificamente sobre nombres de libros y pueden no ponerle mayuscula, por lo que tener cuidado a la hora de borrar.
-                
-                **Unicamente** responder con la pregunta normalizada en español, sin agregar nada más, ni explicaciones, ni comillas.
-                
-                \nPregunta del usuario:""" + preguntaUsuario;
+		String systemPrompt = """
+				Normalizá esta pregunta hecha en español para una biblioteca.
 
+				Agregá tildes, signos de pregunta y corregí errores comunes de escritura.No corrijas nombres de libros y no cambies nombres propios ni traduzcas nada.
+
+				Respondé con la pregunta normalizada, sin comillas ni explicaciones.
+				
+				Pregunta: """ + preguntaUsuario;
         try {
             ObjectMapper mapper = new ObjectMapper();
 

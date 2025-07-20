@@ -31,6 +31,7 @@ public class ChatServiceV2 implements IChatServiceV2 {
 	public String procesarPregunta(String preguntaUsuario) {
 		
 		System.out.println("\n\n************** Inicio de procesamiento de pregunta ************");
+		System.out.println("-----------> Pregunta Original: " + preguntaUsuario);
 		
 		String preguntaNormalizada = chatQuestionNormalizerService.ObtenerPreguntaNormalizada(preguntaUsuario);
 		
