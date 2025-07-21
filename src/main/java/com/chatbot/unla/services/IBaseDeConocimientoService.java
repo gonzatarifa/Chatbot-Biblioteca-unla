@@ -19,4 +19,9 @@ public interface IBaseDeConocimientoService {
 	
 	public void save(BaseDeConocimiento baseDeConocimiento);
 	
+	public List<BaseDeConocimiento> getAllHabilitados();
+	
+	public List<BaseDeConocimiento> getAllDeshabilitados();
+	
+	List<BaseDeConocimiento> buscarPorTexto(String texto);
 }
