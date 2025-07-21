@@ -39,4 +39,21 @@ public class BaseDeConocimientoService implements IBaseDeConocimientoService {
 	public void eliminar(long id) {
 		baseDeConocimientoRepository.deleteById(id);
 	}
+	
+	@Override
+	public List<BaseDeConocimiento> getAllHabilitados() {
+		return baseDeConocimientoRepository.findAllHabilitados();
+	}
+	
+	@Override
+	public List<BaseDeConocimiento> getAllDeshabilitados() {
+		return baseDeConocimientoRepository.findAllDeshabilitados();
+	}
+	
+	@Override
+	public List<BaseDeConocimiento> buscarPorTexto(String texto) {
+		return baseDeConocimientoRepository.buscarPorTexto(texto);
+	}
+	
+	;
 }

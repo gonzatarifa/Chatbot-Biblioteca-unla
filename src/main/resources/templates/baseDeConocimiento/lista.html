@@ -51,7 +51,7 @@
     <!-- Contenido principal -->
     <div class="content" id="content">
         <div class="container py-4">
-            <h2 class="mb-4 text-center" th:text="${titulo}">Listado de Usuarios</h2>
+            <h2 class="mb-4 text-center" th:text="${titulo}">Listado de Preguntas y Respuestas</h2>
 
             <!-- Alertas -->
             <div th:if="${warning != null}" class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -69,58 +69,78 @@
 
             <!-- Botón crear usuario -->
             <div class="mb-3" sec:authorize="hasAuthority('Administrador')">
-                <a class="btn btn-primary" th:href="@{/usuarios/}">
-                    <i class="bi bi-plus-circle"></i> Crear Usuario
+                <a class="btn btn-primary" th:href="@{/baseDeConocimiento/}">
+                    <i class="bi bi-plus-circle"></i> Crear Entrada
                 </a>
-            </div>
+                
+                <a class="btn btn-outline-secondary float-end mb-3"
+				   th:href="@{/baseDeConocimiento/lista(verDeshabilitadas=${verDeshabilitadas != null ? !verDeshabilitadas : true})}"
+				   th:text="${verDeshabilitadas != null ? (verDeshabilitadas ? 'Ver Habilitadas' : 'Ver Deshabilitadas') : 'Ver Deshabilitadas'}">
+				</a>
+			</div>
+			
+			<!-- Buscador -->
+			<form th:action="@{/baseDeConocimiento/buscar}" method="get" class="mb-3 d-flex justify-content-start align-items-center" role="search">
+			    <input type="text" name="query" class="form-control me-2 w-50" placeholder="Buscar pregunta o respuesta..." 
+			           th:value="${query}" />
+			    <button class="btn btn-outline-primary me-2" type="submit">
+			        <i class="bi bi-search"></i> Buscar
+			    </button>
+			    
+			    <!-- Botón limpiar -->
+			    <a th:if="${query != null and query != ''}" 
+			       th:href="@{/baseDeConocimiento/lista}" 
+			       class="btn btn-outline-danger" 
+			       title="Limpiar búsqueda">
+			       <i class="bi bi-x"></i> Limpiar
+			    </a>
+			</form>
 
-            <!-- Tabla de usuarios -->
+            <!-- Lista de Base de conocimiento -->
             <div class="table-responsive">
                 <table class="table table-bordered table-hover align-middle">
                     <thead class="table-dark">
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Apellido</th>
-                            <th>Tipo Documento</th>
-                            <th>Documento</th>
-                            <th>Correo Electrónico</th>
-                            <th>Usuario</th>
-                            <th>Perfil</th>
-                            <th sec:authorize="hasAuthority('Administrador')">Editar</th>
-                            <th sec:authorize="hasAuthority('Administrador')">Eliminar</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="li : ${lista}" class="table-light">
-                            <td th:text="${li.nombre}"></td>
-                            <td th:text="${li.apellido}"></td>
-                            <td th:text="${li.tipoDocumento}"></td>
-                            <td th:text="${li.documento}"></td>
-                            <td th:text="${li.correoElectronico}"></td>
-                            <td th:text="${li.nombreDeUsuario}"></td>
-                            <td th:text="${li.perfiles}"></td>
-                            <td sec:authorize="hasAuthority('Administrador')">
-                                <a class="btn btn-success btn-sm" th:href="@{'/usuarios/lista/edit/' + ${li.id}}">
-                                    <i class="bi bi-pencil-square"></i>
-                                </a>
-                            </td>
-                            <td sec:authorize="hasAuthority('Administrador')">
-                                <a class="btn btn-danger btn-sm" th:href="@{'/usuarios/lista/delete/' + ${li.id}}"
-                                   onclick="return confirm('¿Está seguro de eliminar el registro?');">
-                                    <i class="bi bi-trash3"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
+					    <tr>
+					        <th>Pregunta</th>
+					        <th>Respuesta</th>
+					        <th>Fecha Creación</th>
+					        <th>Fecha Actualización</th>
+					        <th>Editar</th>
+					        <th th:text="${verDeshabilitadas} ? 'Restaurar' : 'Eliminar'">Eliminar</th>
+					    </tr>
+					</thead>
+					<tbody>
+					    <tr th:each="pregunta : ${lista}" class="table-light">
+					        <td th:text="${pregunta.pregunta}"></td>
+					        <td th:text="${pregunta.respuesta}"></td>
+							<td th:text="${#temporals.format(pregunta.fechaCreacion, 'dd/MM/yyyy HH:mm')}"></td>
+							<td th:text="${#temporals.format(pregunta.fechaActualizacion, 'dd/MM/yyyy HH:mm')}"></td>
+					        <td>
+					            <a class="btn btn-success btn-sm" th:href="@{'/baseDeConocimiento/lista/edit/' + ${pregunta.id}}">
+					                <i class="bi bi-pencil-square"></i>
+					            </a>
+					        </td>
+					        <td>
+					            <a th:if="${verDeshabilitadas}"
+					               class="btn btn-primary btn-sm"
+					               th:href="@{'/baseDeConocimiento/lista/restore/' + ${pregunta.id}}"
+					               onclick="return confirm('¿Está seguro de restaurar esta pregunta?');"
+					               title="Restaurar pregunta">
+					                <i class="bi bi-arrow-clockwise"></i> Restaurar
+					            </a>
+					            <a th:unless="${verDeshabilitadas}"
+					               class="btn btn-danger btn-sm"
+					               th:href="@{'/baseDeConocimiento/lista/delete/' + ${pregunta.id}}"
+					               onclick="return confirm('¿Está seguro de eliminar esta pregunta?');"
+					               title="Eliminar pregunta">
+					                <i class="bi bi-trash3"></i>
+					            </a>
+					        </td>
+					    </tr>
+					</tbody>
                 </table>
             </div>
 
-            <!-- PDF Auditor -->
-            <div class="text-end mt-3" sec:authorize="hasAuthority('Auditor')">
-                <a th:href="@{/usuarios/lista/(format=pdf)}" target="_blank" title="Exportar a PDF">
-                    <img th:src="@{/images/IconoPDF.png}" alt="Exportar a PDF" height="40">
-                </a>
-            </div>
         </div>
     </div>
 </div>

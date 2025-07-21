@@ -48,6 +48,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.hasAuthority("Administrador").antMatchers("/preguntas/lista/delete/**").hasAuthority("Administrador")
 				.antMatchers("/preguntas/lista/**").hasAuthority("Administrador")
 				
+				.antMatchers("/baseDeConocimiento/").hasAuthority("Administrador").antMatchers("/baseDeConocimiento/lista")
+				.hasAuthority("Administrador").antMatchers("/baseDeConocimiento/lista/edit/**")
+				.hasAuthority("Administrador").antMatchers("/baseDeConocimiento/lista/delete/**").hasAuthority("Administrador")
+				.antMatchers("/baseDeConocimiento/lista/**").hasAuthority("Administrador").antMatchers("/baseDeConocimiento/lista/restore/**").hasAuthority("Administrador")
+				.antMatchers("/baseDeConocimiento/buscar/**").hasAuthority("Administrador")
+				
 				.anyRequest().authenticated().and()
 				.formLogin()
 				.loginPage("/login") // Tu página de login personalizada
