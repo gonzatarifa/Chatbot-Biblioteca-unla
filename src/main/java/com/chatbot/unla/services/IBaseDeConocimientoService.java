@@ -23,5 +23,5 @@ public interface IBaseDeConocimientoService {
 	
 	public List<BaseDeConocimiento> getAllDeshabilitados();
 	
-	List<BaseDeConocimiento> buscarPorTexto(String texto);
+	public List<BaseDeConocimiento> buscarPorTexto(String texto);
 }

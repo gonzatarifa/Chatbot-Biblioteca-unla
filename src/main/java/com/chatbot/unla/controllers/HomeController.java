@@ -92,7 +92,7 @@ public class HomeController {
 		    preguntaUsuarioService.save(feedback);
 
 		    redirectAttributes.addFlashAttribute("agradecimientoFeedback",
-		        "Tu pregunta: \"" + pregunta + "\". 📧 Recibirás una respuesta al correo proporcionado a la brevedad.");
+		        "Tu pregunta fue: \"" + pregunta + "\". 📧 Recibirás una respuesta al correo proporcionado a la brevedad.");
 		    redirectAttributes.addFlashAttribute("pregunta", pregunta);
 		    redirectAttributes.addFlashAttribute("showFeedbackForm", false);
 		    return "redirect:/";
