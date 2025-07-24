@@ -91,6 +91,7 @@ public class BaseDeConocimientoController {
 		model.addAttribute("lista", lista);
 		model.addAttribute("titulo", titulo);
 		model.addAttribute("verDeshabilitadas", verDeshabilitadas);
+		model.addAttribute("mostrarDeshabilitados", verDeshabilitadas);
 		return ViewRouteHelper.BASE_DE_CONOCIMIENTO_LISTA;
 	}
     
@@ -127,6 +128,17 @@ public class BaseDeConocimientoController {
     	model.addAttribute("lista", resultados);
     	model.addAttribute("query", query);
     	return ViewRouteHelper.BASE_DE_CONOCIMIENTO_LISTA;
+    }
+    
+    @GetMapping("/buscarDeshabilitados")
+    public String buscarDeshabilitados(@RequestParam("query") String query, Model model) {
+        List<BaseDeConocimiento> resultados = baseDeConocimientoService.buscarPorTextoDeshabilitados(query);
+        model.addAttribute("titulo", "Resultados de busqueda deshabilitadas para: " + query);
+        model.addAttribute("lista", resultados);
+        model.addAttribute("query", query);
+        model.addAttribute("verDeshabilitadas", true);
+        model.addAttribute("mostrarDeshabilitados", true);
+        return ViewRouteHelper.BASE_DE_CONOCIMIENTO_LISTA;
     }
     
     private String generarEmbedding(String pregunta) {

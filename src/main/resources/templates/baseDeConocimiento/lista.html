@@ -47,7 +47,9 @@
 			</div>
 			
 			<!-- Buscador -->
-			<form th:action="@{/baseDeConocimiento/buscar}" method="get" class="mb-3 d-flex justify-content-start align-items-center" role="search">
+			<form th:action="${mostrarDeshabilitados} ? @{/baseDeConocimiento/buscarDeshabilitados} : @{/baseDeConocimiento/buscar}" 
+			      method="get"
+			      class="mb-3 d-flex justify-content-start align-items-center" role="search">
 			    <input type="text" name="query" class="form-control me-2 w-50" placeholder="Buscar pregunta o respuesta..." 
 			           th:value="${query}" />
 			    <button class="btn btn-outline-primary me-2" type="submit">
@@ -56,11 +58,11 @@
 			    
 			    <!-- Botón limpiar -->
 			    <a th:if="${query != null and query != ''}" 
-			       th:href="@{/baseDeConocimiento/lista}" 
-			       class="btn btn-outline-danger" 
-			       title="Limpiar búsqueda">
-			       <i class="bi bi-x"></i> Limpiar
-			    </a>
+				   th:href="${mostrarDeshabilitados} ? @{/baseDeConocimiento/lista?verDeshabilitadas=true} : @{/baseDeConocimiento/lista}" 
+				   class="btn btn-outline-danger" 
+				   title="Limpiar búsqueda">
+				   <i class="bi bi-x"></i> Limpiar
+				</a>
 			</form>
 
             <!-- Lista de Base de conocimiento -->

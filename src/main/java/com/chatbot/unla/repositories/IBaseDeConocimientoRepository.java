@@ -33,5 +33,11 @@ public interface IBaseDeConocimientoRepository extends JpaRepository<BaseDeConoc
 		       "(LOWER(b.pregunta) LIKE LOWER(CONCAT('%', :texto, '%')) " +
 		       "OR LOWER(b.respuesta) LIKE LOWER(CONCAT('%', :texto, '%')))")
 	List<BaseDeConocimiento> buscarPorTexto(@Param("texto") String texto);
+	
+	@Query("SELECT b FROM BaseDeConocimiento b " +
+		       "WHERE b.habilitado = false AND " +
+		       "(LOWER(b.pregunta) LIKE LOWER(CONCAT('%', :texto, '%')) " +
+		       "OR LOWER(b.respuesta) LIKE LOWER(CONCAT('%', :texto, '%')))")
+	List<BaseDeConocimiento> buscarPorTextoDeshabilitados(@Param("texto") String texto);
 
 }

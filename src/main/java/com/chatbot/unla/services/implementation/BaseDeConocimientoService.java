@@ -55,5 +55,10 @@ public class BaseDeConocimientoService implements IBaseDeConocimientoService {
 		return baseDeConocimientoRepository.buscarPorTexto(texto);
 	}
 	
+	@Override
+	public List<BaseDeConocimiento> buscarPorTextoDeshabilitados(String texto) {
+		return baseDeConocimientoRepository.buscarPorTextoDeshabilitados(texto);
+	}
+	
 	;
 }
