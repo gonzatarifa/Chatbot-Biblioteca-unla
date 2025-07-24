@@ -13,40 +13,7 @@
 
 <div class="wrapper">
     <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-        <button class="toggle-btn" onclick="toggleSidebar()">
-            <i class="bi bi-list"></i>
-        </button>
-        <ul class="nav flex-column">
-            <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
-                <a class="nav-link" href="/index"><i class="bi bi-house-door"></i> <span>Inicio</span></a>
-            </li>
-            <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
-                <a class="nav-link" th:href="@{/usuarios/lista/}"><i class="bi bi-people"></i> <span>Usuarios</span></a>
-            </li>
-            <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
-                <a class="nav-link" th:href="@{/perfiles/lista/}"><i class="bi bi-person-badge"></i> <span>Perfiles</span></a>
-            </li>
-            <li class="nav-item" sec:authorize="hasAuthority('Administrador')">
-					<a class="nav-link" th:href="@{/preguntas/lista/}"><i
-						class="bi bi-question-circle"></i> <span>Preguntas</span></a>
-			</li>
-			<li class="nav-item" sec:authorize="hasAuthority('Administrador')">
-					<a class="nav-link" th:href="@{/baseDeConocimiento/lista/}"><i
-						class="bi bi-robot"></i> <span>Base de conocimiento</span></a>
-			</li>
-            <li class="nav-item">
-                <form sec:authorize="authenticated" th:action="@{/logout}" method="post">
-                    <button class="nav-link btn btn-link text-start" type="submit">
-                        <i class="bi bi-box-arrow-left"></i> <span>Cerrar sesión</span>
-                    </button>
-                </form>
-                <a class="nav-link" sec:authorize="anonymous" th:href="@{/login}">
-                    <i class="bi bi-box-arrow-in-right"></i> <span>Iniciar sesión</span>
-                </a>
-            </li>
-        </ul>
-    </div>
+    <div th:replace="fragments/sidebar :: sidebar"></div>
 
     <!-- Contenido principal -->
     <div class="content" id="content">
@@ -80,7 +47,9 @@
 			</div>
 			
 			<!-- Buscador -->
-			<form th:action="@{/baseDeConocimiento/buscar}" method="get" class="mb-3 d-flex justify-content-start align-items-center" role="search">
+			<form th:action="${mostrarDeshabilitados} ? @{/baseDeConocimiento/buscarDeshabilitados} : @{/baseDeConocimiento/buscar}" 
+			      method="get"
+			      class="mb-3 d-flex justify-content-start align-items-center" role="search">
 			    <input type="text" name="query" class="form-control me-2 w-50" placeholder="Buscar pregunta o respuesta..." 
 			           th:value="${query}" />
 			    <button class="btn btn-outline-primary me-2" type="submit">
@@ -89,11 +58,11 @@
 			    
 			    <!-- Botón limpiar -->
 			    <a th:if="${query != null and query != ''}" 
-			       th:href="@{/baseDeConocimiento/lista}" 
-			       class="btn btn-outline-danger" 
-			       title="Limpiar búsqueda">
-			       <i class="bi bi-x"></i> Limpiar
-			    </a>
+				   th:href="${mostrarDeshabilitados} ? @{/baseDeConocimiento/lista?verDeshabilitadas=true} : @{/baseDeConocimiento/lista}" 
+				   class="btn btn-outline-danger" 
+				   title="Limpiar búsqueda">
+				   <i class="bi bi-x"></i> Limpiar
+				</a>
 			</form>
 
             <!-- Lista de Base de conocimiento -->
