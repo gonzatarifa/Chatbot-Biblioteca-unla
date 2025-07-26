@@ -33,11 +33,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable();
 		http.authorizeRequests().antMatchers("/index", "/", "/css/**", "/images/**", "/js/**", "/feedback/**", "/vendor/**").permitAll()
-				.antMatchers("/perfiles/").hasAuthority("Administrador").antMatchers("/perfiles/lista")
-				.hasAuthority("Administrador").antMatchers("/perfiles/lista/edit/**")
-				.hasAuthority("Administrador").antMatchers("/perfiles/lista/delete/**").hasAuthority("Administrador")
-				.antMatchers("/perfiles/lista/**").hasAuthority("Administrador")
-
 				.antMatchers("/usuarios/").hasAuthority("Administrador").antMatchers("/usuarios/lista")
 				.hasAuthority("Administrador").antMatchers("/usuarios/lista/edit/**")
 				.hasAuthority("Administrador").antMatchers("/usuarios/lista/delete/**").hasAuthority("Administrador")

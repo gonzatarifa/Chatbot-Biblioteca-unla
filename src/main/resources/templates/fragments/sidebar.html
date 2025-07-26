@@ -25,14 +25,6 @@
 				<span>Inicio</span></a>
 		</li>
 		<li class="nav-item" sec:authorize="hasAuthority('Administrador')">
-			<a class="nav-link" th:href="@{/usuarios/lista/}"><i
-				class="bi bi-people"></i> <span>Usuarios</span></a>
-		</li>
-		<li class="nav-item" sec:authorize="hasAuthority('Administrador')">
-			<a class="nav-link" th:href="@{/perfiles/lista/}"><i
-				class="bi bi-person-badge"></i> <span>Perfiles</span></a>
-		</li>
-		<li class="nav-item" sec:authorize="hasAuthority('Administrador')">
 			<a class="nav-link d-flex align-items-center justify-content-between"
 			th:href="@{/preguntas/lista/}">
 				<div class="d-flex align-items-center">
@@ -47,6 +39,10 @@
 		<li class="nav-item" sec:authorize="hasAuthority('Administrador')">
 			<a class="nav-link" th:href="@{/baseDeConocimiento/lista/}"><i
 				class="bi bi-robot"></i> <span>Base de conocimiento</span></a>
+		</li>
+		<li class="nav-item" sec:authorize="hasAuthority('Administrador')">
+			<a class="nav-link" th:href="@{/usuarios/lista/}"><i
+				class="bi bi-people"></i> <span>Usuarios</span></a>
 		</li>
 		<li class="nav-item">
 			<form sec:authorize="authenticated" th:action="@{/logout}"

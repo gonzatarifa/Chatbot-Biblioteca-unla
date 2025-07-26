@@ -85,9 +85,9 @@
                 </div>
 
                 <div class="col-md-4">
-                    <label class="form-label">Perfil del Usuario:</label>
+                    <label class="form-label">Rol del Usuario:</label>
                     <select class="form-select" th:field="*{perfiles}" id="perfiles" required>
-                        <option value="" disabled selected>Seleccionar perfil</option>
+                        <option value="" disabled selected>Seleccionar rol</option>
                         <option th:each="perfil : ${perfiles}"
                                 th:value="${perfil.id}"
                                 th:text="${perfil.rol}">
