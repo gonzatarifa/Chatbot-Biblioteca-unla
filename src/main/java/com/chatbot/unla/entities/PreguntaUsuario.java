@@ -44,6 +44,10 @@ public class PreguntaUsuario {
 
     @Column(name = "respuesta_enviada")
     private boolean respuestaEnviada;
+    
+    @ManyToOne
+    @JoinColumn(name = "usuario_respondio_id")
+    private Usuario usuarioRespondio;
 
     public PreguntaUsuario(String pregunta, String nombre, String apellido, String email,
                            LocalDateTime fechaEnvioPregunta, LocalDateTime fechaEnvioRespuesta,

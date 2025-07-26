@@ -2,15 +2,19 @@ package com.chatbot.unla.controllers;
 
 import com.chatbot.unla.entities.BaseDeConocimiento;
 import com.chatbot.unla.entities.PreguntaUsuario;
+import com.chatbot.unla.entities.Usuario;
 import com.chatbot.unla.helpers.ViewRouteHelper;
 import com.chatbot.unla.services.IPreguntaUsuarioService;
 import com.chatbot.unla.services.implementation.BaseDeConocimientoService;
 import com.chatbot.unla.services.implementation.EmailService;
+import com.chatbot.unla.services.implementation.UsuarioService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -40,7 +44,9 @@ public class PreguntaUsuarioController {
     
     @Autowired
     private EmailService emailService;
-
+    
+    @Autowired
+    private UsuarioService usuarioService;
 
     @GetMapping("/lista")
     public String listarPreguntas(Model model) {
@@ -92,18 +98,28 @@ public class PreguntaUsuarioController {
             return "redirect:/preguntas/lista";
         }
 
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+
+        Usuario usuarioRespondio = usuarioService.getByUsername(username);
+        if (usuarioRespondio == null) {
+            attr.addFlashAttribute("error", "Usuario autenticado no encontrado en el sistema");
+            return "redirect:/preguntas/lista";
+        }
+
         pregunta.setRespuestaEnviada(true);
         pregunta.setFechaEnvioRespuesta(LocalDateTime.now());
+        pregunta.setUsuarioRespondio(usuarioRespondio); 
         preguntaUsuarioService.save(pregunta);
 
         String embedding = generarEmbedding(pregunta.getPregunta());
         BaseDeConocimiento base = new BaseDeConocimiento(pregunta.getPregunta(), respuesta, embedding);
         baseDeConocimientoService.save(base);
 
+        //enviar email
         saludo = saludo != null ? saludo : "";
         firma = firma != null ? firma : "";
         String cuerpoFinal = (saludo + "\n\n" + respuesta + "\n\n" + firma).trim();
-
         String destino = pregunta.getEmail();
         String asunto = "Respuesta a tu consulta: " + pregunta.getPregunta();
         emailService.enviarCorreo(destino, asunto, cuerpoFinal);
