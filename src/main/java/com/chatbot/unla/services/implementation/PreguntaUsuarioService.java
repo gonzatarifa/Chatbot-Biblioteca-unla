@@ -36,4 +36,12 @@ public class PreguntaUsuarioService implements IPreguntaUsuarioService {
 	public void eliminar(long id) {
 		preguntaUsuarioRepository.deleteById(id);
 	}
+
+	@Override
+	public long getCantidadNoRespondidas() {
+		 return preguntaUsuarioRepository.findAll()
+			        .stream()
+			        .filter(p -> p.isHabilitado() && !p.isRespuestaEnviada())
+			        .count();
+	}
 }

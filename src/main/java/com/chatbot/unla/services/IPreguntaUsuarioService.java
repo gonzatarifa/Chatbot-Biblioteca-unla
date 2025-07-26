@@ -18,4 +18,6 @@ public interface IPreguntaUsuarioService {
 	
 	public void save(PreguntaUsuario preguntaUsuario);
 	
+	public long getCantidadNoRespondidas();
+	
 }

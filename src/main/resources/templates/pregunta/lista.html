@@ -22,7 +22,7 @@
 		<!-- Contenido -->
 		<div class="content p-4 w-100">
 			<div class="container">
-				<h2 class="mb-4 text-center fw-bold">📋 Preguntas de Usuarios</h2>
+				<h2 class="mb-4 text-center fw-bold">Preguntas de Usuarios</h2>
 
 				<!-- Mensajes -->
 				<div th:if="${warning}"
@@ -44,6 +44,15 @@
 				</div>
 
 				<!-- Lista de preguntas -->
+				<div class="mb-3 text-end">
+					<a th:if="${mostrandoRespondidas}" href="/preguntas/lista"
+						class="btn btn-outline-secondary"> <i
+						class="bi bi-arrow-left-circle"></i> Preguntas No Respondidas
+					</a> <a th:if="${!mostrandoRespondidas}" href="/preguntas/respondidas"
+						class="btn btn-outline-secondary"> <i
+						class="bi bi-send-check-fill"></i> Preguntas Respondidas
+					</a>
+				</div>
 				<div class="row row-cols-1 row-cols-md-2 g-4"
 					th:if="${lista != null}">
 					<div class="col" th:each="p : ${lista}">
@@ -66,22 +75,14 @@
 									<i class="bi bi-calendar-event"></i> <strong>Fecha:</strong> <span
 										th:text="${#temporals.format(p.fechaEnvioPregunta, 'dd/MM/yyyy HH:mm')}"></span>
 								</p>
-								<div
-									class="card-text mb-1 d-flex justify-content-between align-items-center">
-									<div>
-										<i class="bi bi-send-fill"></i> <strong>Respuesta
-											Enviada:</strong> <span class="badge"
-											th:classappend="${p.respuestaEnviada} ? 'bg-success' : 'bg-secondary'">
-											<span th:text="${p.respuestaEnviada} ? 'Sí' : 'No'"></span>
-										</span>
-									</div>
-
-									<div
+								<div class="card-text mb-1">
+									<i class="bi bi-chat-dots-fill text-primary"></i> <span
 										th:if="${p.respuestaEnviada and p.usuarioRespondio != null}">
-										<i class="bi bi-person-check-fill"></i> <strong>Respondida
-											por:</strong> <span
-											th:text="${p.usuarioRespondio.nombre + ' ' + p.usuarioRespondio.apellido}">Admin</span>
-									</div>
+										<strong>Respuesta enviada por</strong> <span
+										th:text="${p.usuarioRespondio.nombre + ' ' + p.usuarioRespondio.apellido}">Admin</span>.
+									</span> <span th:if="${!p.respuestaEnviada}"> <strong>Respuesta
+											no enviada</strong>
+									</span>
 								</div>
 							</div>
 

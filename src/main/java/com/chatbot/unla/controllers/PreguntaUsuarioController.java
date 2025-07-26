@@ -51,11 +51,12 @@ public class PreguntaUsuarioController {
     @GetMapping("/lista")
     public String listarPreguntas(Model model) {
         List<PreguntaUsuario> preguntas = preguntaUsuarioService.getAll().stream()
-                .filter(PreguntaUsuario::isHabilitado)
+                .filter(p -> p.isHabilitado() && !p.isRespuestaEnviada())
                 .collect(Collectors.toList());
 
         model.addAttribute("titulo", "Preguntas recibidas");
         model.addAttribute("lista", preguntas);
+        model.addAttribute("mostrandoRespondidas", false);
         return ViewRouteHelper.PREGUNTA_LISTA;
     }
 
@@ -126,6 +127,18 @@ public class PreguntaUsuarioController {
 
         attr.addFlashAttribute("success", "Respuesta enviada, registrada y enviada por correo");
         return "redirect:/preguntas/lista";
+    }
+    
+    @GetMapping("/respondidas")
+    public String listarPreguntasRespondidas(Model model) {
+        List<PreguntaUsuario> preguntasRespondidas = preguntaUsuarioService.getAll().stream()
+                .filter(p -> p.isHabilitado() && p.isRespuestaEnviada())
+                .collect(Collectors.toList());
+
+        model.addAttribute("titulo", "Preguntas Respondidas");
+        model.addAttribute("lista", preguntasRespondidas);
+        model.addAttribute("mostrandoRespondidas", true);
+        return ViewRouteHelper.PREGUNTA_LISTA;
     }
     
     private String generarEmbedding(String pregunta) {

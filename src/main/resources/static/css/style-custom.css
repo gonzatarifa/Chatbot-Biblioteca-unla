@@ -55,6 +55,10 @@ body {
 	color: #b22222;
 }
 
+.sidebar.collapsed .sidebar-label {
+    display: none;
+}
+
 .content {
 	flex-grow: 1;
 	background-color: #222;
@@ -215,6 +219,20 @@ body {
 	box-shadow: 0 0 6px rgba(128, 0, 0, 0.5);
 	outline: none;
 	background-color: #fff;
+}
+/*parpadeo*/
+
+@keyframes blink-animation-soft {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.sidebar.collapsed .blink-icon {
+  animation: blink-animation-soft 2s ease-in-out infinite;
 }
 
 .login-container .btn-primary {
