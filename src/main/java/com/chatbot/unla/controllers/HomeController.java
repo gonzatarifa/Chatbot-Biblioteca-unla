@@ -47,7 +47,8 @@ public class HomeController {
 		                               RedirectAttributes redirectAttributes) {
 		    String respuestaModelo = chatService.procesarPregunta(preguntaUsuario);
 
-		    String respuestaFinal = "🤐 Pregunta no reconocida. No se responderá nada.";
+		    String respuestaFinal = "La pregunta no pudo ser respondida automáticamente. " +
+                    "Por favor, seleccioná '👎 No' en '¿Fue útil esta respuesta?' para que un bibliotecario pueda atender tu consulta vía correo electrónico.";
 		    if (!respuestaModelo.equalsIgnoreCase("NINGUNA")) {
 		        String respuesta = chatService.buscarRespuesta(respuestaModelo);
 		        if (respuesta != null) {
