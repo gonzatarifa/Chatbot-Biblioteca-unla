@@ -50,8 +50,20 @@ public class PreguntaUsuarioController {
 
     @GetMapping("/lista")
     public String listarPreguntas(Model model) {
+    	
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        Usuario usuario = usuarioService.getByUsername(username);
+    	
         List<PreguntaUsuario> preguntas = preguntaUsuarioService.getAll().stream()
                 .filter(p -> p.isHabilitado() && !p.isRespuestaEnviada())
+                .sorted((p1, p2) -> {
+                    boolean p1EsMia = p1.isFijada() && p1.getUsuarioRespondiendo() != null 
+                                      && p1.getUsuarioRespondiendo().getId() == usuario.getId();
+                    boolean p2EsMia = p2.isFijada() && p2.getUsuarioRespondiendo() != null 
+                                      && p2.getUsuarioRespondiendo().getId() == usuario.getId();
+                    return Boolean.compare(p2EsMia, p1EsMia);
+                })
                 .collect(Collectors.toList());
 
         model.addAttribute("titulo", "Preguntas recibidas");
@@ -143,6 +155,38 @@ public class PreguntaUsuarioController {
         model.addAttribute("lista", preguntasRespondidas);
         model.addAttribute("mostrandoRespondidas", true);
         return ViewRouteHelper.PREGUNTA_LISTA;
+    }
+    
+    @GetMapping("/fijar/{id}")
+    public String fijarPregunta(@PathVariable("id") long id, RedirectAttributes attr) {
+        PreguntaUsuario pregunta = preguntaUsuarioService.buscar(id);
+        if (pregunta == null || !pregunta.isHabilitado()) {
+            attr.addFlashAttribute("error", "Pregunta no encontrada");
+            return "redirect:/preguntas/lista";
+        }
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        Usuario usuario = usuarioService.getByUsername(username);
+
+        if (pregunta.isFijada()) {
+            if (pregunta.getUsuarioRespondiendo() != null 
+                && pregunta.getUsuarioRespondiendo().getId() == usuario.getId()) {
+                
+                pregunta.setFijada(false);
+                pregunta.setUsuarioRespondiendo(null);
+                attr.addFlashAttribute("success", "Pregunta liberada");
+            } else {
+                attr.addFlashAttribute("error", "No podés liberar una pregunta fijada por otro usuario");
+            }
+        } else {
+            pregunta.setFijada(true);
+            pregunta.setUsuarioRespondiendo(usuario);
+            attr.addFlashAttribute("success", "Pregunta fijada por " + usuario.getNombre());
+        }
+
+        preguntaUsuarioService.save(pregunta);
+        return "redirect:/preguntas/lista";
     }
     
     private String generarEmbedding(String pregunta) {

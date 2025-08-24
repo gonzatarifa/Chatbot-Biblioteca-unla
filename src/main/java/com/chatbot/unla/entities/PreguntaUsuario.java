@@ -23,7 +23,6 @@ public class PreguntaUsuario {
     @NotEmpty(message = "El campo pregunta no debe estar vacío")
     private String pregunta;
 
-
     @Column(name = "nombre")
     private String nombre;
 
@@ -49,6 +48,13 @@ public class PreguntaUsuario {
     @ManyToOne
     @JoinColumn(name = "usuario_respondio_id")
     private Usuario usuarioRespondio;
+    
+    @Column(name = "fijada", nullable = false)
+    private boolean fijada = false;
+    
+    @ManyToOne
+    @JoinColumn(name = "usuario_respondiendo_id")
+    private Usuario usuarioRespondiendo;
 
     public PreguntaUsuario(String pregunta, String nombre, String apellido, String email,
                            LocalDateTime fechaEnvioPregunta, LocalDateTime fechaEnvioRespuesta,
