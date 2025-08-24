@@ -114,9 +114,13 @@ public class PreguntaUsuarioController {
         preguntaUsuarioService.save(pregunta);
 
         String embedding = generarEmbedding(pregunta.getPregunta());
-        BaseDeConocimiento base = new BaseDeConocimiento(pregunta.getPregunta(), respuesta, embedding);
+        BaseDeConocimiento base = new BaseDeConocimiento();
+        base.setPregunta(pregunta.getPregunta());
+        base.setRespuesta(respuesta);
+        base.setEmbedding(embedding);
+        base.setPreguntaUsuario(pregunta);
         baseDeConocimientoService.save(base);
-
+        
         //enviar email
         saludo = saludo != null ? saludo : "";
         firma = firma != null ? firma : "";
