@@ -1,7 +1,6 @@
 package com.chatbot.unla.controllers;
 
 import java.util.ArrayList;
-
 import java.util.List;
 
 import javax.validation.Valid;
@@ -40,6 +39,9 @@ public class UsuarioController {
 	@Autowired
 	@Qualifier("perfilesService")
 	private IPerfilesService perfilesService;
+	
+	@Autowired
+	private BCryptPasswordEncoder passwordEncoder;
 	
 
 	@GetMapping("/")
@@ -114,7 +116,7 @@ public class UsuarioController {
 		model.addAttribute("lista", usuarios);
 		return ViewRouteHelper.USUARIO_LISTA;
 	}
-
+	
 	@GetMapping("lista/edit/{id}")
 	public String editar(@PathVariable("id") long id, Model model) {
 		Usuario usuario1 = usuarioService.buscar(id);
@@ -123,6 +125,66 @@ public class UsuarioController {
 		model.addAttribute("usuario", usuario1);
 		model.addAttribute("perfiles", listaPerfiles);
 		return ViewRouteHelper.USUARIO_FORM;
+	}
+	
+	@PostMapping("lista/edit/{id}")
+	public String editar(@PathVariable("id") long id,
+	                     @ModelAttribute Usuario usuario,
+	                     BindingResult result,
+	                     RedirectAttributes attributes) {
+
+	    if(result.hasErrors()) {
+	        return "usuario/form"; 
+	    }
+
+	    Usuario usuarioBD = usuarioService.buscar(id);
+	    usuarioBD.setNombre(usuario.getNombre());
+	    usuarioBD.setApellido(usuario.getApellido());
+	    usuarioBD.setTipoDocumento(usuario.getTipoDocumento());
+	    usuarioBD.setDocumento(usuario.getDocumento());
+	    usuarioBD.setCorreoElectronico(usuario.getCorreoElectronico());
+	    usuarioBD.setNombreDeUsuario(usuario.getNombreDeUsuario());
+	    usuarioBD.setPerfiles(usuario.getPerfiles());
+
+	    usuarioService.save(usuarioBD);
+	    attributes.addFlashAttribute("success","Usuario actualizado con éxito");
+	    return "redirect:/usuarios/lista";
+	}
+
+
+	@GetMapping("lista/cambiar-contrasena/{id}")
+	public String cambiarContrasenaForm(@PathVariable("id") long id, Model model) {
+	    Usuario usuario = usuarioService.buscar(id);
+	    model.addAttribute("titulo", "Cambiar Contraseña");
+	    model.addAttribute("usuario", usuario);
+	    return "usuario/usuario-cambiar-contrasena"; 
+	}
+
+	@PostMapping("lista/cambiar-contrasena/{id}")
+	public String cambiarContrasena(@PathVariable("id") long id,
+	                                @ModelAttribute Usuario usuario,
+	                                BindingResult result,
+	                                RedirectAttributes attributes) {
+
+	    Usuario usuarioBD = usuarioService.buscar(id);
+
+	    if (usuario.getNuevaContrasena() != null && !usuario.getNuevaContrasena().isEmpty()) {
+	        if (!passwordEncoder.matches(usuario.getContrasenaActual(), usuarioBD.getContrasena())) {
+	            result.addError(new FieldError("usuario", "contrasenaActual", "Contraseña actual incorrecta"));
+	        } else if (!usuario.getNuevaContrasena().equals(usuario.getConfirmarContrasena())) {
+	            result.addError(new FieldError("usuario", "confirmarContrasena", "Las contraseñas no coinciden"));
+	        } else {
+	            usuarioBD.setContrasena(passwordEncoder.encode(usuario.getNuevaContrasena()));
+	        }
+	    }
+
+	    if (result.hasErrors()) {
+	        return "usuario/usuario-cambiar-contrasena"; 
+	    }
+
+	    usuarioService.save(usuarioBD);
+	    attributes.addFlashAttribute("success", "Contraseña cambiada con éxito");
+	    return "redirect:/usuarios/lista";
 	}
 
 	@GetMapping("lista/delete/{id}")

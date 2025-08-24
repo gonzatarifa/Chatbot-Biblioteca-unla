@@ -31,37 +31,49 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.csrf().disable();
-		http.authorizeRequests().antMatchers("/index", "/", "/css/**", "/images/**", "/js/**", "/feedback/**", "/vendor/**").permitAll()
-				.antMatchers("/usuarios/").hasAuthority("Administrador").antMatchers("/usuarios/lista")
-				.hasAuthority("Administrador").antMatchers("/usuarios/lista/edit/**")
-				.hasAuthority("Administrador").antMatchers("/usuarios/lista/delete/**").hasAuthority("Administrador")
-				.antMatchers("/usuarios/lista/**").hasAuthority("Administrador")
-				
-				.antMatchers("/preguntas/").hasAuthority("Administrador").antMatchers("/preguntas/lista")
-				.hasAuthority("Administrador").antMatchers("/preguntas/lista/edit/**")
-				.hasAuthority("Administrador").antMatchers("/preguntas/lista/delete/**").hasAuthority("Administrador")
-				.antMatchers("/preguntas/lista/**").hasAuthority("Administrador")
-				
-				.antMatchers("/baseDeConocimiento/").hasAuthority("Administrador").antMatchers("/baseDeConocimiento/lista")
-				.hasAuthority("Administrador").antMatchers("/baseDeConocimiento/lista/edit/**")
-				.hasAuthority("Administrador").antMatchers("/baseDeConocimiento/lista/delete/**").hasAuthority("Administrador")
-				.antMatchers("/baseDeConocimiento/lista/**").hasAuthority("Administrador").antMatchers("/baseDeConocimiento/lista/restore/**").hasAuthority("Administrador")
-				.antMatchers("/baseDeConocimiento/buscar/**").hasAuthority("Administrador")
-				
-				.anyRequest().authenticated().and()
-				.formLogin()
-				.loginPage("/login") // Tu página de login personalizada
-				.defaultSuccessUrl("/index", true) // Después del login exitoso
-				.failureUrl("/login?error=true") // Si falla el login
-				.permitAll()
-		.and()
-			.logout()
-				.logoutUrl("/logout") // Por defecto ya es POST /logout
-				.logoutSuccessUrl("/index?logout") // Redirige al home tras logout
-				.invalidateHttpSession(true)
-				.deleteCookies("JSESSIONID")
-				.permitAll();
+	    http.csrf().disable();
+	    http.authorizeRequests()
+	        // Rutas públicas
+	        .antMatchers("/index", "/", "/css/**", "/images/**", "/js/**", "/feedback/**", "/vendor/**").permitAll()
+
+	        // Usuarios: solo Administrador
+	        .antMatchers("/usuarios/").hasAuthority("Administrador")
+	        .antMatchers("/usuarios/lista").hasAuthority("Administrador")
+	        .antMatchers("/usuarios/lista/edit/**").hasAuthority("Administrador")
+	        .antMatchers("/usuarios/lista/delete/**").hasAuthority("Administrador")
+	        .antMatchers("/usuarios/lista/**").hasAuthority("Administrador")
+
+	        // Preguntas: Administrador y Operador
+	        .antMatchers("/preguntas/").hasAnyAuthority("Administrador", "Operador")
+	        .antMatchers("/preguntas/lista").hasAnyAuthority("Administrador", "Operador")
+	        .antMatchers("/preguntas/lista/edit/**").hasAnyAuthority("Administrador", "Operador")
+	        .antMatchers("/preguntas/lista/delete/**").hasAnyAuthority("Administrador", "Operador")
+	        .antMatchers("/preguntas/lista/**").hasAnyAuthority("Administrador", "Operador")
+
+	        // Base de conocimiento: Administrador y Operador
+	        .antMatchers("/baseDeConocimiento/").hasAnyAuthority("Administrador", "Operador")
+	        .antMatchers("/baseDeConocimiento/lista").hasAnyAuthority("Administrador", "Operador")
+	        .antMatchers("/baseDeConocimiento/lista/edit/**").hasAnyAuthority("Administrador", "Operador")
+	        .antMatchers("/baseDeConocimiento/lista/delete/**").hasAnyAuthority("Administrador", "Operador")
+	        .antMatchers("/baseDeConocimiento/lista/**").hasAnyAuthority("Administrador", "Operador")
+	        .antMatchers("/baseDeConocimiento/lista/restore/**").hasAnyAuthority("Administrador", "Operador")
+	        .antMatchers("/baseDeConocimiento/buscar/**").hasAnyAuthority("Administrador", "Operador")
+
+	        // Cualquier otra solicitud autenticada
+	        .anyRequest().authenticated()
+	    .and()
+	        .formLogin()
+	            .loginPage("/login")
+	            .defaultSuccessUrl("/index", true)
+	            .failureUrl("/login?error=true")
+	            .permitAll()
+	    .and()
+	        .logout()
+	            .logoutUrl("/logout")
+	            .logoutSuccessUrl("/index?logout")
+	            .invalidateHttpSession(true)
+	            .deleteCookies("JSESSIONID")
+	            .permitAll();
 	}
 
 }

@@ -59,6 +59,33 @@ body {
     display: none;
 }
 
+.sidebar .user-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+    padding-left: 0.25rem;
+}
+
+.sidebar .user-info i {
+    font-size: 1.25rem; 
+    margin-right: 0.75rem; 
+    min-width: 1.25rem; 
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.sidebar .user-info .user-text {
+    display: flex;
+    flex-direction: column;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar.collapsed .user-info .user-text {
+    display: none; 
+}
+
 .content {
 	flex-grow: 1;
 	background-color: #222;
