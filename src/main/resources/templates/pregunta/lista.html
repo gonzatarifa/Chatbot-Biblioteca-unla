@@ -22,7 +22,11 @@
 		<!-- Contenido -->
 		<div class="content p-4 w-100">
 			<div class="container">
-				<h2 class="mb-4 text-center fw-bold">Preguntas de Usuarios</h2>
+				<!-- Título dinámico -->
+				<h2 class="mb-4 text-center fw-bold">
+					<span th:if="${mostrandoRespondidas}">Preguntas Resueltas</span> <span
+						th:if="${!mostrandoRespondidas}">Preguntas Pendientes</span>
+				</h2>
 
 				<!-- Mensajes -->
 				<div th:if="${warning}"
@@ -43,76 +47,81 @@
 					<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
 				</div>
 
-				<!-- Lista de preguntas -->
+				<!-- Botón para cambiar de vista -->
 				<div class="mb-3 text-end">
 					<a th:if="${mostrandoRespondidas}" href="/preguntas/lista"
 						class="btn btn-outline-secondary"> <i
-						class="bi bi-arrow-left-circle"></i> Preguntas No Respondidas
+						class="bi bi-arrow-left-circle"></i> Ver pendientes
 					</a> <a th:if="${!mostrandoRespondidas}" href="/preguntas/respondidas"
 						class="btn btn-outline-secondary"> <i
-						class="bi bi-send-check-fill"></i> Preguntas Respondidas
+						class="bi bi-send-check-fill"></i> Ver Resueltas
 					</a>
 				</div>
+
+				<!-- Lista de preguntas -->
 				<div class="row row-cols-1 row-cols-md-2 g-4"
 					th:if="${lista != null}">
 					<div class="col" th:each="p : ${lista}">
-						<div
-							class="card shadow-sm h-100 d-flex flex-column justify-content-between">
+						<div class="card modern-card h-100">
+							<!-- Tachito arriba -->
+							<a th:href="@{'/preguntas/lista/delete/' + ${p.id}}"
+								class="btn-delete-top" title="Eliminar"
+								onclick="return confirm('¿Estás seguro que querés eliminar esta pregunta?')">
+								<i class="bi bi-trash3-fill"></i>
+							</a>
+
 							<div class="card-body">
-								<h5 class="card-title text-primary">
-									<i class="bi bi-question-circle-fill"></i> <span
+								<p class="ticket-id mb-2">
+									Ticket #<span th:text="${p.id}"></span>
+								</p>
+
+								<h5 class="card-title text-primary mb-3">
+									<i class="bi bi-question-circle-fill me-2"></i> <span
 										th:text="${p.pregunta}"></span>
 								</h5>
+
 								<p class="card-text mb-1">
-									<i class="bi bi-person-fill"></i> <strong>Usuario:</strong> <span
-										th:text="${p.nombre}"></span> <span th:text="${p.apellido}"></span>
+									<i class="bi bi-person-fill me-1"></i> <strong>Usuario:</strong>
+									<span th:text="${p.nombre}"></span> <span
+										th:text="${p.apellido}"></span>
 								</p>
 								<p class="card-text mb-1">
-									<i class="bi bi-envelope-at-fill"></i> <strong>Email:</strong>
+									<i class="bi bi-envelope-at-fill me-1"></i> <strong>Email:</strong>
 									<span th:text="${p.email}"></span>
 								</p>
-								<p class="card-text mb-1">
-									<i class="bi bi-calendar-event"></i> <strong>Fecha:</strong> <span
+								<p class="card-text mb-3">
+									<i class="bi bi-calendar-event me-1"></i> <strong>Fecha:</strong>
+									<span
 										th:text="${#temporals.format(p.fechaEnvioPregunta, 'dd/MM/yyyy HH:mm')}"></span>
 								</p>
-								<div class="card-text mb-1">
-									<i class="bi bi-chat-dots-fill text-primary"></i> <span
+
+								<div
+									class="response-info d-flex justify-content-between align-items-center">
+									<span
 										th:if="${p.respuestaEnviada and p.usuarioRespondio != null}">
 										<strong>Respuesta enviada por</strong> <span
 										th:text="${p.usuarioRespondio.nombre + ' ' + p.usuarioRespondio.apellido}">Admin</span>.
 									</span> <span th:if="${!p.respuestaEnviada}"> <strong>Respuesta
 											no enviada</strong>
-									</span>
+									</span> <a th:if="${!p.respuestaEnviada}"
+										th:href="@{'/preguntas/responder/' + ${p.id}}"
+										class="btn btn-sm btn-outline-primary">
+										<i class="bi bi-reply-fill"></i> Responder
+									</a>
 								</div>
 							</div>
 
-							<div
-								class="card-footer bg-transparent border-0 d-flex justify-content-between align-items-center"
-								sec:authorize="hasAuthority('Administrador')">
-								<!-- Botón Responder (solo si no fue respondida aún) -->
-								<a th:if="${!p.respuestaEnviada}"
-									th:href="@{'/preguntas/responder/' + ${p.id}}"
-									class="btn btn-sm btn-outline-primary"> <i
-									class="bi bi-reply-fill"></i> Responder
-								</a>
-
-								<!-- Botón Eliminar -->
-								<a th:href="@{'/preguntas/lista/delete/' + ${p.id}}"
-									class="btn btn-sm btn-outline-danger"
-									onclick="return confirm('¿Estás seguro que querés eliminar esta pregunta?')">
-									<i class="bi bi-trash3-fill"></i> Eliminar
-								</a>
-							</div>
 						</div>
 					</div>
-				</div>
 
-				<div th:if="${lista == null or #lists.isEmpty(lista)}"
-					class="alert alert-info mt-4" role="alert">No hay preguntas
-					registradas.</div>
+				</div>
+				<!-- Fin row -->
 			</div>
+			<!-- Fin container -->
 		</div>
+		<!-- Fin content -->
 	</div>
+	<!-- Fin wrapper -->
 
 	<script>
 		function toggleSidebar() {
@@ -123,4 +132,3 @@
 		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-

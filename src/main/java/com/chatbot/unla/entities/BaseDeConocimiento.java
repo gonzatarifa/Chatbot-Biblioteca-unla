@@ -28,11 +28,11 @@ public class BaseDeConocimiento {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 	
-	@Column(name = "pregunta")
+	@Column(name = "pregunta", length = 2000) 
 	@NotEmpty(message="el campo no debe estar vacio") 
 	private String pregunta;
 	
-	@Column(name = "respuesta")
+	@Column(name = "respuesta", length = 2000)
 	@NotEmpty(message="el campo no debe estar vacio") 
 	private String respuesta;
 	
