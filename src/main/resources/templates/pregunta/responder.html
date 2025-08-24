@@ -64,9 +64,13 @@
                     <a th:href="@{/preguntas/lista}" class="btn btn-secondary">
                         <i class="bi bi-arrow-left"></i> Cancelar
                     </a>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-send"></i> Enviar Respuesta
-                    </button>
+                    <button type="submit"
+					        class="btn btn-primary"
+					        th:attr="onclick=${pregunta.usuarioRespondiendo != null and pregunta.usuarioRespondiendo.nombreDeUsuario != #authentication.name} ? 
+					                'return confirm(\'¿Estás seguro? Esta pregunta está siendo respondida por ' + (${pregunta.usuarioRespondiendo.nombreDeUsuario}) + '\')' : 
+					                'return true'">
+					    <i class="bi bi-send"></i> Enviar Respuesta
+					</button>
                 </div>
             </form>
         </div>
