@@ -36,4 +36,20 @@ public interface IBaseDeConocimientoRepository extends JpaRepository<BaseDeConoc
 		List<BaseDeConocimiento> buscarPorTextoYEstado(@Param("texto") String texto, 
 		                                               @Param("habilitado") boolean habilitado);
 
+	@Query("SELECT b FROM BaseDeConocimiento b " +
+	           "WHERE LOWER(b.pregunta) LIKE LOWER(CONCAT('%', :texto, '%')) " +
+	           "AND b.habilitado = :habilitado")
+	    List<BaseDeConocimiento> buscarPorPreguntayYEstado(@Param("texto") String texto,
+	                                                       @Param("habilitado") boolean habilitado);
+	@Query("SELECT b FROM BaseDeConocimiento b " +
+	           "WHERE LOWER(b.respuesta) LIKE LOWER(CONCAT('%', :texto, '%')) " +
+	           "AND b.habilitado = :habilitado")
+	    List<BaseDeConocimiento> buscarPorRespuestaYEstado(@Param("texto") String texto,
+	                                                       @Param("habilitado") boolean habilitado);
+	
+	@Query("SELECT b FROM BaseDeConocimiento b " +
+	           "WHERE CAST(b.preguntaUsuario.id AS string) LIKE CONCAT('%', :texto, '%') " +
+	           "AND b.habilitado = :habilitado")
+	    List<BaseDeConocimiento> buscarPorIdUsuarioYEstado(@Param("texto") String texto,
+	                                                       @Param("habilitado") boolean habilitado);
 }

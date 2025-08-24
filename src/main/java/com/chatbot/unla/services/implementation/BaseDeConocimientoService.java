@@ -51,13 +51,23 @@ public class BaseDeConocimientoService implements IBaseDeConocimientoService {
 	}
 	
 	@Override
-	public List<BaseDeConocimiento> buscarPorTexto(String texto) {
-		return baseDeConocimientoRepository.buscarPorTextoYEstado(texto, true);
+	public List<BaseDeConocimiento> buscarPorTexto(String texto, boolean habilitado) {
+		return baseDeConocimientoRepository.buscarPorTextoYEstado(texto, habilitado);
 	}
-	
+
 	@Override
-	public List<BaseDeConocimiento> buscarPorTextoDeshabilitados(String texto) {
-		return baseDeConocimientoRepository.buscarPorTextoYEstado(texto, false);
+	public List<BaseDeConocimiento> buscarPorPregunta(String texto, boolean habilitado) {
+		return baseDeConocimientoRepository.buscarPorPreguntayYEstado(texto, habilitado);
+	}
+
+	@Override
+	public List<BaseDeConocimiento> buscarPorRespuesta(String texto, boolean habilitado) {
+		return baseDeConocimientoRepository.buscarPorRespuestaYEstado(texto, habilitado);
+	}
+
+	@Override
+	public List<BaseDeConocimiento> BuscarPorIdUsuario(String texto, boolean habilitado) {
+		return baseDeConocimientoRepository.buscarPorIdUsuarioYEstado(texto, habilitado);
 	}
 	
 	;

@@ -23,7 +23,11 @@ public interface IBaseDeConocimientoService {
 	
 	public List<BaseDeConocimiento> getAllDeshabilitados();
 	
-	public List<BaseDeConocimiento> buscarPorTexto(String texto);
+	public List<BaseDeConocimiento> buscarPorTexto(String texto, boolean habilitado);
 	
-	public List<BaseDeConocimiento> buscarPorTextoDeshabilitados(String texto);
+	public List<BaseDeConocimiento> buscarPorPregunta(String texto, boolean habilitado);
+	
+	public List<BaseDeConocimiento> buscarPorRespuesta(String texto, boolean habilitado);
+	
+	public List<BaseDeConocimiento> BuscarPorIdUsuario(String texto, boolean habilitado);
 }

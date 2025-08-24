@@ -122,20 +122,55 @@ public class BaseDeConocimientoController {
     }
     
     @GetMapping("/buscar")
-    public String buscar(@RequestParam("query") String query, Model model) {
-    	List<BaseDeConocimiento> resultados = baseDeConocimientoService.buscarPorTexto(query);
+    public String buscar(@RequestParam("query") String query,
+            @RequestParam(value = "filtro", required = false, defaultValue = "todos") String filtro,
+            Model model) {
+    	List<BaseDeConocimiento> resultados;
+    	
+    	switch (filtro) {
+        case "pregunta":
+            resultados = baseDeConocimientoService.buscarPorPregunta(query, true);
+            break;
+        case "respuesta":
+            resultados = baseDeConocimientoService.buscarPorRespuesta(query, true);
+            break;
+        case "ticket":
+            resultados = baseDeConocimientoService.BuscarPorIdUsuario(query, true);
+            break;
+        default:
+            resultados = baseDeConocimientoService.buscarPorTexto(query, true);
+            break;
+    	}
     	model.addAttribute("titulo", "Resultados para: " + query);
     	model.addAttribute("lista", resultados);
     	model.addAttribute("query", query);
+    	model.addAttribute("filtro", filtro);
     	return ViewRouteHelper.BASE_DE_CONOCIMIENTO_LISTA;
     }
     
     @GetMapping("/buscarDeshabilitados")
-    public String buscarDeshabilitados(@RequestParam("query") String query, Model model) {
-        List<BaseDeConocimiento> resultados = baseDeConocimientoService.buscarPorTextoDeshabilitados(query);
+    public String buscarDeshabilitados(@RequestParam("query") String query,
+            @RequestParam(value = "filtro", required = false, defaultValue = "todos") String filtro,
+            Model model) {
+        List<BaseDeConocimiento> resultados;
+        switch (filtro) {
+        case "pregunta":
+            resultados = baseDeConocimientoService.buscarPorPregunta(query, false);
+            break;
+        case "respuesta":
+            resultados = baseDeConocimientoService.buscarPorRespuesta(query, false);
+            break;
+        case "ticket":
+            resultados = baseDeConocimientoService.BuscarPorIdUsuario(query, false);
+            break;
+        default:
+            resultados = baseDeConocimientoService.buscarPorTexto(query, false);
+            break;
+    	}
         model.addAttribute("titulo", "Resultados de busqueda deshabilitadas para: " + query);
         model.addAttribute("lista", resultados);
         model.addAttribute("query", query);
+        model.addAttribute("filtro", filtro);
         model.addAttribute("verDeshabilitadas", true);
         model.addAttribute("mostrarDeshabilitados", true);
         return ViewRouteHelper.BASE_DE_CONOCIMIENTO_LISTA;
