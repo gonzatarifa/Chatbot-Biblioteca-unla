@@ -40,59 +40,66 @@
 
                 <div class="col-md-4">
                     <label class="form-label">Nombre:</label>
-                    <input class="form-control" type="text" th:field="*{nombre}" required>
+                    <input class="form-control" type="text" th:field="*{nombre}"
+                           th:classappend="${#fields.hasErrors('nombre')} ? ' is-invalid' : ''" required>
                     <div class="invalid-feedback" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
                 </div>
 
                 <div class="col-md-4">
                     <label class="form-label">Apellido:</label>
-                    <input class="form-control" type="text" th:field="*{apellido}" required>
+                    <input class="form-control" type="text" th:field="*{apellido}"
+                           th:classappend="${#fields.hasErrors('apellido')} ? ' is-invalid' : ''" required>
                     <div class="invalid-feedback" th:if="${#fields.hasErrors('apellido')}" th:errors="*{apellido}"></div>
                 </div>
 
                 <div class="col-md-4">
                     <label class="form-label">Tipo Documento:</label>
-                    <select class="form-select" th:field="*{tipoDocumento}" required>
+                    <select class="form-select" th:field="*{tipoDocumento}"
+                            th:classappend="${#fields.hasErrors('tipoDocumento')} ? ' is-invalid' : ''" required>
                         <option value="" disabled selected>Seleccionar</option>
                         <option th:value="'D.N.I.'" th:text="'D.N.I.'"></option>
                         <option th:value="'L.C.'" th:text="'L.C.'"></option>
                         <option th:value="'L.E.'" th:text="'L.E.'"></option>
                     </select>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('tipoDocumento')}" th:errors="*{tipoDocumento}"></div>
                 </div>
 
                 <div class="col-md-4">
                     <label class="form-label">Documento:</label>
-                    <input class="form-control" type="number" th:field="*{documento}" required>
+                    <input class="form-control" type="number" th:field="*{documento}"
+                           th:classappend="${#fields.hasErrors('documento')} ? ' is-invalid' : ''" required>
                     <div class="invalid-feedback" th:if="${#fields.hasErrors('documento')}" th:errors="*{documento}"></div>
                 </div>
 
                 <div class="col-md-4">
                     <label class="form-label">Correo Electrónico:</label>
-                    <input class="form-control" type="email" th:field="*{correoElectronico}" required>
+                    <input class="form-control" type="email" th:field="*{correoElectronico}"
+                           th:classappend="${#fields.hasErrors('correoElectronico')} ? ' is-invalid' : ''" required>
                     <div class="invalid-feedback" th:if="${#fields.hasErrors('correoElectronico')}" th:errors="*{correoElectronico}"></div>
                 </div>
 
                 <div class="col-md-4">
                     <label class="form-label">Usuario:</label>
-                    <input class="form-control" type="text" th:field="*{nombreDeUsuario}" required>
+                    <input class="form-control" type="text" th:field="*{nombreDeUsuario}"
+                           th:classappend="${#fields.hasErrors('nombreDeUsuario')} ? ' is-invalid' : ''" required>
                     <div class="invalid-feedback" th:if="${#fields.hasErrors('nombreDeUsuario')}" th:errors="*{nombreDeUsuario}"></div>
                 </div>
 
                 <div class="col-md-4">
                     <label class="form-label">Contraseña:</label>
-                    <input class="form-control" type="password" th:field="*{contrasena}" required>
+                    <input class="form-control" type="password" th:field="*{contrasena}"
+                           th:classappend="${#fields.hasErrors('contrasena')} ? ' is-invalid' : ''" required>
                     <div class="invalid-feedback" th:if="${#fields.hasErrors('contrasena')}" th:errors="*{contrasena}"></div>
                 </div>
 
                 <div class="col-md-4">
                     <label class="form-label">Rol del Usuario:</label>
-                    <select class="form-select" th:field="*{perfiles}" id="perfiles" required>
+                    <select class="form-select" th:field="*{perfiles}" id="perfiles"
+                            th:classappend="${#fields.hasErrors('perfiles')} ? ' is-invalid' : ''" required>
                         <option value="" disabled selected>Seleccionar rol</option>
-                        <option th:each="perfil : ${perfiles}"
-                                th:value="${perfil.id}"
-                                th:text="${perfil.rol}">
-                        </option>
+                        <option th:each="perfil : ${perfiles}" th:value="${perfil.id}" th:text="${perfil.rol}"></option>
                     </select>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('perfiles')}" th:errors="*{perfiles}"></div>
                 </div>
 
                 <div class="col-12">
