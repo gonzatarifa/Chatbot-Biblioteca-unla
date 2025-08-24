@@ -50,7 +50,7 @@
             <form th:action="${mostrarDeshabilitados} ? @{/baseDeConocimiento/buscarDeshabilitados} : @{/baseDeConocimiento/buscar}" 
                   method="get"
                   class="mb-3 d-flex justify-content-start align-items-center" role="search">
-                <input type="text" name="query" class="form-control me-2 w-50" placeholder="Buscar pregunta o respuesta..." 
+                <input type="text" name="query" class="form-control me-2 w-50" placeholder="Buscar por pregunta, respuesta, o numero de ticket..." 
                        th:value="${query}" />
                 <button class="btn btn-outline-primary me-2" type="submit">
                     <i class="bi bi-search"></i> Buscar

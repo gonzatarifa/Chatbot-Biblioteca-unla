@@ -29,15 +29,11 @@ public interface IBaseDeConocimientoRepository extends JpaRepository<BaseDeConoc
 	List<BaseDeConocimiento> findAllDeshabilitados();
 	
 	@Query("SELECT b FROM BaseDeConocimiento b " +
-		       "WHERE b.habilitado = true AND " +
-		       "(LOWER(b.pregunta) LIKE LOWER(CONCAT('%', :texto, '%')) " +
-		       "OR LOWER(b.respuesta) LIKE LOWER(CONCAT('%', :texto, '%')))")
-	List<BaseDeConocimiento> buscarPorTexto(@Param("texto") String texto);
-	
-	@Query("SELECT b FROM BaseDeConocimiento b " +
-		       "WHERE b.habilitado = false AND " +
-		       "(LOWER(b.pregunta) LIKE LOWER(CONCAT('%', :texto, '%')) " +
-		       "OR LOWER(b.respuesta) LIKE LOWER(CONCAT('%', :texto, '%')))")
-	List<BaseDeConocimiento> buscarPorTextoDeshabilitados(@Param("texto") String texto);
+		       "WHERE b.habilitado = :habilitado AND (" +
+		       "LOWER(b.pregunta) LIKE LOWER(CONCAT('%', :texto, '%')) " +
+		       "OR LOWER(b.respuesta) LIKE LOWER(CONCAT('%', :texto, '%')) " +
+		       "OR CAST(b.preguntaUsuario.id AS string) LIKE CONCAT('%', :texto, '%'))")
+		List<BaseDeConocimiento> buscarPorTextoYEstado(@Param("texto") String texto, 
+		                                               @Param("habilitado") boolean habilitado);
 
 }
