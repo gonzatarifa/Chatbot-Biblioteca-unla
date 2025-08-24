@@ -39,37 +39,59 @@
                             <p th:text="${agradecimientoFeedback}"></p>
 					</div>
                     <div class="mt-3" th:if="${respuesta}">
-                        <div class="feedback-container"
-                             th:if="${agradecimientoFeedback == null and (showFeedbackForm == null or !showFeedbackForm)}">
-                            <p>¿Fue útil esta respuesta?</p>
-                            <form method="post" action="/feedback" style="display: inline;">
-                                <input type="hidden" name="util" value="true" />
-                                <input type="hidden" name="pregunta" th:value="${pregunta}" />
-                                <input type="hidden" name="respuesta" th:value="${respuesta}" />
-                                <button type="submit" class="btn btn-success btn-sm me-2">Sí</button>
-                            </form>
-                            <button type="button" class="btn btn-danger btn-sm"
-                                    onclick="document.getElementById('formularioFeedback').style.display='block'; this.parentElement.style.display='none';">
-                                No
-                            </button>
-                        </div>
-                        <div id="formularioFeedback" th:if="${pregunta}" th:style="${showFeedbackForm != null and showFeedbackForm} ? 'display:block;' : 'display:none;'" class="mt-3" style="display:none;">
-                            <p class="text-info">Por favor, completá el siguiente formulario para que un bibliotecario pueda responder tu pregunta.</p>
-                            <form method="post" action="/feedback">
-                                <input type="hidden" name="pregunta" th:value="${pregunta}" />
-                                <div class="mb-2">
-                                    <input type="text" name="nombre" class="form-control form-control-sm" placeholder="Tu nombre" required />
-                                </div>
-                                <div class="mb-2">
-                                    <input type="text" name="apellido" class="form-control form-control-sm" placeholder="Tu apellido" required />
-                                </div>
-                                <div class="mb-2">
-                                    <input type="email" name="email" class="form-control form-control-sm" placeholder="Tu correo electrónico" required />
-                                </div>
-                                <button type="submit" class="btn btn-primary btn-sm">Enviar sugerencia</button>
-                            </form>
-                        </div>
-                    </div>
+							<div class="feedback-container"
+								th:if="${agradecimientoFeedback == null and (showFeedbackForm == null or !showFeedbackForm)}">
+								<p>¿Fue útil esta respuesta?</p>
+
+								<!-- Botón Sí -->
+								<form method="post" action="/feedback" style="display: inline;">
+									<input type="hidden" name="util" value="true" /> <input
+										type="hidden" name="pregunta" th:value="${pregunta}" /> <input
+										type="hidden" name="respuesta" th:value="${respuesta}" />
+									<button type="submit"
+										class="btn btn-outline-success btn-sm me-2" title="Sí">
+										<i class="bi bi-hand-thumbs-up"></i>
+									</button>
+								</form>
+
+								<!-- Botón No que abre el formulario -->
+								<button type="button" class="btn btn-outline-danger btn-sm"
+									title="No"
+									onclick="document.getElementById('formularioFeedback').style.display='block'; 
+                     this.parentElement.style.display='none';">
+									<i class="bi bi-hand-thumbs-down"></i>
+								</button>
+							</div>
+
+							<!-- Formulario de feedback cuando No -->
+							<div id="formularioFeedback" th:if="${pregunta}"
+								th:style="${showFeedbackForm != null and showFeedbackForm} ? 'display:block;' : 'display:none;'"
+								class="mt-3" style="display: none;">
+								<p class="text-info">Por favor, completá el siguiente
+									formulario para que un bibliotecario pueda responder tu
+									pregunta.</p>
+								<form method="post" action="/feedback">
+									<input type="hidden" name="pregunta" th:value="${pregunta}" />
+									<div class="mb-2">
+										<input type="text" name="nombre"
+											class="form-control form-control-sm" placeholder="Tu nombre"
+											required />
+									</div>
+									<div class="mb-2">
+										<input type="text" name="apellido"
+											class="form-control form-control-sm"
+											placeholder="Tu apellido" required />
+									</div>
+									<div class="mb-2">
+										<input type="email" name="email"
+											class="form-control form-control-sm"
+											placeholder="Tu correo electrónico" required />
+									</div>
+									<button type="submit" class="btn btn-primary btn-sm">Enviar
+										sugerencia</button>
+								</form>
+							</div>
+						</div>
                 </div>
 
                 <form id="chatForm" method="post" action="/">
