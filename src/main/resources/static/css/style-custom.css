@@ -108,20 +108,27 @@ body {
 	border: 2px solid #800000;
 	border-radius: 12px;
 	width: 100%;
-	max-width: 900px;
-	height: 80vh;
+	max-width: 1100px;
+	height: 85vh;
 	display: flex;
 	flex-direction: column;
 	padding: 1rem;
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 	background-color: #222; 
+	margin: auto;  
+}
+
+#chat-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 #chat-messages-scroll {
-	flex-grow: 1;
-	overflow-y: auto;
-	padding: 1rem;
-	scroll-behavior: smooth;
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 10px;
 }
 
 /* Mensaje del usuario */
