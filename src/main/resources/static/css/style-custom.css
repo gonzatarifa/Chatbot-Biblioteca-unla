@@ -83,7 +83,16 @@ body {
 }
 
 .sidebar.collapsed .user-info .user-text {
-    display: none; 
+    display: none !important;
+}
+
+.sidebar.collapsed .dropdown-toggle {
+    justify-content: center !important;
+    padding: 0.5rem;
+}
+
+.sidebar.collapsed .dropdown-toggle::after {
+    display: none !important;
 }
 
 .content {
@@ -387,4 +396,44 @@ body {
     padding: 0.25rem 0.5rem;
     font-size: 0.85rem;
     height: auto;
+}
+
+.sidebar.collapsed .user-info {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.sidebar.collapsed .user-info .dropdown-toggle {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+  padding: .25rem !important;
+  text-align: center !important;
+}
+
+.sidebar.collapsed .user-info .dropdown-toggle i {
+  margin-right: 0 !important;
+}
+
+.sidebar.collapsed .dropdown-toggle::after {
+  display: none !important;
+}
+
+.sidebar.collapsed .login-btn {
+  width: 40px !important;
+  height: 40px !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.sidebar.collapsed .login-btn i {
+  margin-right: 0 !important;
+}
+
+.sidebar.collapsed .login-btn .login-text {
+  display: none !important;
 }

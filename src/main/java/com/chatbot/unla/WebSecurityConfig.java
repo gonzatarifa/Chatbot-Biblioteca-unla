@@ -41,7 +41,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	        .antMatchers("/usuarios/lista").hasAuthority("Administrador")
 	        .antMatchers("/usuarios/lista/edit/**").hasAuthority("Administrador")
 	        .antMatchers("/usuarios/lista/delete/**").hasAuthority("Administrador")
-	        .antMatchers("/usuarios/lista/**").hasAuthority("Administrador")
+	        .antMatchers("/usuarios/lista/cambiar-contrasena/**").hasAnyAuthority("Administrador", "Operador")
 
 	        // Preguntas: Administrador y Operador
 	        .antMatchers("/preguntas/").hasAnyAuthority("Administrador", "Operador")

@@ -1,5 +1,6 @@
 package com.chatbot.unla.controllers;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,6 +8,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -153,8 +155,12 @@ public class UsuarioController {
 
 
 	@GetMapping("lista/cambiar-contrasena/{id}")
-	public String cambiarContrasenaForm(@PathVariable("id") long id, Model model) {
+	public String cambiarContrasenaForm(@PathVariable("id") long id, Model model, Principal principal) {
 	    Usuario usuario = usuarioService.buscar(id);
+	    Usuario usuarioLogueado = usuarioService.getByUsername(principal.getName());
+	    if (usuarioLogueado.getId() != id) {
+	        throw new AccessDeniedException("No tienes permiso para cambiar la contraseña de otro usuario");
+	    }
 	    model.addAttribute("titulo", "Cambiar Contraseña");
 	    model.addAttribute("usuario", usuario);
 	    return "usuario/usuario-cambiar-contrasena"; 

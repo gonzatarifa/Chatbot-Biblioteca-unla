@@ -25,7 +25,7 @@
         <div sec:authorize="isAuthenticated()">
             <button class="btn btn-dark dropdown-toggle d-flex align-items-center w-100 text-start" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="bi bi-person-circle fs-4 me-2"></i>
-                <div class="d-flex flex-column text-start">
+                <div class="d-flex flex-column text-start user-text">
                     <span th:text="${#authentication.name}">Usuario</span>
                     <span class="small text-secondary">
                         <span sec:authorize="hasAuthority('Administrador')">(Administrador)</span>
@@ -51,8 +51,9 @@
 
         <!-- Botón de login para usuarios no autenticados -->
         <div sec:authorize="isAnonymous()">
-            <a class="btn btn-outline-light w-100 d-flex align-items-center justify-content-center" th:href="@{/login}">
-                <i class="bi bi-box-arrow-in-right me-2"></i> Iniciar sesión
+            <a class="btn btn-outline-light w-100 d-flex align-items-center justify-content-center login-btn" th:href="@{/login}">
+                <i class="bi bi-box-arrow-in-right me-2"></i> 
+                <span class="login-text">Iniciar sesión</span>
             </a>
         </div>
     </div>
