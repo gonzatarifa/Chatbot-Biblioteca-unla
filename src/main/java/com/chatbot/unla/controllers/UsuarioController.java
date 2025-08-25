@@ -1,13 +1,14 @@
 package com.chatbot.unla.controllers;
 
+import java.security.Principal;
 import java.util.ArrayList;
-
 import java.util.List;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -40,6 +41,9 @@ public class UsuarioController {
 	@Autowired
 	@Qualifier("perfilesService")
 	private IPerfilesService perfilesService;
+	
+	@Autowired
+	private BCryptPasswordEncoder passwordEncoder;
 	
 
 	@GetMapping("/")
@@ -114,7 +118,7 @@ public class UsuarioController {
 		model.addAttribute("lista", usuarios);
 		return ViewRouteHelper.USUARIO_LISTA;
 	}
-
+	
 	@GetMapping("lista/edit/{id}")
 	public String editar(@PathVariable("id") long id, Model model) {
 		Usuario usuario1 = usuarioService.buscar(id);
@@ -123,6 +127,92 @@ public class UsuarioController {
 		model.addAttribute("usuario", usuario1);
 		model.addAttribute("perfiles", listaPerfiles);
 		return ViewRouteHelper.USUARIO_FORM;
+	}
+	
+	@PostMapping("lista/edit/{id}")
+	public String editar(@PathVariable("id") long id,
+	                     @Valid @ModelAttribute("usuario") Usuario usuario,
+	                     BindingResult result,
+	                     Model model,
+	                     RedirectAttributes attributes) {
+
+	    List<Perfiles> listaPerfiles = perfilesService.getAll();
+	    
+		if(usuarioService.getByDni(usuario.getDocumento())!=null && usuarioService.getByDni(usuario.getDocumento()).getId()!=usuario.getId()) 
+		{
+			FieldError error = new FieldError("usuario", "documento", "Ya existe un usuario con ese documento");
+			result.addError(error);
+		}
+		
+		if(usuarioService.getByUsername(usuario.getNombreDeUsuario())!=null && usuarioService.getByUsername(usuario.getNombreDeUsuario()).getId()!=usuario.getId()) {
+			FieldError error = new FieldError("usuario", "nombreDeUsuario", "Ya existe un usuario con ese nombre de usuario");
+			result.addError(error);
+		}
+		if(usuarioService.getByEmail(usuario.getCorreoElectronico())!=null && usuarioService.getByEmail(usuario.getCorreoElectronico()).getId()!=usuario.getId()) {
+			FieldError error = new FieldError("usuario", "correoElectronico", "Ya existe un usuario con ese correo electronico");
+			result.addError(error);
+		}
+		
+	    if (result.hasErrors()) {
+	        model.addAttribute("titulo", "Editar usuario");
+	        model.addAttribute("usuario", usuario);
+	        model.addAttribute("perfiles", listaPerfiles);
+	        return ViewRouteHelper.USUARIO_FORM;
+	    }
+	    Usuario usuarioBD = usuarioService.buscar(id);
+	    usuarioBD.setNombre(usuario.getNombre());
+	    usuarioBD.setApellido(usuario.getApellido());
+	    usuarioBD.setTipoDocumento(usuario.getTipoDocumento());
+	    usuarioBD.setDocumento(usuario.getDocumento());
+	    usuarioBD.setCorreoElectronico(usuario.getCorreoElectronico());
+	    usuarioBD.setNombreDeUsuario(usuario.getNombreDeUsuario());
+	    usuarioBD.setPerfiles(usuario.getPerfiles());
+
+	    usuarioService.save(usuarioBD);
+	    attributes.addFlashAttribute("success", "Usuario actualizado con éxito");
+	    return ViewRouteHelper.USUARIO_LISTA;
+	}
+
+
+
+	@GetMapping("lista/cambiar-contrasena/{id}")
+	public String cambiarContrasenaForm(@PathVariable("id") long id, Model model, Principal principal) {
+	    Usuario usuario = usuarioService.buscar(id);
+	    Usuario usuarioLogueado = usuarioService.getByUsername(principal.getName());
+	    boolean esAdministrador = usuarioLogueado.getPerfiles().getRol().equalsIgnoreCase("Administrador");
+	    if (!esAdministrador && usuarioLogueado.getId() != id) {
+	        throw new AccessDeniedException("No tienes permiso para cambiar la contraseña de otro usuario");
+	    }
+	    model.addAttribute("titulo", "Cambiar Contraseña");
+	    model.addAttribute("usuario", usuario);
+	    return ViewRouteHelper.USUARIO_PASSWORD; 
+	}
+
+	@PostMapping("lista/cambiar-contrasena/{id}")
+	public String cambiarContrasena(@PathVariable("id") long id,
+	                                @ModelAttribute Usuario usuario,
+	                                BindingResult result,
+	                                RedirectAttributes attributes) {
+
+	    Usuario usuarioBD = usuarioService.buscar(id);
+
+	    if (usuario.getNuevaContrasena() != null && !usuario.getNuevaContrasena().isEmpty()) {
+	        if (!passwordEncoder.matches(usuario.getContrasenaActual(), usuarioBD.getContrasena())) {
+	            result.addError(new FieldError("usuario", "contrasenaActual", "Contraseña actual incorrecta"));
+	        } else if (!usuario.getNuevaContrasena().equals(usuario.getConfirmarContrasena())) {
+	            result.addError(new FieldError("usuario", "confirmarContrasena", "Las contraseñas no coinciden"));
+	        } else {
+	            usuarioBD.setContrasena(passwordEncoder.encode(usuario.getNuevaContrasena()));
+	        }
+	    }
+
+	    if (result.hasErrors()) {
+	    	return ViewRouteHelper.USUARIO_PASSWORD; 
+	    }
+
+	    usuarioService.save(usuarioBD);
+	    attributes.addFlashAttribute("success", "Contraseña cambiada con éxito");
+	    return ViewRouteHelper.USUARIO_REDIRECT_LISTA;
 	}
 
 	@GetMapping("lista/delete/{id}")

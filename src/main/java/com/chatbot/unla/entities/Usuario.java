@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
@@ -59,6 +60,13 @@ public class Usuario {
 
 	@Column(name = "deshabilitado")
 	private boolean deshabilitado;
+	
+	@Transient
+	private String contrasenaActual;
+	@Transient
+	private String nuevaContrasena;
+	@Transient
+	private String confirmarContrasena;
 
 	public Usuario(long id, String nombre, String apellido, String tipoDocumento, int documento,
 			String correoElectronico, String nombreDeUsuario, String contrasena) {
