@@ -158,7 +158,8 @@ public class UsuarioController {
 	public String cambiarContrasenaForm(@PathVariable("id") long id, Model model, Principal principal) {
 	    Usuario usuario = usuarioService.buscar(id);
 	    Usuario usuarioLogueado = usuarioService.getByUsername(principal.getName());
-	    if (usuarioLogueado.getId() != id) {
+	    boolean esAdministrador = usuarioLogueado.getPerfiles().getRol().equalsIgnoreCase("Administrador");
+	    if (!esAdministrador && usuarioLogueado.getId() != id) {
 	        throw new AccessDeniedException("No tienes permiso para cambiar la contraseña de otro usuario");
 	    }
 	    model.addAttribute("titulo", "Cambiar Contraseña");
