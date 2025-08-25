@@ -131,14 +131,34 @@ public class UsuarioController {
 	
 	@PostMapping("lista/edit/{id}")
 	public String editar(@PathVariable("id") long id,
-	                     @ModelAttribute Usuario usuario,
+	                     @Valid @ModelAttribute("usuario") Usuario usuario,
 	                     BindingResult result,
+	                     Model model,
 	                     RedirectAttributes attributes) {
 
-	    if(result.hasErrors()) {
-	        return "usuario/form"; 
+	    List<Perfiles> listaPerfiles = perfilesService.getAll();
+	    
+		if(usuarioService.getByDni(usuario.getDocumento())!=null && usuarioService.getByDni(usuario.getDocumento()).getId()!=usuario.getId()) 
+		{
+			FieldError error = new FieldError("usuario", "documento", "Ya existe un usuario con ese documento");
+			result.addError(error);
+		}
+		
+		if(usuarioService.getByUsername(usuario.getNombreDeUsuario())!=null && usuarioService.getByUsername(usuario.getNombreDeUsuario()).getId()!=usuario.getId()) {
+			FieldError error = new FieldError("usuario", "nombreDeUsuario", "Ya existe un usuario con ese nombre de usuario");
+			result.addError(error);
+		}
+		if(usuarioService.getByEmail(usuario.getCorreoElectronico())!=null && usuarioService.getByEmail(usuario.getCorreoElectronico()).getId()!=usuario.getId()) {
+			FieldError error = new FieldError("usuario", "correoElectronico", "Ya existe un usuario con ese correo electronico");
+			result.addError(error);
+		}
+		
+	    if (result.hasErrors()) {
+	        model.addAttribute("titulo", "Editar usuario");
+	        model.addAttribute("usuario", usuario);
+	        model.addAttribute("perfiles", listaPerfiles);
+	        return ViewRouteHelper.USUARIO_FORM;
 	    }
-
 	    Usuario usuarioBD = usuarioService.buscar(id);
 	    usuarioBD.setNombre(usuario.getNombre());
 	    usuarioBD.setApellido(usuario.getApellido());
@@ -149,9 +169,10 @@ public class UsuarioController {
 	    usuarioBD.setPerfiles(usuario.getPerfiles());
 
 	    usuarioService.save(usuarioBD);
-	    attributes.addFlashAttribute("success","Usuario actualizado con éxito");
-	    return "redirect:/usuarios/lista";
+	    attributes.addFlashAttribute("success", "Usuario actualizado con éxito");
+	    return ViewRouteHelper.USUARIO_LISTA;
 	}
+
 
 
 	@GetMapping("lista/cambiar-contrasena/{id}")
@@ -164,7 +185,7 @@ public class UsuarioController {
 	    }
 	    model.addAttribute("titulo", "Cambiar Contraseña");
 	    model.addAttribute("usuario", usuario);
-	    return "usuario/usuario-cambiar-contrasena"; 
+	    return ViewRouteHelper.USUARIO_PASSWORD; 
 	}
 
 	@PostMapping("lista/cambiar-contrasena/{id}")
@@ -186,12 +207,12 @@ public class UsuarioController {
 	    }
 
 	    if (result.hasErrors()) {
-	        return "usuario/usuario-cambiar-contrasena"; 
+	    	return ViewRouteHelper.USUARIO_PASSWORD; 
 	    }
 
 	    usuarioService.save(usuarioBD);
 	    attributes.addFlashAttribute("success", "Contraseña cambiada con éxito");
-	    return "redirect:/usuarios/lista";
+	    return ViewRouteHelper.USUARIO_REDIRECT_LISTA;
 	}
 
 	@GetMapping("lista/delete/{id}")
