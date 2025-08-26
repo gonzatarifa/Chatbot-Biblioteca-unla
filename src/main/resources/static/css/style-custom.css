@@ -115,7 +115,7 @@ body {
 	padding: 1rem;
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 	background-color: #222; 
-	margin: auto;  
+	margin: auto;
 }
 
 #chat-content {
@@ -129,6 +129,7 @@ body {
     flex: 1;
     overflow-y: auto;
     margin-bottom: 10px;
+    padding: 1rem;
 }
 
 /* Mensaje del usuario */

@@ -138,6 +138,7 @@ public class HomeController {
 
 		redirectAttributes.addFlashAttribute("agradecimientoFeedback", "Tu pregunta fue: \"" + pregunta
 				+ "\". 📧 Recibirás una respuesta al correo proporcionado a la brevedad.");
+		redirectAttributes.addFlashAttribute("respuesta", "Pendiente");
 		redirectAttributes.addFlashAttribute("pregunta", pregunta);
 		redirectAttributes.addFlashAttribute("showFeedbackForm", false);
 		return "redirect:/";

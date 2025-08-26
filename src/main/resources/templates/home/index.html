@@ -42,7 +42,10 @@
 
 					<!-- Feedback -->
 					<div id="feedback-container" th:if="${respuesta}" style="margin-top: 5px;">
-						<div class="feedback-container"
+						<div th:if="${agradecimientoFeedback != null}" class="alert alert-info mt-2">
+						    <span th:text="${agradecimientoFeedback}"></span>
+						</div>
+							<div class="feedback-container"
 							th:if="${agradecimientoFeedback == null and (showFeedbackForm == null or !showFeedbackForm)}">
 							<p>¿Fue útil esta respuesta?</p>
 
@@ -59,7 +62,8 @@
 							<!-- Botón No -->
 							<button type="button" class="btn btn-outline-danger btn-sm"
 								onclick="document.getElementById('formularioFeedback').style.display='block'; 
-                             this.parentElement.style.display='none';">
+                             this.parentElement.style.display='none'; 
+             					scrollToBottom();">
 								<i class="bi bi-hand-thumbs-down"> NO</i>
 							</button>
 						</div>
