@@ -34,7 +34,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	    http.csrf().disable();
 	    http.authorizeRequests()
 	        // Rutas públicas
-	        .antMatchers("/index", "/", "/css/**", "/images/**", "/js/**", "/feedback/**", "/vendor/**").permitAll()
+	        .antMatchers("/index", "/", "/css/**", "/images/**", "/js/**", "/feedback/**","/chat/pdf", "/vendor/**").permitAll()
 
 	        // Usuarios: solo Administrador
 	        .antMatchers("/usuarios/").hasAuthority("Administrador")

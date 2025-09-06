@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -142,6 +143,81 @@ public class HomeController {
 		redirectAttributes.addFlashAttribute("pregunta", pregunta);
 		redirectAttributes.addFlashAttribute("showFeedbackForm", false);
 		return "redirect:/";
+	}
+	
+	@GetMapping("/chat/pdf")
+	public void descargarChat(HttpSession session, HttpServletResponse response) throws Exception {
+	    String username = "anonimo";
+	    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+	    if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+	        username = auth.getName();
+	    }
+	    String sessionKey = "historial_" + username;
+
+	    List<MensajeChat> historial = (List<MensajeChat>) session.getAttribute(sessionKey);
+	    if (historial == null || historial.isEmpty()) {
+	        historial = new ArrayList<>();
+	        historial.add(new MensajeChat("bot", "⚠️ No hay conversación disponible."));
+	    }
+
+	    response.setContentType("application/pdf");
+	    response.setHeader("Content-Disposition", "attachment; filename=conversacion.pdf");
+
+	    com.lowagie.text.Document document = new com.lowagie.text.Document();
+	    com.lowagie.text.pdf.PdfWriter.getInstance(document, response.getOutputStream());
+
+	    document.open();
+
+	    // Colores y fuentes
+	    java.awt.Color granate = new java.awt.Color(128, 0, 32); 
+	    com.lowagie.text.Font fontTitulo = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 16, com.lowagie.text.Font.BOLD, granate);
+	    com.lowagie.text.Font fontUsuario = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 12, com.lowagie.text.Font.BOLD, java.awt.Color.BLUE);
+	    com.lowagie.text.Font fontBot = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 12, com.lowagie.text.Font.BOLD, granate);
+	    com.lowagie.text.Font fontNormal = new com.lowagie.text.Font(com.lowagie.text.Font.HELVETICA, 12);
+
+	    com.lowagie.text.pdf.PdfPTable headerTable = new com.lowagie.text.pdf.PdfPTable(2);
+	    headerTable.setWidthPercentage(100);
+	    headerTable.setWidths(new int[]{1, 5}); 
+
+	    try {
+	        com.lowagie.text.Image logo = com.lowagie.text.Image.getInstance("src/main/resources/static/images/UNla_logo.png");
+	        logo.scaleAbsolute(50, 50); 
+	        com.lowagie.text.pdf.PdfPCell logoCell = new com.lowagie.text.pdf.PdfPCell(logo, false);
+	        logoCell.setBorder(com.lowagie.text.Rectangle.NO_BORDER);
+	        logoCell.setVerticalAlignment(com.lowagie.text.Element.ALIGN_MIDDLE);
+	        headerTable.addCell(logoCell);
+
+	        com.lowagie.text.pdf.PdfPCell titleCell = new com.lowagie.text.pdf.PdfPCell(
+	            new com.lowagie.text.Paragraph("Conversación con el Servicio de Referencia Virtual\nRodolfo Puiggrós - UNLa\n\n", fontTitulo)
+	        );
+	        titleCell.setBorder(com.lowagie.text.Rectangle.NO_BORDER);
+	        titleCell.setVerticalAlignment(com.lowagie.text.Element.ALIGN_MIDDLE);
+	        titleCell.setHorizontalAlignment(com.lowagie.text.Element.ALIGN_CENTER);
+	        headerTable.addCell(titleCell);
+
+	        document.add(headerTable);
+
+	    } catch (Exception e) {
+	        System.out.println("⚠️ No se pudo cargar el logo de la UNLa: " + e.getMessage());
+	    }
+
+	    com.lowagie.text.pdf.draw.LineSeparator separator = new com.lowagie.text.pdf.draw.LineSeparator();
+	    separator.setLineColor(granate);
+	    document.add(new com.lowagie.text.Chunk(separator));
+	    document.add(new com.lowagie.text.Paragraph("\n"));
+
+	    // Historial de mensajes
+	    for (MensajeChat msg : historial) {
+	        if ("usuario".equals(msg.getRemitente())) {
+	            document.add(new com.lowagie.text.Paragraph("🧑 Vos:", fontUsuario));
+	        } else {
+	            document.add(new com.lowagie.text.Paragraph("🤖 Chatbot:", fontBot));
+	        }
+	        document.add(new com.lowagie.text.Paragraph(msg.getContenido(), fontNormal));
+	        document.add(new com.lowagie.text.Chunk(new com.lowagie.text.pdf.draw.DottedLineSeparator()));
+	    }
+
+	    document.close();
 	}
 
 }

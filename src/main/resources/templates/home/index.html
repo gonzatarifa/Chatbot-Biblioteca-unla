@@ -20,7 +20,15 @@
 
 		<div class="content flex-grow-1 p-4 d-flex justify-content-center align-items-start">
 			<div id="chatbot-fixed" aria-live="polite" aria-label="Chatbot">
-
+				<!-- Header del chat con botón de PDF -->
+				<div
+					class="card-header d-flex justify-content-between align-items-center">
+					<h5 class="mb-0">Servicio de referencia virtual "Rodolfo Puiggrós"</h5>
+					<a href="/chat/pdf" class="btn btn-outline-danger btn-sm"
+						target="_blank" title="Descargar conversación en PDF"> <i
+						class="bi bi-file-earmark-pdf-fill"></i>
+					</a>
+				</div>
 				<!-- Historial de mensajes + spinner + feedback -->
 				<div id="chat-messages-scroll" style="flex-grow: 1; overflow-y: auto; margin-bottom: 10px; display: flex; flex-direction: column;">
 					<div th:each="msg : ${historial}">
