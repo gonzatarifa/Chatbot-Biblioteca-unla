@@ -1,16 +1,25 @@
 package com.chatbot.unla.controllers;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import javax.validation.Valid;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,6 +30,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.chatbot.unla.entities.BaseDeConocimiento;
@@ -45,36 +55,29 @@ public class BaseDeConocimientoController {
 	}
 	
 	@PostMapping("/")
-	public String guardar(@Valid @ModelAttribute BaseDeConocimiento baseDeConocimiento,
+	public String guardar(@RequestParam(value="preguntasCargadasJson", required=false) String preguntasJson,
+	                      @Valid @ModelAttribute BaseDeConocimiento baseDeConocimiento,
 	                      BindingResult result,
-	                      Model model,
 	                      RedirectAttributes attribute) {
 
-		if (result.hasErrors()) {
-			model.addAttribute("titulo", "Formulario: Nueva Entrada");
-			model.addAttribute("baseDeConocimiento", baseDeConocimiento);
-			return ViewRouteHelper.BASE_DE_CONOCIMIENTO_INDEX;
-		}
+	    int cargadas = 0;
+	    int duplicadas = 0;
 
-		LocalDateTime now = LocalDateTime.now();
-		if (baseDeConocimiento.getId() == 0) {
-			baseDeConocimiento.setFechaCreacion(now);
-			baseDeConocimiento.setHabilitado(true);
-		} else {
-	        // Si es edicion
-	        BaseDeConocimiento original = baseDeConocimientoService.buscar(baseDeConocimiento.getId());
-	        if (original != null) {
-	            baseDeConocimiento.setHabilitado(original.isHabilitado());
+	    if(baseDeConocimiento.getPregunta() != null && !baseDeConocimiento.getPregunta().isEmpty()){
+	        if(baseDeConocimientoService.buscarPorPreguntaExacta(baseDeConocimiento.getPregunta()) == null){
+	            baseDeConocimiento.setFechaCreacion(LocalDateTime.now());
+	            baseDeConocimiento.setHabilitado(true);
+	            baseDeConocimiento.setEmbedding(generarEmbedding(baseDeConocimiento.getPregunta()));
+	            baseDeConocimientoService.save(baseDeConocimiento);
+	            cargadas++;
+	        } else {
+	            duplicadas++;
 	        }
 	    }
-		baseDeConocimiento.setFechaActualizacion(now);
-		baseDeConocimiento.setEmbedding(generarEmbedding(baseDeConocimiento.getPregunta()));
-
-		baseDeConocimientoService.save(baseDeConocimiento);
-		attribute.addFlashAttribute("success", "Entrada guardada con éxito");
-		return ViewRouteHelper.BASE_DE_CONOCIMIENTO_REDIRECT_LISTA;
+	    attribute.addFlashAttribute("success", String.format("%d entradas guardadas, %d duplicadas ignoradas", cargadas, duplicadas));
+	    return "redirect:/baseDeConocimiento/lista";
 	}
-
+	
 	@GetMapping("/lista")
 	public String listar(@RequestParam(name = "verDeshabilitadas", required = false, defaultValue = "false") boolean verDeshabilitadas, Model model) {
 		List<BaseDeConocimiento> lista;
@@ -203,5 +206,114 @@ public class BaseDeConocimientoController {
 	        return "Error al generar embedding: " + e.getMessage();
     	}
     }
+      
+    @GetMapping("/upload")
+    public String uploadForm(Model model) {
+        model.addAttribute("titulo", "Crear Entradas por Archivo");
+        model.addAttribute("baseDeConocimiento", new BaseDeConocimiento());
+        return ViewRouteHelper.BASE_DE_CONOCIMIENTO_UPLOAD; 
+    }
+    
+    @PostMapping("/uploadPreview")
+    public String uploadPreview(@RequestParam("file") MultipartFile file,
+                                Model model,
+                                RedirectAttributes attribute) {
+        if(file.isEmpty()){
+            attribute.addFlashAttribute("error","Archivo vacío.");
+            return "redirect:/baseDeConocimiento/upload";
+        }
+
+        List<Map<String,String>> preview = new ArrayList<>();
+        List<String> duplicadas = new ArrayList<>();
+
+        try(InputStream is = file.getInputStream()) {
+            String filename = file.getOriginalFilename();
+            if(filename.endsWith(".xlsx")){
+                Workbook workbook = new XSSFWorkbook(is);
+                Sheet sheet = workbook.getSheetAt(0);
+                for(Row row : sheet){
+                    if(row.getRowNum() == 0) continue; // cabecera
+                    Cell preguntaCell = row.getCell(0);
+                    Cell respuestaCell = row.getCell(1);
+                    if(preguntaCell != null && respuestaCell != null){
+                        String pregunta = preguntaCell.getStringCellValue();
+                        String respuesta = respuestaCell.getStringCellValue();
+                        preview.add(Map.of("pregunta", pregunta, "respuesta", respuesta));
+                        if(baseDeConocimientoService.buscarPorPreguntaExacta(pregunta) != null){
+                            duplicadas.add(pregunta);
+                        }
+                    }
+                }
+                workbook.close();
+            } else if(filename.endsWith(".csv")){
+                BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+                String line;
+                boolean firstLine = true;
+                while((line = reader.readLine()) != null){
+                    if(firstLine){ firstLine=false; continue; }
+                    String[] parts = line.split(",");
+                    if(parts.length >=2){
+                        String pregunta = parts[0].trim();
+                        String respuesta = parts[1].trim();
+                        preview.add(Map.of("pregunta", pregunta, "respuesta", respuesta));
+                        if(baseDeConocimientoService.buscarPorPreguntaExacta(pregunta) != null){
+                            duplicadas.add(pregunta);
+                        }
+                    }
+                }
+                reader.close();
+            }
+
+            model.addAttribute("preview", preview);
+            model.addAttribute("duplicadas", duplicadas);
+            model.addAttribute("baseDeConocimiento", new BaseDeConocimiento());
+            model.addAttribute("titulo", "Preview de preguntas desde archivo");
+
+            if(!duplicadas.isEmpty()){
+                model.addAttribute("error", "Hay preguntas duplicadas marcadas en rojo.");
+            }
+
+        } catch(Exception e){
+            e.printStackTrace();
+            attribute.addFlashAttribute("error", "Error al procesar el archivo: " + e.getMessage());
+            return "redirect:/baseDeConocimiento/upload";
+        }
+        return ViewRouteHelper.BASE_DE_CONOCIMIENTO_UPLOAD;
+    }
+
+    @PostMapping("/saveFromPreview")
+    public String saveFromPreview(@RequestParam Map<String,String> params, RedirectAttributes attribute){
+        int total = Integer.parseInt(params.get("total"));
+        int saved = 0;
+        int duplicates = 0;
+
+        for(int i=0;i<total;i++){
+            String pregunta = params.get("pregunta_"+i);
+            String respuesta = params.get("respuesta_"+i);
+            if(pregunta==null || pregunta.isEmpty()) continue;
+
+            if(baseDeConocimientoService.buscarPorPreguntaExacta(pregunta)==null){
+                BaseDeConocimiento bc = new BaseDeConocimiento();
+                bc.setPregunta(pregunta);
+                bc.setRespuesta(respuesta);
+                bc.setFechaCreacion(LocalDateTime.now());
+                bc.setHabilitado(true);
+                bc.setEmbedding(generarEmbedding(pregunta));
+                baseDeConocimientoService.save(bc);
+                saved++;
+            } else {
+                duplicates++;
+            }
+        }
+
+        if(duplicates > 0){
+            attribute.addFlashAttribute("error","No se pudieron guardar "+duplicates+" preguntas duplicadas.");
+        } else {
+            attribute.addFlashAttribute("success","Preguntas guardadas correctamente.");
+        }
+
+        return "redirect:/baseDeConocimiento/lista";
+    }
+
 
 }

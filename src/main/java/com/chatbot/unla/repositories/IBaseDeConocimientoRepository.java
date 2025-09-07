@@ -52,4 +52,8 @@ public interface IBaseDeConocimientoRepository extends JpaRepository<BaseDeConoc
 	           "AND b.habilitado = :habilitado")
 	    List<BaseDeConocimiento> buscarPorIdUsuarioYEstado(@Param("texto") String texto,
 	                                                       @Param("habilitado") boolean habilitado);
+	
+	@Query("SELECT b FROM BaseDeConocimiento b WHERE b.pregunta = :pregunta")
+	BaseDeConocimiento buscarPorPreguntaExacta(@Param("pregunta") String pregunta);
+
 }

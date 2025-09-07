@@ -69,6 +69,11 @@ public class BaseDeConocimientoService implements IBaseDeConocimientoService {
 	public List<BaseDeConocimiento> BuscarPorIdUsuario(String texto, boolean habilitado) {
 		return baseDeConocimientoRepository.buscarPorIdUsuarioYEstado(texto, habilitado);
 	}
+
+	@Override
+	public BaseDeConocimiento buscarPorPreguntaExacta(String pregunta) {
+		return baseDeConocimientoRepository.buscarPorPreguntaExacta(pregunta);
+	}
 	
 	;
 }

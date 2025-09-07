@@ -25,7 +25,7 @@ public class ViewRouteHelper {
 	public static final String BASE_DE_CONOCIMIENTO_INDEX = "baseDeConocimiento/index";
 	public static final String BASE_DE_CONOCIMIENTO_REDIRECT_LISTA = "redirect:/baseDeConocimiento/lista";
 	public static final String BASE_DE_CONOCIMIENTO_REDIRECT_LISTA_DESHABILITADAS = "redirect:/baseDeConocimiento/lista?verDeshabilitadas=true";
-	
+	public static final String BASE_DE_CONOCIMIENTO_UPLOAD = "baseDeConocimiento/upload";
 	 public static final String PREGUNTA_LISTA = "pregunta/lista";
 	 public static final String PREGUNTA_REDIRECT_LISTA = "redirect:/preguntas/lista";
 }

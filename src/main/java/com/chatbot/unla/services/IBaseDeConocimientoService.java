@@ -30,4 +30,6 @@ public interface IBaseDeConocimientoService {
 	public List<BaseDeConocimiento> buscarPorRespuesta(String texto, boolean habilitado);
 	
 	public List<BaseDeConocimiento> BuscarPorIdUsuario(String texto, boolean habilitado);
+	
+	public BaseDeConocimiento buscarPorPreguntaExacta(String pregunta);
 }

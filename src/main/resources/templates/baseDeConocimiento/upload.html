@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Chatbot Unla - Base de Conocimiento</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+<link href="/css/style-custom.css" rel="stylesheet" />
+<style>
+    .card-preview { margin-bottom: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .preview-input.is-invalid { border-color: #dc3545 !important; background-color: #ffe5e5 !important; }
+    .delete-btn { cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+    <!-- Sidebar -->
+    <div th:replace="fragments/sidebar :: sidebar" id="sidebar"></div>
+
+    <div class="content" id="content">
+        <div class="container py-4">
+
+            <h2 class="mb-4 text-center" th:text="${titulo}">Formulario Base de Conocimiento</h2>
+
+            <!-- Mensajes -->
+            <div th:if="${error != null}" class="alert alert-danger" th:text="${error}"></div>
+            <div th:if="${success != null}" class="alert alert-success" th:text="${success}"></div>
+
+            <!-- Subir Archivo -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Cargar Archivo CSV / Excel</h5>
+                    <form th:action="@{/baseDeConocimiento/uploadPreview}" method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <input type="file" name="file" class="form-control" accept=".csv,.xlsx" />
+                        </div>
+                        <button type="submit" class="btn btn-primary">Cargar archivo</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Preview de archivo -->
+            <div id="previewContainer" th:if="${preview != null and !preview.isEmpty()}">
+                <h4 class="mb-3">Previsualización de Preguntas</h4>
+                <form id="previewForm" th:action="@{/baseDeConocimiento/saveFromPreview}" method="post">
+                    <div id="previewBody">
+                        <div th:each="item, iterStat : ${preview}" 
+                             class="card card-preview p-3 d-flex flex-row align-items-center">
+                            <div class="flex-grow-1 me-2">
+                                <input type="text" th:name="${'pregunta_'+iterStat.index}" th:value="${item.pregunta}" 
+                                       class="form-control preview-input mb-2"
+                                       th:classappend="${duplicadas != null and #lists.contains(duplicadas, item.pregunta)} ? 'is-invalid' : ''">
+                                <input type="text" th:name="${'respuesta_'+iterStat.index}" th:value="${item.respuesta}"
+                                       class="form-control preview-input" />
+                            </div>
+                            <button type="button" class="btn btn-danger btn-sm delete-btn ms-2">Eliminar</button>
+                        </div>
+                    </div>
+                    <input type="hidden" name="total" id="totalPreview" th:value="${preview != null ? preview.size() : 0}" />
+                    <button type="submit" class="btn btn-success mt-3" id="saveAllBtn"
+                            th:disabled="${duplicadas != null and !#lists.isEmpty(duplicadas)}">Guardar todas</button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+// Referencias
+const previewBody = document.getElementById('previewBody');
+const totalInput = document.getElementById('totalPreview');
+const saveBtn = document.getElementById('saveAllBtn');
+
+// Eliminar fila
+previewBody?.addEventListener('click', e => {
+    if(e.target.classList.contains('delete-btn')){
+        if(confirm('¿Está seguro que desea eliminar esta pregunta?')){
+            e.target.closest('.card-preview').remove();
+            updateTotal();
+            checkDuplicados();
+        }
+    }
+});
+
+// Input duplicados
+previewBody?.addEventListener('input', e => {
+    if(e.target.classList.contains('preview-input')){
+        updateTotal();
+        checkDuplicados();
+    }
+});
+
+// Actualizar total
+function updateTotal(){ 
+    if(totalInput) totalInput.value = previewBody.children.length; 
+}
+
+// Marcar duplicados
+function checkDuplicados(){
+    if(!previewBody) return;
+    const preguntas = Array.from(previewBody.querySelectorAll('input[name^="pregunta_"]'));
+    const valores = preguntas.map(input => input.value.trim());
+    const duplicados = valores.filter((v,i,a) => v && a.indexOf(v) !== i);
+    preguntas.forEach(input => input.classList.toggle('is-invalid', duplicados.includes(input.value.trim())));
+    if(saveBtn) saveBtn.disabled = duplicados.length > 0 || preguntas.length === 0;
+}
+
+// Sidebar
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('collapsed');
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
