@@ -47,7 +47,7 @@ public class ChatServiceV2 implements IChatServiceV2 {
 	}
 	
 	public String buscarRespuesta(String preguntaCoincidente) {
-        return baseDeConocimientoRepository.findByPreguntaIgnoreCase(preguntaCoincidente.replaceAll("\"", "'"))
+        return baseDeConocimientoRepository.findByPreguntaIgnoreCase(preguntaCoincidente)
                        .map(BaseDeConocimiento::getRespuesta)
                        .orElse(null);
     }
