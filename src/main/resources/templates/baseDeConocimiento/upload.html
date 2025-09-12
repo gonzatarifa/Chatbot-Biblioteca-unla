@@ -50,9 +50,13 @@
                         <div th:each="item, iterStat : ${preview}" 
                              class="card card-preview p-3 d-flex flex-row align-items-center">
                             <div class="flex-grow-1 me-2">
-                                <input type="text" th:name="${'pregunta_'+iterStat.index}" th:value="${item.pregunta}" 
-                                       class="form-control preview-input mb-2"
-                                       th:classappend="${duplicadas != null and #lists.contains(duplicadas, item.pregunta)} ? 'is-invalid' : ''">
+                                <input type="text"
+							       th:name="${'pregunta_'+iterStat.index}"
+							       th:value="${item.pregunta}"
+							       class="form-control preview-input mb-2"
+							       th:classappend="${duplicadas != null and #lists.contains(duplicadas, item.pregunta)} ? 'is-invalid' : ''"
+							       th:attr="data-original=${item.pregunta}, 
+							                data-duplicado-inicial=${duplicadas != null and #lists.contains(duplicadas, item.pregunta)}" />
                                 <input type="text" th:name="${'respuesta_'+iterStat.index}" th:value="${item.respuesta}"
                                        class="form-control preview-input" />
                             </div>
@@ -80,6 +84,7 @@ previewBody?.addEventListener('click', e => {
     if(e.target.classList.contains('delete-btn')){
         if(confirm('¿Está seguro que desea eliminar esta pregunta?')){
             e.target.closest('.card-preview').remove();
+            reindexInputs();
             updateTotal();
             checkDuplicados();
         }
@@ -102,11 +107,44 @@ function updateTotal(){
 // Marcar duplicados
 function checkDuplicados(){
     if(!previewBody) return;
+
     const preguntas = Array.from(previewBody.querySelectorAll('input[name^="pregunta_"]'));
-    const valores = preguntas.map(input => input.value.trim());
-    const duplicados = valores.filter((v,i,a) => v && a.indexOf(v) !== i);
-    preguntas.forEach(input => input.classList.toggle('is-invalid', duplicados.includes(input.value.trim())));
-    if(saveBtn) saveBtn.disabled = duplicados.length > 0 || preguntas.length === 0;
+    const valores = preguntas.map(i => i.value.trim());
+
+    preguntas.forEach(input => {
+        const original = (input.getAttribute('data-original') || "").trim();
+        const actual = input.value.trim();
+        const duplicadoInicial = input.getAttribute("data-duplicado-inicial") === "true";
+
+        let esDuplicado = false;
+
+        if(actual === original){
+            esDuplicado = duplicadoInicial;
+        } else {
+            const ocurrencias = valores.filter(v => v === actual).length;
+            esDuplicado = actual && ocurrencias > 1;
+        }
+
+        input.classList.toggle("is-invalid", esDuplicado);
+    });
+
+    if(saveBtn) {
+        const algunInvalido = preguntas.some(i => i.classList.contains("is-invalid"));
+        saveBtn.disabled = algunInvalido || preguntas.length === 0;
+    }
+}
+
+// Para despues de eliminar
+function reindexInputs() {
+    const cards = previewBody.querySelectorAll('.card-preview');
+    cards.forEach((card, index) => {
+        const preguntaInput = card.querySelector('input[name^="pregunta_"]');
+        const respuestaInput = card.querySelector('input[name^="respuesta_"]');
+        
+        preguntaInput.name = `pregunta_${index}`;
+        respuestaInput.name = `respuesta_${index}`;
+    });
+    totalInput.value = cards.length;
 }
 
 // Sidebar
