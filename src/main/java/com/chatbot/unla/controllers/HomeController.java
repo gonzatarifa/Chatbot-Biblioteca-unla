@@ -95,6 +95,12 @@ public class HomeController {
 
 	    String respuestaFinal;
 	    boolean respuestaGenerica;
+	    
+	    int intentos = 0;
+	    while (respuestaModelo.equalsIgnoreCase("NINGUNA") && intentos < 1) {
+	        intentos++;
+	        respuestaModelo = chatService.procesarPregunta(preguntaUsuario);
+	    }
 
 	    if (!respuestaModelo.equalsIgnoreCase("NINGUNA")) {
 	        String respuesta = chatService.buscarRespuesta(respuestaModelo);
