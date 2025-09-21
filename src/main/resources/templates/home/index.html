@@ -49,30 +49,29 @@
 <div th:if="${agradecimientoFeedback}" class="modern-card mb-3 p-3">
     <p class="mb-1 text-success" th:text="${agradecimientoFeedback}"></p>
 </div>
-   <!-- Formulario de feedback moderno -->
+<!-- Formulario de feedback moderno -->
 <div id="formularioFeedback" th:if="${respuestaGenerica}" class="modern-card mt-3 p-3" style="display:block;">
     <h6 class="card-title mb-2">Formulario</h6>
     <p class="card-text text-info mb-3">
         Completá los datos para que un bibliotecario pueda responder tu consulta por correo electrónico.
     </p>
     <form method="post" action="/feedback" class="d-flex flex-column gap-2">
+        <!-- Pregunta enviada oculta -->
         <input type="hidden" name="pregunta" th:value="${pregunta}" />
 
         <div class="row g-2">
             <div class="col-md-6">
-               <input type="text" name="nombre" class="form-control form-control-sm input-feedback" placeholder="Nombre"
-       required th:value="${feedbackSession != null ? feedbackSession.nombre : ''}" />
+                <input type="text" name="nombre" class="form-control form-control-sm input-feedback" placeholder="Nombre"
+                       required th:value="${feedbackSession != null ? feedbackSession.nombre : ''}" />
             </div>
             <div class="col-md-6">
-               <input type="text" name="apellido" class="form-control form-control-sm input-feedback" placeholder="Apellido"
-       required th:value="${feedbackSession != null ? feedbackSession.apellido : ''}" />
-
+                <input type="text" name="apellido" class="form-control form-control-sm input-feedback" placeholder="Apellido"
+                       required th:value="${feedbackSession != null ? feedbackSession.apellido : ''}" />
             </div>
         </div>
 
         <input type="email" name="email" class="form-control form-control-sm input-feedback mt-2" placeholder="Correo electrónico"
-       required th:value="${feedbackSession != null ? feedbackSession.email : ''}" />
-
+               required th:value="${feedbackSession != null ? feedbackSession.email : ''}" />
 
         <button type="submit" class="btn btn-feedback mt-2 align-self-end">
             Enviar <i></i>
