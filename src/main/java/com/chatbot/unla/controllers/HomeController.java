@@ -20,6 +20,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.chatbot.unla.entities.PreguntaUsuario;
 import com.chatbot.unla.entities.model.MensajeChat;
+import com.chatbot.unla.helpers.FeedbackSession;
 import com.chatbot.unla.helpers.ViewRouteHelper;
 import com.chatbot.unla.services.IPreguntaUsuarioService;
 import com.chatbot.unla.services.implementation.ChatServiceV2;
@@ -55,6 +56,11 @@ public class HomeController {
 	        historial.add(new MensajeChat("bot", mensajeInicial));
 
 	        session.setAttribute(sessionKey, historial);
+	    }
+	    
+	    FeedbackSession feedbackSession = (FeedbackSession) session.getAttribute("feedbackSession");
+	    if (feedbackSession != null) {
+	        modelAndView.addObject("feedbackSession", feedbackSession);
 	    }
 
 	    modelAndView.addObject("historial", historial);
@@ -118,38 +124,45 @@ public class HomeController {
 
 	@PostMapping("/feedback")
 	public String recibirFeedback(@RequestParam("pregunta") String pregunta,
-			@RequestParam(value = "nombre", required = false) String nombre,
-			@RequestParam(value = "apellido", required = false) String apellido,
-			@RequestParam(value = "email", required = false) String email,
-			@RequestParam(value = "util", required = false) String util,
-			@RequestParam(value = "respuesta", required = false) String respuesta,
-			RedirectAttributes redirectAttributes) {
+	                              @RequestParam(value = "nombre", required = false) String nombre,
+	                              @RequestParam(value = "apellido", required = false) String apellido,
+	                              @RequestParam(value = "email", required = false) String email,
+	                              @RequestParam(value = "util", required = false) String util,
+	                              @RequestParam(value = "respuesta", required = false) String respuesta,
+	                              RedirectAttributes redirectAttributes,
+	                              HttpSession session) {
 
-		if (util != null && util.equals("true")) {
-			redirectAttributes.addFlashAttribute("agradecimientoFeedback", "✅ ¡Gracias por tu feedback!");
-			redirectAttributes.addFlashAttribute("respuesta", respuesta);
-			redirectAttributes.addFlashAttribute("pregunta", pregunta);
-			return "redirect:/";
-		}
+	    if ("true".equals(util)) {
+	        redirectAttributes.addFlashAttribute("agradecimientoFeedback", "✅ ¡Gracias por tu feedback!");
+	        redirectAttributes.addFlashAttribute("respuesta", respuesta);
+	        redirectAttributes.addFlashAttribute("pregunta", pregunta);
+	        return "redirect:/";
+	    }
 
-		// Si no marcó como útil, asumimos que es feedback
-		PreguntaUsuario feedback = new PreguntaUsuario();
-		feedback.setPregunta(pregunta);
-		feedback.setNombre(nombre);
-		feedback.setApellido(apellido);
-		feedback.setEmail(email);
-		feedback.setFechaEnvioPregunta(LocalDateTime.now());
-		feedback.setHabilitado(true);
-		feedback.setRespuestaEnviada(false);
+	    FeedbackSession feedbackSession = new FeedbackSession();
+	    feedbackSession.setNombre(nombre);
+	    feedbackSession.setApellido(apellido);
+	    feedbackSession.setEmail(email);
+	    feedbackSession.setPregunta(pregunta);
+	    session.setAttribute("feedbackSession", feedbackSession);
 
-		preguntaUsuarioService.save(feedback);
+	    PreguntaUsuario feedback = new PreguntaUsuario();
+	    feedback.setPregunta(pregunta);
+	    feedback.setNombre(nombre);
+	    feedback.setApellido(apellido);
+	    feedback.setEmail(email);
+	    feedback.setFechaEnvioPregunta(LocalDateTime.now());
+	    feedback.setHabilitado(true);
+	    feedback.setRespuestaEnviada(false);
 
-		redirectAttributes.addFlashAttribute("agradecimientoFeedback", "Tu pregunta fue: \"" + pregunta
-				+ "\". 📧 Recibirás una respuesta al correo proporcionado a la brevedad.");
-		redirectAttributes.addFlashAttribute("respuesta", "Pendiente");
-		redirectAttributes.addFlashAttribute("pregunta", pregunta);
-		redirectAttributes.addFlashAttribute("showFeedbackForm", false);
-		return "redirect:/";
+	    preguntaUsuarioService.save(feedback);
+
+	    redirectAttributes.addFlashAttribute("agradecimientoFeedback",
+	            "Tu pregunta fue: \"" + pregunta + "\". 📧 Recibirás una respuesta al correo proporcionado a la brevedad.");
+	    redirectAttributes.addFlashAttribute("respuesta", "Pendiente");
+	    redirectAttributes.addFlashAttribute("pregunta", pregunta);
+	    redirectAttributes.addFlashAttribute("showFeedbackForm", true); 
+	    return "redirect:/";
 	}
 	
 	@GetMapping("/chat/pdf")

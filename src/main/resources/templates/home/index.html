@@ -60,14 +60,19 @@
 
         <div class="row g-2">
             <div class="col-md-6">
-                <input type="text" name="nombre" class="form-control form-control-sm input-feedback" placeholder="Nombre" required />
+               <input type="text" name="nombre" class="form-control form-control-sm input-feedback" placeholder="Nombre"
+       required th:value="${feedbackSession != null ? feedbackSession.nombre : ''}" />
             </div>
             <div class="col-md-6">
-                <input type="text" name="apellido" class="form-control form-control-sm input-feedback" placeholder="Apellido" required />
+               <input type="text" name="apellido" class="form-control form-control-sm input-feedback" placeholder="Apellido"
+       required th:value="${feedbackSession != null ? feedbackSession.apellido : ''}" />
+
             </div>
         </div>
 
-        <input type="email" name="email" class="form-control form-control-sm input-feedback mt-2" placeholder="Correo electrónico" required />
+        <input type="email" name="email" class="form-control form-control-sm input-feedback mt-2" placeholder="Correo electrónico"
+       required th:value="${feedbackSession != null ? feedbackSession.email : ''}" />
+
 
         <button type="submit" class="btn btn-feedback mt-2 align-self-end">
             Enviar <i></i>
