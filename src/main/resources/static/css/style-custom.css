@@ -374,6 +374,47 @@ body {
     font-size: 1.05rem;
 }
 
+
+.input-feedback {
+    border-radius: 0.5rem;
+    border: 1px solid #555;
+    background-color: #1a1a1a;
+    color: #f8f9fa;
+    padding: 0.5rem 0.75rem;
+    transition: all 0.2s ease;
+}
+
+.input-feedback::placeholder {
+    color: #ccc;
+    opacity: 1;
+}
+
+.input-feedback:focus {
+    border-color: #800000;
+    box-shadow: 0 0 8px rgba(128, 0, 0, 0.5);
+    outline: none;
+    background-color: #222;
+    color: #fff;
+}
+
+.btn-feedback {
+    background-color: #800000;
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.45rem 1rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: background-color 0.3s ease;
+}
+
+.btn-feedback:hover {
+    background-color: #a00000;
+    color: #fff;
+}
+
 .ticket-id {
     font-size: 0.85rem;
     color: #bbbbbb;

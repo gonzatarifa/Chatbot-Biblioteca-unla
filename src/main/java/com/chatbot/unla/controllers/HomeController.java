@@ -70,43 +70,50 @@ public class HomeController {
 
 	@PostMapping("/")
 	public String procesarPregunta(@RequestParam("pregunta") String preguntaUsuario,
-			RedirectAttributes redirectAttributes, HttpSession session) {
+	                               RedirectAttributes redirectAttributes, HttpSession session) {
 
-		// Determinar clave de sesión según usuario logueado o anónimo
-		String username = "anonimo";
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
-			username = auth.getName();
-		}
-		String sessionKey = "historial_" + username;
+	    // Determinar clave de sesión según usuario logueado o anónimo
+	    String username = "anonimo";
+	    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+	    if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+	        username = auth.getName();
+	    }
+	    String sessionKey = "historial_" + username;
 
-		List<MensajeChat> historial = (List<MensajeChat>) session.getAttribute(sessionKey);
-		if (historial == null)
-			historial = new ArrayList<>();
+	    List<MensajeChat> historial = (List<MensajeChat>) session.getAttribute(sessionKey);
+	    if (historial == null) historial = new ArrayList<>();
 
-		historial.add(new MensajeChat("usuario", preguntaUsuario));
+	    historial.add(new MensajeChat("usuario", preguntaUsuario));
 
-		String respuestaModelo = chatService.procesarPregunta(preguntaUsuario);
+	    String respuestaModelo = chatService.procesarPregunta(preguntaUsuario);
 
-		String respuestaFinal = "La pregunta no pudo ser respondida automáticamente. " +
-                "Por favor, seleccioná '👎 No' en '¿Fue útil esta respuesta?' para que un bibliotecario pueda atender tu consulta vía correo electrónico.";
-		if (!respuestaModelo.equalsIgnoreCase("NINGUNA")) {
-			String respuesta = chatService.buscarRespuesta(respuestaModelo);
-			if (respuesta != null) {
-				respuestaFinal = respuesta;
-			} else {
-				respuestaFinal = "❌ Pregunta no reconocida: " + respuestaModelo;
-			}
-		}
+	    String respuestaFinal;
+	    boolean respuestaGenerica;
 
-		historial.add(new MensajeChat("bot", respuestaFinal));
+	    if (!respuestaModelo.equalsIgnoreCase("NINGUNA")) {
+	        String respuesta = chatService.buscarRespuesta(respuestaModelo);
+	        if (respuesta != null) {
+	            respuestaFinal = respuesta;
+	            respuestaGenerica = false; 
+	        } else {
+	            respuestaFinal = "❌ Pregunta no reconocida: " + respuestaModelo + 
+	                             ". Podés completar el formulario abajo y un bibliotecario te enviará la respuesta a tu correo a la brevedad.";
+	            respuestaGenerica = true; 
+	        }
+	    } else {
+	        respuestaFinal = "🤖 No pude responder automáticamente tu pregunta. " +
+	                         "Podés completar el formulario abajo y un bibliotecario te enviará la respuesta a tu correo a la brevedad.";
+	        respuestaGenerica = true;
+	    }
 
-		session.setAttribute(sessionKey, historial);
+	    historial.add(new MensajeChat("bot", respuestaFinal));
+	    session.setAttribute(sessionKey, historial);
 
-		redirectAttributes.addFlashAttribute("pregunta", preguntaUsuario);
-		redirectAttributes.addFlashAttribute("respuesta", respuestaFinal);
+	    redirectAttributes.addFlashAttribute("pregunta", preguntaUsuario);
+	    redirectAttributes.addFlashAttribute("respuesta", respuestaFinal);
+	    redirectAttributes.addFlashAttribute("respuestaGenerica", respuestaGenerica);
 
-		return "redirect:/";
+	    return "redirect:/";
 	}
 
 	@PostMapping("/feedback")
