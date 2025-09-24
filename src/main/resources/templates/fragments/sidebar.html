@@ -13,7 +13,9 @@
 </head>
 
 <!-- fragments/sidebar.html -->
-<div class="sidebar bg-dark text-white" id="sidebar" th:fragment="sidebar">
+<div class="sidebar bg-dark text-white" 
+	th:classappend="${#httpServletRequest.requestURI.endsWith('/')} or ${#httpServletRequest.requestURI.endsWith('/index')} ? 'collapsed' : ''" 
+	 id="sidebar" th:fragment="sidebar">
     <!-- Toggle -->
     <button class="btn btn-dark w-100 mb-3 d-flex align-items-center justify-content-center" onclick="toggleSidebar()">
         <i class="bi bi-list fs-4"></i>

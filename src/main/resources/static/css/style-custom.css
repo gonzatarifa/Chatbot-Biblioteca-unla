@@ -12,20 +12,21 @@ body {
 }
 
 .sidebar {
-	width: 240px;
-	background-color: #181818;
-	color: white;
-	padding: 1rem 1.25rem;
-	transition: width 0.3s ease;
-	display: flex;
-	flex-direction: column;
-	border-right: 2px solid #800000;
+    width: 60px;
+    background-color: #181818;
+    color: white;
+    padding: 1rem 0.5rem;
+    transition: width 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    border-right: 2px solid #800000;
+    align-items: center;
 }
 
-.sidebar.collapsed {
-	width: 60px;
-	padding: 1rem 0.5rem;
-	align-items: center;
+.sidebar:not(.collapsed) {
+    width: 240px;
+    padding: 1rem 1.25rem;
+    align-items: stretch;
 }
 
 .sidebar .nav-link {
@@ -38,8 +39,12 @@ body {
 	color: #800000;
 }
 
-.sidebar.collapsed .nav-link span {
-	display: none;
+.sidebar .nav-link span {
+    display: none;
+}
+
+.sidebar:not(.collapsed) .nav-link span {
+    display: inline;
 }
 
 .sidebar .toggle-btn {
