@@ -19,7 +19,7 @@ body {
     transition: width 0.3s ease;
     display: flex;
     flex-direction: column;
-    border-right: 2px solid #800000;
+    border-right: 1px solid rgb(255, 255, 255);
     align-items: center;
 }
 
@@ -110,11 +110,11 @@ body {
 
 #chatbot-fixed {
 	color: #f8f9fa; 
-	border: 2px solid #800000;
+	border: 1px solid rgb(255, 255, 255);
 	border-radius: 12px;
 	width: 100%;
 	max-width: 1100px;
-	height: 85vh;
+	height: 95vh;
 	display: flex;
 	flex-direction: column;
 	padding: 1rem;
@@ -163,25 +163,32 @@ body {
     scrollbar-color: #800000 #1a1a1a;
 }
 
-/* Mensaje del usuario */
+/*mensaje del usuario*/
 .chat-user-msg {
-	background-color: #800000;
-	color: white;
-	padding: 12px 18px;
-	border-radius: 1rem 1rem 1rem 0;
-	margin-bottom: 12px;
-	max-width: 75%;
+    background-color: #800000;
+    color: white;
+    padding: 12px 18px;
+    border-radius: 1rem 1rem 0 1rem;
+    margin-bottom: 12px;
+    max-width: 90%;
+    margin-left: auto;     
+    text-align: left;     
+    display: block;       
+    width: fit-content;    
+    word-wrap: break-word; 
 }
-
 /* Mensaje del bot */
 .chat-bot-msg {
-	background-color: #e9ecef;
-	color: #212529;
-	padding: 12px 18px;
-	border-radius: 1rem 1rem 0 1rem;
-	margin-bottom: 12px;
-	margin-left: auto;
-	max-width: 75%;
+    background: none;
+    color: #f8f9fa;
+    padding: 6px 0;
+    border-radius: 0;
+    margin-bottom: 10px;
+    margin-left: 0; 
+    max-width: 75%;
+    text-align: left;
+    font-size: 1rem;
+    line-height: 1.5;
 }
 
 #chatForm {

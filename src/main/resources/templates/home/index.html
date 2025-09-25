@@ -1,96 +1,121 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Chatbot Unla</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+	rel="stylesheet" />
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+	rel="stylesheet" />
 <link href="/css/style-custom.css" rel="stylesheet" />
 </head>
 <body>
-<div class="wrapper d-flex">
-  <div th:replace="fragments/sidebar :: sidebar"></div>
+	<div class="wrapper d-flex">
+		<div th:replace="fragments/sidebar :: sidebar"></div>
 
-  <div class="content flex-grow-1 p-4 d-flex justify-content-center align-items-start">
-    <div id="chatbot-fixed" aria-live="polite" aria-label="Chatbot">
-      <!-- Header -->
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Servicio de referencia virtual "Rodolfo Puiggrós"</h5>
-        <a href="/chat/pdf" class="btn btn-outline-danger btn-sm" target="_blank" title="Descargar conversación en PDF">
-          <i class="bi bi-file-earmark-pdf-fill"></i>
-        </a>
-      </div>
+		<div
+			class="content flex-grow-1 p-4 d-flex justify-content-center align-items-start">
+			<div id="chatbot-fixed" aria-live="polite" aria-label="Chatbot">
+				<!-- Header -->
+				<div
+					class="card-header d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+					<div class="d-flex align-items-center gap-2">
+						<h5 class="mb-0">SERVICIO DE REFERENCIA VIRTUAL "Rodolfo Puiggrós"</h5>
+					</div>
+					<!-- Botón PDF -->
+					<a href="/chat/pdf" class="btn btn-outline-danger btn-sm"
+						target="_blank" title="Descargar conversación en PDF"> <i
+						class="bi bi-file-earmark-pdf-fill"></i>
+					</a>
+				</div>
 
-      <!-- Historial -->
-      <div id="chat-messages-scroll"
-           style="flex-grow: 1; overflow-y: auto; margin-bottom: 10px; display: flex; flex-direction: column;">
-        <div th:each="msg : ${historial}">
-          <div th:if="${msg.remitente == 'usuario'}" class="chat-user-msg">
-            <strong>🧑 Vos:</strong> <span th:text="${msg.contenido}"></span>
-          </div>
-          <div th:if="${msg.remitente == 'bot'}" class="chat-bot-msg">
-            <strong>🤖 Chatbot:</strong> <span th:text="${msg.contenido}"></span>
-          </div>
-        </div>
+				<!-- Historial -->
+				<div id="chat-messages-scroll"
+					style="flex-grow: 1; overflow-y: auto; margin-bottom: 10px; display: flex; flex-direction: column;">
+					<div th:each="msg : ${historial}">
+						<div th:if="${msg.remitente == 'usuario'}" class="chat-user-msg">
+							<strong></strong> <span th:text="${msg.contenido}"></span>
+						</div>
+						<div th:if="${msg.remitente == 'bot'}" class="chat-bot-msg">
+							<strong></strong> <span th:text="${msg.contenido}"></span>
+						</div>
+					</div>
 
-        <!-- Spinner -->
-        <div id="loadingSpinner" class="text-center mb-3" style="display: none;">
-          <div class="spinner-border text-dark" role="status" style="width: 1.5rem; height: 1.5rem;">
-            <span class="visually-hidden">Cargando...</span>
-          </div>
-          <p class="mt-1" style="font-size: 0.85rem; color: #ccc;">Procesando respuesta...</p>
-        </div>
-      </div>
+					<!-- Spinner -->
+					<div id="loadingSpinner" class="text-center mb-3"
+						style="display: none;">
+						<div class="spinner-border text-dark" role="status"
+							style="width: 1.5rem; height: 1.5rem;">
+							<span class="visually-hidden">Cargando...</span>
+						</div>
+						<p class="mt-1" style="font-size: 0.85rem; color: #ccc;">Procesando
+							respuesta...</p>
+					</div>
+				</div>
 
-<!-- Mensajes de agradecimiento o estado -->
-<div th:if="${agradecimientoFeedback}" class="modern-card mb-3 p-3">
-    <p class="mb-1 text-success" th:text="${agradecimientoFeedback}"></p>
-</div>
-<!-- Formulario de feedback moderno -->
-<div id="formularioFeedback" th:if="${respuestaGenerica}" class="modern-card mt-3 p-3" style="display:block;">
-    <h6 class="card-title mb-2">Formulario</h6>
-    <p class="card-text text-info mb-3">
-        Completá los datos para que un bibliotecario pueda responder tu consulta por correo electrónico.
-    </p>
-    <form method="post" action="/feedback" class="d-flex flex-column gap-2">
-        <!-- Pregunta enviada oculta -->
-        <input type="hidden" name="pregunta" th:value="${pregunta}" />
+				<!-- Mensajes de agradecimiento o estado -->
+				<div th:if="${agradecimientoFeedback}" class="modern-card mb-3 p-3">
+					<p class="mb-1 text-success" th:text="${agradecimientoFeedback}"></p>
+				</div>
+				<!-- Formulario de feedback moderno -->
+				<div id="formularioFeedback" th:if="${respuestaGenerica}"
+					class="modern-card mt-3 p-3" style="display: block;">
+					<h6 class="card-title mb-2">Formulario</h6>
+					<p class="card-text text-info mb-3">Completá los datos para que
+						un bibliotecario pueda responder tu consulta por correo
+						electrónico.</p>
+					<form method="post" action="/feedback"
+						class="d-flex flex-column gap-2">
+						<!-- Pregunta enviada oculta -->
+						<input type="hidden" name="pregunta" th:value="${pregunta}" />
 
-        <div class="row g-2">
-            <div class="col-md-6">
-                <input type="text" name="nombre" class="form-control form-control-sm input-feedback" placeholder="Nombre"
-                       required th:value="${feedbackSession != null ? feedbackSession.nombre : ''}" />
-            </div>
-            <div class="col-md-6">
-                <input type="text" name="apellido" class="form-control form-control-sm input-feedback" placeholder="Apellido"
-                       required th:value="${feedbackSession != null ? feedbackSession.apellido : ''}" />
-            </div>
-        </div>
+						<div class="row g-2">
+							<div class="col-md-6">
+								<input type="text" name="nombre"
+									class="form-control form-control-sm input-feedback"
+									placeholder="Nombre" required
+									th:value="${feedbackSession != null ? feedbackSession.nombre : ''}" />
+							</div>
+							<div class="col-md-6">
+								<input type="text" name="apellido"
+									class="form-control form-control-sm input-feedback"
+									placeholder="Apellido" required
+									th:value="${feedbackSession != null ? feedbackSession.apellido : ''}" />
+							</div>
+						</div>
 
-        <input type="email" name="email" class="form-control form-control-sm input-feedback mt-2" placeholder="Correo electrónico"
-               required th:value="${feedbackSession != null ? feedbackSession.email : ''}" />
+						<input type="email" name="email"
+							class="form-control form-control-sm input-feedback mt-2"
+							placeholder="Correo electrónico" required
+							th:value="${feedbackSession != null ? feedbackSession.email : ''}" />
 
-        <button type="submit" class="btn btn-feedback mt-2 align-self-end">
-            Enviar <i></i>
-        </button>
-    </form>
-</div>
+						<button type="submit" class="btn btn-feedback mt-2 align-self-end">
+							Enviar <i></i>
+						</button>
+					</form>
+				</div>
 
-      <!-- Formulario de chat -->
-      <form id="chatForm" method="post" action="/" style="display: flex; margin-top:10px;">
-        <textarea name="pregunta" placeholder="Escribí tu pregunta..." required autocomplete="off" rows="1" style="flex-grow: 1; resize: none;"></textarea>
-        <button id="sendBtn" class="btn" type="submit" aria-label="Enviar pregunta">
-          <i class="bi bi-send-fill"></i>
-        </button>
-      </form>
-    </div>
-  </div>
-</div>
+				<!-- Formulario de chat -->
+				<form id="chatForm" method="post" action="/"
+					style="display: flex; margin-top: 10px;">
+					<textarea name="pregunta" placeholder="Escribí tu pregunta..."
+						required autocomplete="off" rows="1"
+						style="flex-grow: 1; resize: none;"></textarea>
+					<button id="sendBtn" class="btn" type="submit"
+						aria-label="Enviar pregunta">
+						<i class="bi bi-send-fill"></i>
+					</button>
+				</form>
+			</div>
+		</div>
+	</div>
 
-<script>
+	<script>
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     sidebar.classList.toggle('collapsed');
@@ -119,7 +144,7 @@ function toggleSidebar() {
 	    if (userText) {
 	        const userMsg = document.createElement("div");
 	        userMsg.classList.add("chat-user-msg");
-	        userMsg.innerHTML = `<strong>🧑 Vos:</strong> <span>${userText}</span>`;
+	        userMsg.innerHTML = `<strong></strong> <span>${userText}</span>`;
 	        chatScroll.appendChild(userMsg);
 	        chatScroll.appendChild(loadingSpinner);
 	    }
@@ -155,6 +180,7 @@ function toggleSidebar() {
     window.addEventListener("load", scrollToBottom);
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

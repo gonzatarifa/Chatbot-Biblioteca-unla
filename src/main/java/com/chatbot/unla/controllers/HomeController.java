@@ -49,7 +49,7 @@ public class HomeController {
         List<MensajeChat> historial = (List<MensajeChat>) session.getAttribute(sessionKey);
         if (historial == null) {
             historial = new ArrayList<>();
-            String mensajeInicial = "🤖 ¡Hola! Estás con el Servicio de Referencia Virtual “Rodolfo Puiggrós”. " +
+            String mensajeInicial = "¡Bienvenido/a! Estás en el Servicio de Referencia Virtual *“Rodolfo Puiggrós”*. " +
                     "Podés preguntarme lo que quieras y te ayudaré con información de la biblioteca.";
             historial.add(new MensajeChat("bot", mensajeInicial));
             session.setAttribute(sessionKey, historial);
@@ -103,12 +103,12 @@ public class HomeController {
                 respuestaFinal = respuesta;
                 respuestaGenerica = false;
             } else {
-                respuestaFinal = "❌ Pregunta no reconocida: " + respuestaModelo +
+                respuestaFinal = "Pregunta no reconocida: " + respuestaModelo +
                         ". Podés completar el formulario abajo y un bibliotecario te enviará la respuesta a tu correo a la brevedad.";
                 respuestaGenerica = true;
             }
         } else {
-            respuestaFinal = "🤖 No pude responder automáticamente tu pregunta. " +
+            respuestaFinal = "No pude responder automáticamente tu pregunta. " +
                     "Podés completar el formulario abajo y un bibliotecario te enviará la respuesta a tu correo a la brevedad.";
             respuestaGenerica = true;
         }
@@ -140,7 +140,7 @@ public class HomeController {
         }
 
         if ("true".equals(util)) {
-            redirectAttributes.addFlashAttribute("agradecimientoFeedback", "✅ ¡Gracias por tu feedback!");
+            redirectAttributes.addFlashAttribute("agradecimientoFeedback", "¡Gracias por tu feedback!");
             redirectAttributes.addFlashAttribute("respuesta", respuesta);
             redirectAttributes.addFlashAttribute("pregunta", pregunta);
             return "redirect:/";
@@ -165,7 +165,7 @@ public class HomeController {
         preguntaUsuarioService.save(feedback);
 
         redirectAttributes.addFlashAttribute("agradecimientoFeedback",
-                "Tu pregunta fue: \"" + pregunta + "\". 📧 Recibirás una respuesta al correo proporcionado a la brevedad.");
+                "Tu pregunta fue: \"" + pregunta + "\". Recibirás una respuesta al correo proporcionado a la brevedad.");
         redirectAttributes.addFlashAttribute("respuesta", "Pendiente");
         redirectAttributes.addFlashAttribute("pregunta", pregunta);
         redirectAttributes.addFlashAttribute("showFeedbackForm", true);
@@ -184,7 +184,7 @@ public class HomeController {
 	    List<MensajeChat> historial = (List<MensajeChat>) session.getAttribute(sessionKey);
 	    if (historial == null || historial.isEmpty()) {
 	        historial = new ArrayList<>();
-	        historial.add(new MensajeChat("bot", "⚠️ No hay conversación disponible."));
+	        historial.add(new MensajeChat("bot", "No hay conversación disponible."));
 	    }
 
 	    response.setContentType("application/pdf");
@@ -225,7 +225,7 @@ public class HomeController {
 	        document.add(headerTable);
 
 	    } catch (Exception e) {
-	        System.out.println("⚠️ No se pudo cargar el logo de la UNLa: " + e.getMessage());
+	        System.out.println("No se pudo cargar el logo de la UNLa: " + e.getMessage());
 	    }
 
 	    com.lowagie.text.pdf.draw.LineSeparator separator = new com.lowagie.text.pdf.draw.LineSeparator();
@@ -236,9 +236,9 @@ public class HomeController {
 	    // Historial de mensajes
 	    for (MensajeChat msg : historial) {
 	        if ("usuario".equals(msg.getRemitente())) {
-	            document.add(new com.lowagie.text.Paragraph("🧑 Vos:", fontUsuario));
+	            document.add(new com.lowagie.text.Paragraph("Tu: ", fontUsuario));
 	        } else {
-	            document.add(new com.lowagie.text.Paragraph("🤖 Chatbot:", fontBot));
+	            document.add(new com.lowagie.text.Paragraph("Chatbot: ", fontBot));
 	        }
 	        document.add(new com.lowagie.text.Paragraph(msg.getContenido(), fontNormal));
 	        document.add(new com.lowagie.text.Chunk(new com.lowagie.text.pdf.draw.DottedLineSeparator()));
