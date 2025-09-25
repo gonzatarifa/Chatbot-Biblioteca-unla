@@ -49,7 +49,7 @@ public class HomeController {
         List<MensajeChat> historial = (List<MensajeChat>) session.getAttribute(sessionKey);
         if (historial == null) {
             historial = new ArrayList<>();
-            String mensajeInicial = "¡Bienvenido/a! Estás en el Servicio de Referencia Virtual *“Rodolfo Puiggrós”*. " +
+            String mensajeInicial = "¡Bienvenido/a! Estás en el Servicio de Referencia Virtual “Rodolfo Puiggrós”. " +
                     "Podés preguntarme lo que quieras y te ayudaré con información de la biblioteca.";
             historial.add(new MensajeChat("bot", mensajeInicial));
             session.setAttribute(sessionKey, historial);
