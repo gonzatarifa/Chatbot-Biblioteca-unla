@@ -114,12 +114,22 @@ function toggleSidebar() {
         e.preventDefault();
         if (sendBtn.disabled) return;
         sendBtn.disabled = true;
+        
+	    const userText = textarea.value.trim();
+	    if (userText) {
+	        const userMsg = document.createElement("div");
+	        userMsg.classList.add("chat-user-msg");
+	        userMsg.innerHTML = `<strong>🧑 Vos:</strong> <span>${userText}</span>`;
+	        chatScroll.appendChild(userMsg);
+	        chatScroll.appendChild(loadingSpinner);
+	    }
 
         loadingSpinner.style.display = "block";
         scrollToBottom(); // aseguramos que el spinner se vea al final
 
         setTimeout(() => {
             this.submit();
+            textarea.style.height = "auto";
         }, 1);
     });
 
