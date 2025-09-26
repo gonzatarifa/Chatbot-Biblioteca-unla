@@ -20,6 +20,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.chatbot.unla.entities.PreguntaUsuario;
 import com.chatbot.unla.entities.model.MensajeChat;
+import com.chatbot.unla.helpers.FeedbackSession;
 import com.chatbot.unla.helpers.ViewRouteHelper;
 import com.chatbot.unla.services.IPreguntaUsuarioService;
 import com.chatbot.unla.services.implementation.ChatServiceV2;
@@ -34,32 +35,35 @@ public class HomeController {
 	@Autowired
 	private IPreguntaUsuarioService preguntaUsuarioService;
 
-	@GetMapping("/")
-	public ModelAndView index(HttpSession session) {
-	    ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.INDEX);
+    @GetMapping("/")
+    public ModelAndView index(HttpSession session) {
+        ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.INDEX);
 
-	    String username = "anonimo";
-	    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-	    if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
-	        username = auth.getName();
-	    }
-	    String sessionKey = "historial_" + username;
+        String username = "anonimo";
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+            username = auth.getName();
+        }
 
-	    List<MensajeChat> historial = (List<MensajeChat>) session.getAttribute(sessionKey);
+        String sessionKey = "historial_" + username;
+        List<MensajeChat> historial = (List<MensajeChat>) session.getAttribute(sessionKey);
+        if (historial == null) {
+            historial = new ArrayList<>();
+            String mensajeInicial = "¡Bienvenido/a! Estás en el Servicio de Referencia Virtual “Rodolfo Puiggrós”. " +
+                    "Podés preguntarme lo que quieras y te ayudaré con información de la biblioteca.";
+            historial.add(new MensajeChat("bot", mensajeInicial));
+            session.setAttribute(sessionKey, historial);
+        }
+        modelAndView.addObject("historial", historial);
 
-	    if (historial == null) {
-	        historial = new ArrayList<>();
+        String feedbackKey = "feedbackSession_" + username;
+        FeedbackSession feedbackSession = (FeedbackSession) session.getAttribute(feedbackKey);
+        if (feedbackSession != null) {
+            modelAndView.addObject("feedbackSession", feedbackSession);
+        }
 
-	        String mensajeInicial = "🤖 ¡Hola! Estás con el Servicio de Referencia Virtual “Rodolfo Puiggrós”. " +
-	                "Podés preguntarme lo que quieras y te ayudaré con información de la biblioteca.";
-	        historial.add(new MensajeChat("bot", mensajeInicial));
-
-	        session.setAttribute(sessionKey, historial);
-	    }
-
-	    modelAndView.addObject("historial", historial);
-	    return modelAndView;
-	}
+        return modelAndView;
+    }
 	
 	// index para poder usar el logo y volver a inicio
 	@GetMapping("/index")
@@ -68,82 +72,105 @@ public class HomeController {
 		return modelAndView;
 	}
 
-	@PostMapping("/")
-	public String procesarPregunta(@RequestParam("pregunta") String preguntaUsuario,
-			RedirectAttributes redirectAttributes, HttpSession session) {
 
-		// Determinar clave de sesión según usuario logueado o anónimo
-		String username = "anonimo";
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
-			username = auth.getName();
-		}
-		String sessionKey = "historial_" + username;
+    @PostMapping("/")
+    public String procesarPregunta(@RequestParam("pregunta") String preguntaUsuario,
+                                   RedirectAttributes redirectAttributes, HttpSession session) {
 
-		List<MensajeChat> historial = (List<MensajeChat>) session.getAttribute(sessionKey);
-		if (historial == null)
-			historial = new ArrayList<>();
+        String username = "anonimo";
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+            username = auth.getName();
+        }
 
-		historial.add(new MensajeChat("usuario", preguntaUsuario));
+        String sessionKey = "historial_" + username;
+        List<MensajeChat> historial = (List<MensajeChat>) session.getAttribute(sessionKey);
+        if (historial == null) historial = new ArrayList<>();
+        historial.add(new MensajeChat("usuario", preguntaUsuario));
 
-		String respuestaModelo = chatService.procesarPregunta(preguntaUsuario);
+        String respuestaModelo = null;
+        for (int i = 0; i < 2; i++) {
+            respuestaModelo = chatService.procesarPregunta(preguntaUsuario);
+            if (!"NINGUNA".equalsIgnoreCase(respuestaModelo)) break;
+        }
 
-		String respuestaFinal = "La pregunta no pudo ser respondida automáticamente. " +
-                "Por favor, seleccioná '👎 No' en '¿Fue útil esta respuesta?' para que un bibliotecario pueda atender tu consulta vía correo electrónico.";
-		if (!respuestaModelo.equalsIgnoreCase("NINGUNA")) {
-			String respuesta = chatService.buscarRespuesta(respuestaModelo);
-			if (respuesta != null) {
-				respuestaFinal = respuesta;
-			} else {
-				respuestaFinal = "❌ Pregunta no reconocida: " + respuestaModelo;
-			}
-		}
+        String respuestaFinal;
+        boolean respuestaGenerica;
 
-		historial.add(new MensajeChat("bot", respuestaFinal));
+        if (!"NINGUNA".equalsIgnoreCase(respuestaModelo)) {
+            String respuesta = chatService.buscarRespuesta(respuestaModelo);
+            if (respuesta != null) {
+                respuestaFinal = respuesta;
+                respuestaGenerica = false;
+            } else {
+                respuestaFinal = "Pregunta no reconocida: " + respuestaModelo +
+                        ". Podés completar el formulario abajo y un bibliotecario te enviará la respuesta a tu correo a la brevedad.";
+                respuestaGenerica = true;
+            }
+        } else {
+            respuestaFinal = "No pude responder automáticamente tu pregunta. " +
+                    "Podés completar el formulario abajo y un bibliotecario te enviará la respuesta a tu correo a la brevedad.";
+            respuestaGenerica = true;
+        }
 
-		session.setAttribute(sessionKey, historial);
+        historial.add(new MensajeChat("bot", respuestaFinal));
+        session.setAttribute(sessionKey, historial);
 
-		redirectAttributes.addFlashAttribute("pregunta", preguntaUsuario);
-		redirectAttributes.addFlashAttribute("respuesta", respuestaFinal);
+        redirectAttributes.addFlashAttribute("pregunta", preguntaUsuario);
+        redirectAttributes.addFlashAttribute("respuesta", respuestaFinal);
+        redirectAttributes.addFlashAttribute("respuestaGenerica", respuestaGenerica);
 
-		return "redirect:/";
-	}
+        return "redirect:/";
+    }
 
-	@PostMapping("/feedback")
-	public String recibirFeedback(@RequestParam("pregunta") String pregunta,
-			@RequestParam(value = "nombre", required = false) String nombre,
-			@RequestParam(value = "apellido", required = false) String apellido,
-			@RequestParam(value = "email", required = false) String email,
-			@RequestParam(value = "util", required = false) String util,
-			@RequestParam(value = "respuesta", required = false) String respuesta,
-			RedirectAttributes redirectAttributes) {
+    @PostMapping("/feedback")
+    public String recibirFeedback(@RequestParam("pregunta") String pregunta,
+                                  @RequestParam(value = "nombre", required = false) String nombre,
+                                  @RequestParam(value = "apellido", required = false) String apellido,
+                                  @RequestParam(value = "email", required = false) String email,
+                                  @RequestParam(value = "util", required = false) String util,
+                                  @RequestParam(value = "respuesta", required = false) String respuesta,
+                                  RedirectAttributes redirectAttributes,
+                                  HttpSession session) {
 
-		if (util != null && util.equals("true")) {
-			redirectAttributes.addFlashAttribute("agradecimientoFeedback", "✅ ¡Gracias por tu feedback!");
-			redirectAttributes.addFlashAttribute("respuesta", respuesta);
-			redirectAttributes.addFlashAttribute("pregunta", pregunta);
-			return "redirect:/";
-		}
+        String username = "anonimo";
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+            username = auth.getName();
+        }
 
-		// Si no marcó como útil, asumimos que es feedback
-		PreguntaUsuario feedback = new PreguntaUsuario();
-		feedback.setPregunta(pregunta);
-		feedback.setNombre(nombre);
-		feedback.setApellido(apellido);
-		feedback.setEmail(email);
-		feedback.setFechaEnvioPregunta(LocalDateTime.now());
-		feedback.setHabilitado(true);
-		feedback.setRespuestaEnviada(false);
+        if ("true".equals(util)) {
+            redirectAttributes.addFlashAttribute("agradecimientoFeedback", "¡Gracias por tu feedback!");
+            redirectAttributes.addFlashAttribute("respuesta", respuesta);
+            redirectAttributes.addFlashAttribute("pregunta", pregunta);
+            return "redirect:/";
+        }
 
-		preguntaUsuarioService.save(feedback);
+        FeedbackSession feedbackSession = new FeedbackSession();
+        feedbackSession.setNombre(nombre);
+        feedbackSession.setApellido(apellido);
+        feedbackSession.setEmail(email);
+        feedbackSession.setPregunta(pregunta);
+        String feedbackKey = "feedbackSession_" + username;
+        session.setAttribute(feedbackKey, feedbackSession);
 
-		redirectAttributes.addFlashAttribute("agradecimientoFeedback", "Tu pregunta fue: \"" + pregunta
-				+ "\". 📧 Recibirás una respuesta al correo proporcionado a la brevedad.");
-		redirectAttributes.addFlashAttribute("respuesta", "Pendiente");
-		redirectAttributes.addFlashAttribute("pregunta", pregunta);
-		redirectAttributes.addFlashAttribute("showFeedbackForm", false);
-		return "redirect:/";
-	}
+        PreguntaUsuario feedback = new PreguntaUsuario();
+        feedback.setPregunta(pregunta);
+        feedback.setNombre(nombre);
+        feedback.setApellido(apellido);
+        feedback.setEmail(email);
+        feedback.setFechaEnvioPregunta(LocalDateTime.now());
+        feedback.setHabilitado(true);
+        feedback.setRespuestaEnviada(false);
+        preguntaUsuarioService.save(feedback);
+
+        redirectAttributes.addFlashAttribute("agradecimientoFeedback",
+                "Tu pregunta fue: \"" + pregunta + "\". Recibirás una respuesta al correo proporcionado a la brevedad.");
+        redirectAttributes.addFlashAttribute("respuesta", "Pendiente");
+        redirectAttributes.addFlashAttribute("pregunta", pregunta);
+        redirectAttributes.addFlashAttribute("showFeedbackForm", true);
+        return "redirect:/";
+    }
 	
 	@GetMapping("/chat/pdf")
 	public void descargarChat(HttpSession session, HttpServletResponse response) throws Exception {
@@ -157,7 +184,7 @@ public class HomeController {
 	    List<MensajeChat> historial = (List<MensajeChat>) session.getAttribute(sessionKey);
 	    if (historial == null || historial.isEmpty()) {
 	        historial = new ArrayList<>();
-	        historial.add(new MensajeChat("bot", "⚠️ No hay conversación disponible."));
+	        historial.add(new MensajeChat("bot", "No hay conversación disponible."));
 	    }
 
 	    response.setContentType("application/pdf");
@@ -198,7 +225,7 @@ public class HomeController {
 	        document.add(headerTable);
 
 	    } catch (Exception e) {
-	        System.out.println("⚠️ No se pudo cargar el logo de la UNLa: " + e.getMessage());
+	        System.out.println("No se pudo cargar el logo de la UNLa: " + e.getMessage());
 	    }
 
 	    com.lowagie.text.pdf.draw.LineSeparator separator = new com.lowagie.text.pdf.draw.LineSeparator();
@@ -209,9 +236,9 @@ public class HomeController {
 	    // Historial de mensajes
 	    for (MensajeChat msg : historial) {
 	        if ("usuario".equals(msg.getRemitente())) {
-	            document.add(new com.lowagie.text.Paragraph("🧑 Vos:", fontUsuario));
+	            document.add(new com.lowagie.text.Paragraph("Tu: ", fontUsuario));
 	        } else {
-	            document.add(new com.lowagie.text.Paragraph("🤖 Chatbot:", fontBot));
+	            document.add(new com.lowagie.text.Paragraph("Chatbot: ", fontBot));
 	        }
 	        document.add(new com.lowagie.text.Paragraph(msg.getContenido(), fontNormal));
 	        document.add(new com.lowagie.text.Chunk(new com.lowagie.text.pdf.draw.DottedLineSeparator()));
