@@ -51,7 +51,6 @@ public class Usuario {
 	private String nombreDeUsuario;
 
 	@Column(name = "contrasena")
-	@NotEmpty(message="el campo no debe estar vacio") 
 	private String contrasena;
 
 	@ManyToOne

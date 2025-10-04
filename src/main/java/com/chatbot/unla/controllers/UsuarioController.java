@@ -31,7 +31,6 @@ import com.chatbot.unla.services.IUsuarioService;
 
 @Controller
 @RequestMapping("/usuarios")
-
 public class UsuarioController {
 
 	@Autowired
@@ -86,6 +85,11 @@ public class UsuarioController {
 			FieldError error = new FieldError("usuario", "correoElectronico", "Ya existe un usuario con ese correo electronico");
 			result.addError(error);
 		}
+		
+	    if (usuario.getContrasena() == null || usuario.getContrasena().trim().isEmpty()) {
+	        FieldError error = new FieldError("usuario", "contrasena", "La contraseña no puede estar vacía");
+	        result.addError(error);
+	    }
 			
 		if(result.hasErrors()) {
 			model.addAttribute("titulo", "Formulario: Nuevo Usuario");
@@ -170,7 +174,7 @@ public class UsuarioController {
 
 	    usuarioService.save(usuarioBD);
 	    attributes.addFlashAttribute("success", "Usuario actualizado con éxito");
-	    return ViewRouteHelper.USUARIO_LISTA;
+	    return ViewRouteHelper.USUARIO_REDIRECT_LISTA;
 	}
 
 
