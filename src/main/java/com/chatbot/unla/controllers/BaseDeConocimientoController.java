@@ -239,7 +239,7 @@ public class BaseDeConocimientoController {
                         String pregunta = preguntaCell.getStringCellValue();
                         String respuesta = respuestaCell.getStringCellValue();
                         preview.add(Map.of("pregunta", pregunta, "respuesta", respuesta));
-                        if(baseDeConocimientoService.buscarPorPreguntaExacta(pregunta) != null){
+                        if (!baseDeConocimientoService.buscarPorPregunta(pregunta, true).isEmpty()) {
                             duplicadas.add(pregunta);
                         }
                     }
@@ -256,7 +256,7 @@ public class BaseDeConocimientoController {
                         String pregunta = parts[0].trim();
                         String respuesta = parts[1].trim();
                         preview.add(Map.of("pregunta", pregunta, "respuesta", respuesta));
-                        if(baseDeConocimientoService.buscarPorPreguntaExacta(pregunta) != null){
+                        if(!baseDeConocimientoService.buscarPorPregunta(pregunta, true).isEmpty()){
                             duplicadas.add(pregunta);
                         }
                     }
