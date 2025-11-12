@@ -8,6 +8,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +23,11 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -313,6 +320,21 @@ public class BaseDeConocimientoController {
         }
 
         return "redirect:/baseDeConocimiento/lista";
+    }
+    
+    @GetMapping("/descargar-ejemplo")
+    public ResponseEntity<Resource> descargarEjemplo() throws IOException {
+        Path path = Paths.get("src/main/resources/static/archivos/ejemplo_preguntas.xlsx");
+        Resource resource = new UrlResource(path.toUri());
+
+        if (!resource.exists()) {
+            throw new IOException("No se encontró el archivo de ejemplo en la ruta especificada");
+        }
+        
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=ejemplo_preguntas.xlsx")
+                .body(resource);
     }
 
 
