@@ -22,9 +22,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.chatbot.unla.entities.Perfiles;
+import com.chatbot.unla.entities.PreguntaUsuario;
 import com.chatbot.unla.entities.Usuario;
 import com.chatbot.unla.helpers.ViewRouteHelper;
 import com.chatbot.unla.services.IPerfilesService;
+import com.chatbot.unla.services.IPreguntaUsuarioService;
 import com.chatbot.unla.services.IUsuarioService;
 
 
@@ -40,6 +42,10 @@ public class UsuarioController {
 	@Autowired
 	@Qualifier("perfilesService")
 	private IPerfilesService perfilesService;
+	
+	@Autowired
+	@Qualifier("preguntaUsuarioService")
+	private IPreguntaUsuarioService preguntaUsuarioService;
 	
 	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
@@ -224,6 +230,13 @@ public class UsuarioController {
 		Usuario u = usuarioService.buscar(id);
 		u.setDeshabilitado(false);
 		usuarioService.save(u);
+		
+		List<PreguntaUsuario> preguntas = preguntaUsuarioService.findByUsuarioRespondiendoId(id);
+		for (PreguntaUsuario p : preguntas) {
+	        p.setUsuarioRespondiendo(null);
+	    }
+		preguntaUsuarioService.saveAll(preguntas);
+		
 		System.out.println("Registro eliminado con exito");
 		attribute.addFlashAttribute("warning","Usuario eliminado con exito");
 		return ViewRouteHelper.ROUTE_REDIRECT;

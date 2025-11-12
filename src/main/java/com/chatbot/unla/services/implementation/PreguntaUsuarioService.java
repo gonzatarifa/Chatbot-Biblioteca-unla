@@ -21,6 +21,11 @@ public class PreguntaUsuarioService implements IPreguntaUsuarioService {
 	public void save(PreguntaUsuario preguntaUsuario) {
 		preguntaUsuarioRepository.save(preguntaUsuario);
 	}
+	
+	@Override
+	public void saveAll(List<PreguntaUsuario> preguntaUsuarioList) {
+		preguntaUsuarioRepository.saveAll(preguntaUsuarioList);
+	}
 
 	@Override
 	public List<PreguntaUsuario> getAll() {
@@ -43,5 +48,10 @@ public class PreguntaUsuarioService implements IPreguntaUsuarioService {
 			        .stream()
 			        .filter(p -> p.isHabilitado() && !p.isRespuestaEnviada())
 			        .count();
+	}
+	
+	@Override
+	public List<PreguntaUsuario> findByUsuarioRespondiendoId(Long usuarioId){
+		return preguntaUsuarioRepository.findByUsuarioRespondiendoId(usuarioId);
 	}
 }

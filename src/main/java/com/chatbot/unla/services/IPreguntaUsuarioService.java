@@ -18,6 +18,10 @@ public interface IPreguntaUsuarioService {
 	
 	public void save(PreguntaUsuario preguntaUsuario);
 	
+	public void saveAll(List<PreguntaUsuario> preguntaUsuarioList);
+	
 	public long getCantidadNoRespondidas();
+	
+	public List<PreguntaUsuario> findByUsuarioRespondiendoId(Long usuarioId);
 	
 }
