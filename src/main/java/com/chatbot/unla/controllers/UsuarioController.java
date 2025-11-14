@@ -234,6 +234,7 @@ public class UsuarioController {
 		List<PreguntaUsuario> preguntas = preguntaUsuarioService.findByUsuarioRespondiendoId(id);
 		for (PreguntaUsuario p : preguntas) {
 	        p.setUsuarioRespondiendo(null);
+	        p.setFijada(false);
 	    }
 		preguntaUsuarioService.saveAll(preguntas);
 		
