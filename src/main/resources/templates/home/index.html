@@ -143,19 +143,20 @@ function scrollToBottom() {
 
 scrollToBottom();
 
-
 textarea.addEventListener("input", function () {
     const len = textarea.value.length;
 
     charCount.textContent = `${len} / 500`;
 
+    // Limpia espacios y saltos de línea
+    const cleaned = textarea.value.replace(/\s+/g, "");
 
-    sendBtn.disabled = len === 0 || len > 500;
+    sendBtn.disabled = cleaned.length === 0 || len > 500;
 
-    if (len === 0) {
-        sendIcon.className = "bi bi-arrow-right-short"; 
+    if (cleaned.length === 0) {
+        sendIcon.className = "bi bi-arrow-right-short";
     } else {
-        sendIcon.className = "bi bi-arrow-up-short";   
+        sendIcon.className = "bi bi-arrow-up-short";
     }
 
     textarea.style.height = 'auto';
@@ -169,35 +170,34 @@ textarea.addEventListener("input", function () {
     }
 });
 
+// Evita enviar solo con ENTER vacío
+textarea.addEventListener("keydown", function(e) {
+    if (e.key === 'Enter' && sendBtn.disabled) {
+        e.preventDefault();
+    }
+});
+
 form.addEventListener("submit", function (e) {
-    e.preventDefault();
-    if (sendBtn.disabled) return;
+    const cleaned = textarea.value.replace(/\s+/g, "").trim();
+
+    if (!cleaned) {
+        e.preventDefault();
+        return;
+    }
 
     sendBtn.disabled = true;
 
-    const userText = textarea.value.trim();
-    if (userText) {
-        const userMsg = document.createElement("div");
-        userMsg.classList.add("chat-user-msg");
-        userMsg.innerHTML = `<strong></strong> <span>${userText}</span>`;
-        chatScroll.appendChild(userMsg);
-        chatScroll.appendChild(loadingSpinner);
-    }
+    const userMsg = document.createElement("div");
+    userMsg.classList.add("chat-user-msg");
+    userMsg.innerHTML = `<span>${textarea.value.trim()}</span>`;
+    chatScroll.appendChild(userMsg);
 
     loadingSpinner.style.display = "block";
     scrollToBottom();
 
     setTimeout(() => {
         form.submit();
-        textarea.style.height = "auto";
     }, 1);
-});
-
-
-textarea.addEventListener("keydown", function(e) {
-    if (e.key === 'Enter') {
-        return;
-    }
 });
 
 window.addEventListener("load", scrollToBottom);
