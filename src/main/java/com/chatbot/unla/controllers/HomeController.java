@@ -76,7 +76,14 @@ public class HomeController {
     @PostMapping("/")
     public String procesarPregunta(@RequestParam("pregunta") String preguntaUsuario,
                                    RedirectAttributes redirectAttributes, HttpSession session) {
-
+    	
+    	 if (preguntaUsuario.length() > 500) {
+    	        redirectAttributes.addFlashAttribute("respuesta",
+    	            "La pregunta supera el límite de 500 caracteres. Intentá reducirla.");
+    	        redirectAttributes.addFlashAttribute("respuestaGenerica", false);
+    	        return "redirect:/";
+    	    }
+    	
         String username = "anonimo";
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {

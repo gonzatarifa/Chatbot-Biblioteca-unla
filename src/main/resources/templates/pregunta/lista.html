@@ -14,14 +14,17 @@
 	rel="stylesheet" />
 <link href="/css/style-custom.css" rel="stylesheet" />
 </head>
+
 <body>
 	<div class="wrapper d-flex">
+
 		<!-- Sidebar -->
 		<div th:replace="fragments/sidebar :: sidebar"></div>
 
 		<!-- Contenido -->
 		<div class="content p-4 w-100">
 			<div class="container">
+
 				<!-- Título dinámico -->
 				<h2 class="mb-4 text-center fw-bold">
 					<span th:if="${mostrandoRespondidas}">Preguntas Resueltas</span> <span
@@ -35,12 +38,14 @@
 					<span th:text="${warning}"></span>
 					<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
 				</div>
+
 				<div th:if="${success}"
 					class="alert alert-success alert-dismissible fade show"
 					role="alert">
 					<span th:text="${success}"></span>
 					<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
 				</div>
+
 				<div th:if="${error}"
 					class="alert alert-danger alert-dismissible fade show" role="alert">
 					<span th:text="${error}"></span>
@@ -59,12 +64,20 @@
 				</div>
 
 				<!-- Lista de preguntas -->
-				<div class="row row-cols-1 row-cols-md-2 g-4"
+				<div class="row row-cols-1 row-cols-md-3 g-4"
 					th:if="${lista != null}">
 					<div class="col" th:each="p : ${lista}">
+
+						<!-- CARD CON COLORES SEGÚN ESTADO -->
 						<div class="card modern-card h-100"
-							th:classappend="${!mostrandoRespondidas and p.usuarioRespondiendo != null and p.usuarioRespondiendo.nombreDeUsuario != #authentication.name} ? 'border-danger bg-light-warning' : ''">
-							
+							th:classappend="
+						        ${ p.respuestaEnviada ? 'border-green' :
+						           (p.usuarioRespondiendo == null ? 'border-red' :
+						             (p.usuarioRespondiendo.nombreDeUsuario == #authentication.name ? 'border-blue' :
+						              'border-yellow')
+						           )
+						        }
+						     ">
 							<!-- Tachito arriba -->
 							<a th:href="@{'/preguntas/lista/delete/' + ${p.id}}"
 								class="btn-delete-top" title="Eliminar"
@@ -72,28 +85,35 @@
 								<i class="bi bi-trash3-fill"></i>
 							</a>
 
-							<!-- Boton fijar -->
+							<!-- Botón fijar -->
 							<a th:if="${!mostrandoRespondidas}"
-							   th:href="@{'/preguntas/fijar/' + ${p.id}}"
-							   class="btn-pin-top ms-2"
-							   th:title="${p.usuarioRespondiendo != null ? 
-							                 (p.usuarioRespondiendo.nombreDeUsuario == #authentication.name ? 'Liberar pregunta' : 'Fijada por otro usuario') 
-							                 : 'Fijar pregunta'}">
-														
-							    <i th:class="${p.usuarioRespondiendo != null ? 
-							                     (p.usuarioRespondiendo.nombreDeUsuario == #authentication.name ? 'bi bi-pin-angle-fill text-warning' : 'bi bi-pin-angle text-danger') 
-							                     : 'bi bi-pin-angle text-primary'}">
-							    </i>
+								th:href="@{'/preguntas/fijar/' + ${p.id}}"
+								class="btn-pin-top ms-2"
+								th:title="${p.usuarioRespondiendo != null ?
+                                        (p.usuarioRespondiendo.nombreDeUsuario == #authentication.name ?
+                                            'Liberar pregunta' :
+                                            'Fijada por otro usuario') :
+                                        'Fijar pregunta'}">
+								<i
+								th:class="${p.usuarioRespondiendo != null ?
+                                            (p.usuarioRespondiendo.nombreDeUsuario == #authentication.name ?
+                                                'bi bi-pin-angle-fill text-primary' :
+                                                'bi bi-pin-angle text-warning'
+                                            ) :
+                                            'bi bi-pin-angle text-light'
+                                         }"></i>
 							</a>
-							
+
+							<!-- CONTENIDO DEL TICKET -->
 							<div class="card-body">
+
 								<p class="ticket-id mb-2">
 									Ticket #<span th:text="${p.id}"></span>
 								</p>
 
-								<h5 class="card-title text-primary mb-3">
-									<i class="bi bi-question-circle-fill me-2"></i> <span
-										th:text="${p.pregunta}"></span>
+								<h5
+									class="card-title mb-3 text-light question-dynamic d-inline-flex align-items-center">
+									<span class="question-text" th:text="${p.pregunta}"></span>
 								</h5>
 
 								<p class="card-text mb-1">
@@ -101,56 +121,66 @@
 									<span th:text="${p.nombre}"></span> <span
 										th:text="${p.apellido}"></span>
 								</p>
+
 								<p class="card-text mb-1">
 									<i class="bi bi-envelope-at-fill me-1"></i> <strong>Email:</strong>
 									<span th:text="${p.email}"></span>
 								</p>
+
 								<p class="card-text mb-3">
 									<i class="bi bi-calendar-event me-1"></i> <strong>Fecha:</strong>
 									<span
 										th:text="${#temporals.format(p.fechaEnvioPregunta, 'dd/MM/yyyy HH:mm')}"></span>
 								</p>
-								<p class="card-text mb-2" 
-								   th:if="${!mostrandoRespondidas and p.usuarioRespondiendo != null}">
-								    <i class="bi bi-person-workspace me-1"></i> 
-								    <strong>Siendo respondida por:</strong>
-								    <span th:text="${p.usuarioRespondiendo.nombre}"></span>
-								    <span th:text="${p.usuarioRespondiendo.apellido}"></span>
+
+								<p class="card-text mb-2"
+									th:if="${!mostrandoRespondidas and p.usuarioRespondiendo != null}">
+									<i class="bi bi-person-workspace me-1"></i> <strong>Siendo
+										respondida por:</strong> <span
+										th:text="${p.usuarioRespondiendo.nombre}"></span> <span
+										th:text="${p.usuarioRespondiendo.apellido}"></span>
 								</p>
+
 								<div
-									class="response-info d-flex justify-content-between align-items-center">
+									class="response-info response-dark-panel d-flex justify-content-between align-items-center">
 									<span
 										th:if="${p.respuestaEnviada and p.usuarioRespondio != null}">
-										<strong>Respuesta enviada por</strong> <span
+										<strong>Respuesta enviada por </strong> <span
 										th:text="${p.usuarioRespondio.nombre + ' ' + p.usuarioRespondio.apellido}">Admin</span>.
 									</span> <span th:if="${!p.respuestaEnviada}"> <strong>Respuesta
 											no enviada</strong>
 									</span> <a th:if="${!p.respuestaEnviada}"
 										th:href="@{'/preguntas/responder/' + ${p.id}}"
-										class="btn btn-sm btn-outline-primary">
-										<i class="bi bi-reply-fill"></i> Responder
+										class="btn btn-sm btn-outline-light"> <i
+										class="bi bi-reply-fill"></i> Responder
 									</a>
 								</div>
 							</div>
+							<!-- FIN card-body -->
 
 						</div>
-					</div>
+						<!-- FIN card -->
 
+					</div>
 				</div>
-				<!-- Fin row -->
+				<!-- FIN row -->
+
 			</div>
-			<!-- Fin container -->
+			<!-- FIN container -->
 		</div>
-		<!-- Fin content -->
+		<!-- FIN content -->
+
 	</div>
-	<!-- Fin wrapper -->
+	<!-- FIN wrapper -->
 
 	<script>
 		function toggleSidebar() {
 			document.getElementById('sidebar').classList.toggle('collapsed');
 		}
 	</script>
+
 	<script
 		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

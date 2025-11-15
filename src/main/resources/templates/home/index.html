@@ -25,7 +25,7 @@
 				<div
 					class="card-header d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
 					<div class="d-flex align-items-center gap-2">
-						<h5 class="mb-0">SERVICIO DE REFERENCIA VIRTUAL "Rodolfo Puiggrós"</h5>
+						<h5 class="mb-0">📚 Preguntame – Biblioteca Puiggrós</h5>
 					</div>
 					<!-- Botón PDF -->
 					<a href="/chat/pdf" class="btn btn-outline-danger btn-sm"
@@ -94,21 +94,29 @@
 							placeholder="Correo electrónico" required
 							th:value="${feedbackSession != null ? feedbackSession.email : ''}" />
 
-						<button type="submit" class="btn btn-feedback mt-2 align-self-end">
-							Enviar <i></i>
+						<button type="submit"
+							class="btn btn-feedback mt-2 align-self-start">
+							Enviar Formulario <i></i>
 						</button>
 					</form>
 				</div>
 
 				<!-- Formulario de chat -->
 				<form id="chatForm" method="post" action="/"
-					style="display: flex; margin-top: 10px;">
-					<textarea name="pregunta" placeholder="Escribí tu pregunta..."
-						required autocomplete="off" rows="1"
-						style="flex-grow: 1; resize: none;"></textarea>
-					<button id="sendBtn" class="btn" type="submit"
-						aria-label="Enviar pregunta">
-						<i class="bi bi-send-fill"></i>
+					style="display: flex; margin-top: 10px; align-items: center; gap: 5px;">
+
+					<textarea id="preguntaInput" name="pregunta"
+						placeholder="Escribí tu pregunta..." required autocomplete="off"
+						rows="1" maxlength="500" style="flex-grow: 1; resize: none;"></textarea>
+
+					<!-- Contador -->
+					<div id="charCount" title="Límite de 500 caracteres"
+						style="font-size: 0.75rem; color: #aaa; width: 70px; text-align: right;">
+						0 / 500</div>
+
+					<button id="sendBtn" class="send-btn" type="submit" title="Enviar"
+						disabled>
+						<i id="sendIcon" class="bi bi-arrow-right-short"></i>
 					</button>
 				</form>
 			</div>
@@ -121,63 +129,78 @@ function toggleSidebar() {
     sidebar.classList.toggle('collapsed');
 }
 
+const form = document.getElementById("chatForm");
+const textarea = document.getElementById("preguntaInput");
+const sendBtn = document.getElementById("sendBtn");
+const sendIcon = document.getElementById("sendIcon");
+const charCount = document.getElementById("charCount");
+const chatScroll = document.getElementById("chat-messages-scroll");
+const loadingSpinner = document.getElementById("loadingSpinner");
 
-	const form = document.getElementById("chatForm");
-    const textarea = form.querySelector("textarea");
-    const sendBtn = document.getElementById("sendBtn");
-    const chatScroll = document.getElementById("chat-messages-scroll");
-    const loadingSpinner = document.getElementById("loadingSpinner");
+function scrollToBottom() {
+    chatScroll.scrollTop = chatScroll.scrollHeight;
+}
 
-    function scrollToBottom() {
-        chatScroll.scrollTop = chatScroll.scrollHeight;
+scrollToBottom();
+
+
+textarea.addEventListener("input", function () {
+    const len = textarea.value.length;
+
+    charCount.textContent = `${len} / 500`;
+
+
+    sendBtn.disabled = len === 0 || len > 500;
+
+    if (len === 0) {
+        sendIcon.className = "bi bi-arrow-right-short"; 
+    } else {
+        sendIcon.className = "bi bi-arrow-up-short";   
     }
 
-    // Auto-scroll inicial
+    textarea.style.height = 'auto';
+    const newHeight = textarea.scrollHeight;
+    if (newHeight <= 150) {
+        textarea.style.overflowY = 'hidden';
+        textarea.style.height = newHeight + 'px';
+    } else {
+        textarea.style.overflowY = 'auto';
+        textarea.style.height = '150px';
+    }
+});
+
+form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (sendBtn.disabled) return;
+
+    sendBtn.disabled = true;
+
+    const userText = textarea.value.trim();
+    if (userText) {
+        const userMsg = document.createElement("div");
+        userMsg.classList.add("chat-user-msg");
+        userMsg.innerHTML = `<strong></strong> <span>${userText}</span>`;
+        chatScroll.appendChild(userMsg);
+        chatScroll.appendChild(loadingSpinner);
+    }
+
+    loadingSpinner.style.display = "block";
     scrollToBottom();
 
-    form.addEventListener("submit", function (e) {
-        e.preventDefault();
-        if (sendBtn.disabled) return;
-        sendBtn.disabled = true;
-        
-	    const userText = textarea.value.trim();
-	    if (userText) {
-	        const userMsg = document.createElement("div");
-	        userMsg.classList.add("chat-user-msg");
-	        userMsg.innerHTML = `<strong></strong> <span>${userText}</span>`;
-	        chatScroll.appendChild(userMsg);
-	        chatScroll.appendChild(loadingSpinner);
-	    }
+    setTimeout(() => {
+        form.submit();
+        textarea.style.height = "auto";
+    }, 1);
+});
 
-        loadingSpinner.style.display = "block";
-        scrollToBottom(); // aseguramos que el spinner se vea al final
 
-        setTimeout(() => {
-            this.submit();
-            textarea.style.height = "auto";
-        }, 1);
-    });
+textarea.addEventListener("keydown", function(e) {
+    if (e.key === 'Enter') {
+        return;
+    }
+});
 
-    textarea.addEventListener('input', e => {
-        e.target.style.height = 'auto';
-        const newHeight = e.target.scrollHeight;
-        if (newHeight <= 150) {
-            e.target.style.overflowY = 'hidden';
-            e.target.style.height = newHeight + 'px';
-        } else {
-            e.target.style.overflowY = 'auto';
-            e.target.style.height = '150px';
-        }
-    });
-
-    textarea.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            form.requestSubmit();
-        }
-    });
-
-    window.addEventListener("load", scrollToBottom);
+window.addEventListener("load", scrollToBottom);
 </script>
 
 	<script

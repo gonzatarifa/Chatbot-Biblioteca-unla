@@ -19,7 +19,7 @@ public class PreguntaUsuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "pregunta", length = 2000) 
+    @Column(name = "pregunta", length = 500) 
     @NotEmpty(message = "El campo pregunta no debe estar vacío")
     private String pregunta;
 
