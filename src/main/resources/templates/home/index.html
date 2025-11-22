@@ -1,209 +1,195 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Chatbot Unla</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chatbot Unla</title>
 
-<link
-	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-	rel="stylesheet" />
-<link
-	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
-	rel="stylesheet" />
-<link href="/css/style-custom.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+    <link href="/css/style-custom.css" rel="stylesheet" />
 </head>
+
 <body>
-	<div class="wrapper d-flex">
-		<div th:replace="fragments/sidebar :: sidebar"></div>
+    <div class="wrapper d-flex">
+        <div th:replace="fragments/sidebar :: sidebar"></div>
 
-		<div
-			class="content flex-grow-1 p-4 d-flex justify-content-center align-items-start">
-			<div id="chatbot-fixed" aria-live="polite" aria-label="Chatbot">
-				<!-- Header -->
-				<div
-					class="card-header d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
-					<div class="d-flex align-items-center gap-2">
-						<h5 class="mb-0">📚 Preguntame – Biblioteca Puiggrós</h5>
-					</div>
-					<!-- Botón PDF -->
-					<a href="/chat/pdf" class="btn btn-outline-danger btn-sm"
-						target="_blank" title="Descargar conversación en PDF"> <i
-						class="bi bi-file-earmark-pdf-fill"></i>
-					</a>
-				</div>
+        <div class="content flex-grow-1 p-4 d-flex justify-content-center align-items-start">
+            <div id="chatbot-fixed" aria-live="polite" aria-label="Chatbot">
 
-				<!-- Historial -->
-				<div id="chat-messages-scroll"
-					style="flex-grow: 1; overflow-y: auto; margin-bottom: 10px; display: flex; flex-direction: column;">
-					<div th:each="msg : ${historial}">
-						<div th:if="${msg.remitente == 'usuario'}" class="chat-user-msg">
-							<strong></strong> <span th:text="${msg.contenido}"></span>
-						</div>
-						<div th:if="${msg.remitente == 'bot'}" class="chat-bot-msg">
-							<strong></strong> <span th:text="${msg.contenido}"></span>
-						</div>
-					</div>
+                <!-- Header -->
+                <div class="card-header d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <h5 class="mb-0">📚 Preguntame – Biblioteca Puiggrós</h5>
+                    </div>
+                    <a href="/chat/pdf" class="btn btn-outline-danger btn-sm" target="_blank" title="Descargar conversación en PDF">
+                        <i class="bi bi-file-earmark-pdf-fill"></i>
+                    </a>
+                </div>
 
-					<!-- Spinner -->
-					<div id="loadingSpinner" class="text-center mb-3"
-						style="display: none;">
-						<div class="spinner-border text-dark" role="status"
-							style="width: 1.5rem; height: 1.5rem;">
-							<span class="visually-hidden">Cargando...</span>
-						</div>
-						<p class="mt-1" style="font-size: 0.85rem; color: #ccc;">Procesando
-							respuesta...</p>
-					</div>
-				</div>
+                <!-- Historial -->
+                <div id="chat-messages-scroll" style="flex-grow: 1; overflow-y: auto; margin-bottom: 10px; display: flex; flex-direction: column;">
+                    <div th:each="msg : ${historial}">
+                        <div th:if="${msg.remitente == 'usuario'}" class="chat-user-msg">
+                            <span th:text="${msg.contenido}"></span>
+                        </div>
+                        <div th:if="${msg.remitente == 'bot'}" class="chat-bot-msg">
+                            <span th:text="${msg.contenido}"></span>
+                        </div>
+                    </div>
 
-				<!-- Mensajes de agradecimiento o estado -->
-				<div th:if="${agradecimientoFeedback}" class="modern-card mb-3 p-3">
-					<p class="mb-1 text-success" th:text="${agradecimientoFeedback}"></p>
-				</div>
-				<!-- Formulario de feedback moderno -->
-				<div id="formularioFeedback" th:if="${respuestaGenerica}"
-					class="modern-card mt-3 p-3" style="display: block;">
-					<h6 class="card-title mb-2">Formulario</h6>
-					<p class="card-text text-info mb-3">Completá los datos para que
-						un bibliotecario pueda responder tu consulta por correo
-						electrónico.</p>
-					<form method="post" action="/feedback"
-						class="d-flex flex-column gap-2">
-						<!-- Pregunta enviada oculta -->
-						<input type="hidden" name="pregunta" th:value="${pregunta}" />
+                    <!-- Spinner -->
+                    <div id="loadingSpinner" class="text-center mb-3" style="display:none;">
+                        <div class="spinner-border text-dark" role="status" style="width: 1.5rem; height: 1.5rem;">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                        <p class="mt-1" style="font-size: .85rem; color: #ccc;">Procesando respuesta...</p>
+                    </div>
+                </div>
 
-						<div class="row g-2">
-							<div class="col-md-6">
-								<input type="text" name="nombre"
-									class="form-control form-control-sm input-feedback"
-									placeholder="Nombre" required
-									th:value="${feedbackSession != null ? feedbackSession.nombre : ''}" />
-							</div>
-							<div class="col-md-6">
-								<input type="text" name="apellido"
-									class="form-control form-control-sm input-feedback"
-									placeholder="Apellido" required
-									th:value="${feedbackSession != null ? feedbackSession.apellido : ''}" />
-							</div>
-						</div>
+                <!-- Agradecimiento -->
+                <div th:if="${agradecimientoFeedback}" class="modern-card mb-3 p-3">
+                    <p class="mb-1 text-success" th:text="${agradecimientoFeedback}"></p>
+                </div>
 
-						<input type="email" name="email"
-							class="form-control form-control-sm input-feedback mt-2"
-							placeholder="Correo electrónico" required
-							th:value="${feedbackSession != null ? feedbackSession.email : ''}" />
+                <!-- Formulario Feedback -->
+                <div id="formularioFeedback" th:if="${respuestaGenerica}"
+                     class="modern-card mt-3 p-3" style="display:block;">
+                    <h6 class="card-title mb-2">Formulario</h6>
+                    <p class="card-text text-info mb-3">Completá los datos para que un bibliotecario pueda responder tu consulta por correo electrónico.</p>
 
-						<button type="submit"
-							class="btn btn-feedback mt-2 align-self-start">
-							Enviar Formulario <i></i>
-						</button>
-					</form>
-				</div>
+                    <form method="post" action="/feedback" class="d-flex flex-column gap-2">
+                        <input type="hidden" name="pregunta" th:value="${pregunta}">
 
-				<!-- Formulario de chat -->
-				<form id="chatForm" method="post" action="/"
-					style="display: flex; margin-top: 10px; align-items: center; gap: 5px;">
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <input type="text" name="nombre" class="form-control form-control-sm input-feedback"
+                                       placeholder="Nombre" required
+                                       th:value="${feedbackSession != null ? feedbackSession.nombre : ''}">
+                            </div>
 
-					<textarea id="preguntaInput" name="pregunta"
-						placeholder="Escribí tu pregunta..." required autocomplete="off"
-						rows="1" maxlength="500" style="flex-grow: 1; resize: none;"></textarea>
+                            <div class="col-md-6">
+                                <input type="text" name="apellido" class="form-control form-control-sm input-feedback"
+                                       placeholder="Apellido" required
+                                       th:value="${feedbackSession != null ? feedbackSession.apellido : ''}">
+                            </div>
+                        </div>
 
-					<!-- Contador -->
-					<div id="charCount" title="Límite de 500 caracteres"
-						style="font-size: 0.75rem; color: #aaa; width: 70px; text-align: right;">
-						0 / 500</div>
+                        <input type="email" name="email" class="form-control form-control-sm input-feedback mt-2"
+                               placeholder="Correo electrónico" required
+                               th:value="${feedbackSession != null ? feedbackSession.email : ''}">
 
-					<button id="sendBtn" class="send-btn" type="submit" title="Enviar"
-						disabled>
-						<i id="sendIcon" class="bi bi-arrow-right-short"></i>
-					</button>
-				</form>
-			</div>
-		</div>
-	</div>
+                        <button type="submit" class="btn btn-feedback mt-2 align-self-start">
+                            Enviar Formulario
+                        </button>
+                    </form>
+                </div>
 
-	<script>
-function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    sidebar.classList.toggle('collapsed');
-}
+                <!-- Formulario Chat -->
+                <form id="chatForm" method="post" action="/" style="display:flex; margin-top:10px; align-items:center; gap:5px;">
 
-const form = document.getElementById("chatForm");
-const textarea = document.getElementById("preguntaInput");
-const sendBtn = document.getElementById("sendBtn");
-const sendIcon = document.getElementById("sendIcon");
-const charCount = document.getElementById("charCount");
-const chatScroll = document.getElementById("chat-messages-scroll");
-const loadingSpinner = document.getElementById("loadingSpinner");
+                    <textarea id="preguntaInput" name="pregunta" placeholder="Escribí tu pregunta..."
+                              required autocomplete="off" rows="1" maxlength="500"
+                              style="flex-grow:1; resize:none;"></textarea>
 
-function scrollToBottom() {
-    chatScroll.scrollTop = chatScroll.scrollHeight;
-}
+                    <div id="charCount" style="font-size:.75rem; color:#aaa; width:70px; text-align:right;">
+                        0 / 500
+                    </div>
 
-scrollToBottom();
+                    <button id="sendBtn" class="send-btn" type="submit" title="Enviar" disabled>
+                        <i id="sendIcon" class="bi bi-arrow-right-short"></i>
+                    </button>
+                </form>
 
-textarea.addEventListener("input", function () {
-    const len = textarea.value.length;
+            </div>
+        </div>
+    </div>
 
-    charCount.textContent = `${len} / 500`;
+    <!-- ⭐ Sidebar Script con estado persistente -->
+    <script>
+        const sidebar = document.getElementById("sidebar");
 
-    // Limpia espacios y saltos de línea
-    const cleaned = textarea.value.replace(/\s+/g, "");
+        // Estado inicial: forzar cerrado si no existe key
+        if (!localStorage.getItem("sidebarState")) {
+            localStorage.setItem("sidebarState", "collapsed");
+        }
 
-    sendBtn.disabled = cleaned.length === 0 || len > 500;
+        // Aplicar estado guardado
+        if (localStorage.getItem("sidebarState") === "collapsed") {
+            sidebar.classList.add("collapsed");
+        } else {
+            sidebar.classList.remove("collapsed");
+        }
 
-    if (cleaned.length === 0) {
-        sendIcon.className = "bi bi-arrow-right-short";
-    } else {
-        sendIcon.className = "bi bi-arrow-up-short";
-    }
+        // Función botón hamburguesa
+        function toggleSidebar() {
+            sidebar.classList.toggle("collapsed");
 
-    textarea.style.height = 'auto';
-    const newHeight = textarea.scrollHeight;
-    if (newHeight <= 150) {
-        textarea.style.overflowY = 'hidden';
-        textarea.style.height = newHeight + 'px';
-    } else {
-        textarea.style.overflowY = 'auto';
-        textarea.style.height = '150px';
-    }
-});
+            // Guardar estado actualizado
+            if (sidebar.classList.contains("collapsed")) {
+                localStorage.setItem("sidebarState", "collapsed");
+            } else {
+                localStorage.setItem("sidebarState", "open");
+            }
+        }
 
-// Evita enviar solo con ENTER vacío
-textarea.addEventListener("keydown", function(e) {
-    if (e.key === 'Enter' && sendBtn.disabled) {
-        e.preventDefault();
-    }
-});
+        const form = document.getElementById("chatForm");
+        const textarea = document.getElementById("preguntaInput");
+        const sendBtn = document.getElementById("sendBtn");
+        const sendIcon = document.getElementById("sendIcon");
+        const charCount = document.getElementById("charCount");
+        const chatScroll = document.getElementById("chat-messages-scroll");
+        const loadingSpinner = document.getElementById("loadingSpinner");
 
-form.addEventListener("submit", function (e) {
-    const cleaned = textarea.value.replace(/\s+/g, "").trim();
+        function scrollToBottom() {
+            chatScroll.scrollTop = chatScroll.scrollHeight;
+        }
+        scrollToBottom();
 
-    if (!cleaned) {
-        e.preventDefault();
-        return;
-    }
+        textarea.addEventListener("input", function () {
+            const len = textarea.value.length;
+            charCount.textContent = `${len} / 500`;
 
-    sendBtn.disabled = true;
+            const cleaned = textarea.value.replace(/\s+/g, "");
+            sendBtn.disabled = cleaned.length === 0 || len > 500;
 
-    const userMsg = document.createElement("div");
-    userMsg.classList.add("chat-user-msg");
-    userMsg.innerHTML = `<span>${textarea.value.trim()}</span>`;
-    chatScroll.appendChild(userMsg);
+            sendIcon.className = cleaned.length === 0 ? "bi bi-arrow-right-short" : "bi bi-arrow-up-short";
 
-    loadingSpinner.style.display = "block";
-    scrollToBottom();
+            textarea.style.height = 'auto';
+            const newHeight = textarea.scrollHeight;
+            textarea.style.height = Math.min(newHeight, 150) + 'px';
+            textarea.style.overflowY = newHeight > 150 ? 'auto' : 'hidden';
+        });
 
-    setTimeout(() => {
-        form.submit();
-    }, 1);
-});
+        textarea.addEventListener("keydown", function(e) {
+            if (e.key === 'Enter' && sendBtn.disabled) e.preventDefault();
+        });
 
-window.addEventListener("load", scrollToBottom);
-</script>
+        form.addEventListener("submit", function (e) {
+            const cleaned = textarea.value.replace(/\s+/g, "").trim();
 
-	<script
-		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+            if (!cleaned) {
+                e.preventDefault();
+                return;
+            }
+
+            sendBtn.disabled = true;
+
+            const userMsg = document.createElement("div");
+            userMsg.classList.add("chat-user-msg");
+            userMsg.innerHTML = `<span>${textarea.value.trim()}</span>`;
+            chatScroll.appendChild(userMsg);
+
+            loadingSpinner.style.display = "block";
+            scrollToBottom();
+
+            setTimeout(() => form.submit(), 1);
+        });
+
+        window.addEventListener("load", scrollToBottom);
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

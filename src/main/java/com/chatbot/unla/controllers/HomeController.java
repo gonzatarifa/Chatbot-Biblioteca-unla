@@ -35,43 +35,40 @@ public class HomeController {
 	@Autowired
 	private IPreguntaUsuarioService preguntaUsuarioService;
 
-    @GetMapping("/")
-    public ModelAndView index(HttpSession session) {
-        ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.INDEX);
+	@GetMapping("/")
+	public ModelAndView index(HttpSession session) {
+	    ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.INDEX);
 
-        String username = "anonimo";
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
-            username = auth.getName();
-        }
+	    String username = "anonimo";
+	    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+	    if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+	        username = auth.getName();
+	    }
 
-        String sessionKey = "historial_" + username;
-        List<MensajeChat> historial = (List<MensajeChat>) session.getAttribute(sessionKey);
-        if (historial == null) {
-            historial = new ArrayList<>();
-            String mensajeInicial = "¡Bienvenido/a! Estás en el Servicio de Referencia Virtual “Rodolfo Puiggrós”. " +
-                    "Podés preguntarme lo que quieras y te ayudaré con información de la biblioteca.";
-            historial.add(new MensajeChat("bot", mensajeInicial));
-            session.setAttribute(sessionKey, historial);
-        }
-        modelAndView.addObject("historial", historial);
+	    String sessionKey = "historial_" + username;
+	    List<MensajeChat> historial = (List<MensajeChat>) session.getAttribute(sessionKey);
+	    if (historial == null) {
+	        historial = new ArrayList<>();
+	        String mensajeInicial = "¡Bienvenido/a! Estás en el Servicio de Referencia Virtual “Rodolfo Puiggrós”. " +
+	                "Podés preguntarme lo que quieras y te ayudaré con información de la biblioteca.";
+	        historial.add(new MensajeChat("bot", mensajeInicial));
+	        session.setAttribute(sessionKey, historial);
+	    }
+	    modelAndView.addObject("historial", historial);
 
-        String feedbackKey = "feedbackSession_" + username;
-        FeedbackSession feedbackSession = (FeedbackSession) session.getAttribute(feedbackKey);
-        if (feedbackSession != null) {
-            modelAndView.addObject("feedbackSession", feedbackSession);
-        }
+	    String feedbackKey = "feedbackSession_" + username;
+	    FeedbackSession feedbackSession = (FeedbackSession) session.getAttribute(feedbackKey);
+	    if (feedbackSession != null) {
+	        modelAndView.addObject("feedbackSession", feedbackSession);
+	    }
 
-        return modelAndView;
-    }
-	
-	// index para poder usar el logo y volver a inicio
-	@GetMapping("/index")
-	public ModelAndView indexx() {
-		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.INDEX);
-		return modelAndView;
+	    return modelAndView;
 	}
 
+	@GetMapping("/index")
+	public String indexRedirect() {
+	    return "redirect:/";
+	}
 
     @PostMapping("/")
     public String procesarPregunta(@RequestParam("pregunta") String preguntaUsuario,

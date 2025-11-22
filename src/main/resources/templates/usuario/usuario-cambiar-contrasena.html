@@ -87,10 +87,31 @@
 
 <!-- Scripts -->
 <script>
-    function toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        sidebar.classList.toggle('collapsed');
+const sidebar = document.getElementById("sidebar");
+
+// Estado inicial: forzar cerrado si no existe key
+if (!localStorage.getItem("sidebarState")) {
+    localStorage.setItem("sidebarState", "collapsed");
+}
+
+// Aplicar estado guardado
+if (localStorage.getItem("sidebarState") === "collapsed") {
+    sidebar.classList.add("collapsed");
+} else {
+    sidebar.classList.remove("collapsed");
+}
+
+// Función botón hamburguesa
+function toggleSidebar() {
+    sidebar.classList.toggle("collapsed");
+
+    // Guardar estado actualizado
+    if (sidebar.classList.contains("collapsed")) {
+        localStorage.setItem("sidebarState", "collapsed");
+    } else {
+        localStorage.setItem("sidebarState", "open");
     }
+}
 
     function togglePassword(fieldName) {
         const field = document.querySelector('[name="' + fieldName + '"]');
