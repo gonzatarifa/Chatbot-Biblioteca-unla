@@ -55,21 +55,43 @@ public class BaseDeConocimientoController {
 	
 	@GetMapping("/")
 	public String crear(Model model) {
-	    BaseDeConocimiento baseDeConocimiento = new BaseDeConocimiento();
-		model.addAttribute("titulo", "Formulario: Nueva Entrada");
-		model.addAttribute("baseDeConocimiento", baseDeConocimiento);
-		return ViewRouteHelper.BASE_DE_CONOCIMIENTO_INDEX;
+	    
+	    if (!model.containsAttribute("baseDeConocimiento")) {
+	        model.addAttribute("baseDeConocimiento", new BaseDeConocimiento());
+	    }
+
+	    model.addAttribute("titulo", "Formulario: Nueva Entrada");
+	    return ViewRouteHelper.BASE_DE_CONOCIMIENTO_INDEX;
 	}
 	
 	@PostMapping("/")
-	public String guardar(@RequestParam(value="preguntasCargadasJson", required=false) String preguntasJson,
-	                      @Valid @ModelAttribute BaseDeConocimiento baseDeConocimiento,
-	                      BindingResult result,
-	                      RedirectAttributes attribute) {
+	public String guardar(
+	        @RequestParam(value="preguntasCargadasJson", required=false) String preguntasJson,
+	        @Valid @ModelAttribute BaseDeConocimiento baseDeConocimiento,
+	        BindingResult result,
+	        RedirectAttributes attribute) {
 
 	    int cargadas = 0;
 	    int duplicadas = 0;
 
+	    // VALIDACIÓN DE PREGUNTA
+	    if (baseDeConocimiento.getPregunta() != null && baseDeConocimiento.getPregunta().length() > 500) {
+	        attribute.addFlashAttribute("error", "La pregunta supera el máximo de 500 caracteres.");
+
+	        // 👉 Mando de vuelta lo que el usuario escribió
+	        attribute.addFlashAttribute("baseDeConocimiento", baseDeConocimiento);
+
+	        return "redirect:/baseDeConocimiento/";
+	    }
+
+	    // VALIDACIÓN DE RESPUESTA
+	    if (baseDeConocimiento.getRespuesta() != null && baseDeConocimiento.getRespuesta().length() > 1500) {
+	        attribute.addFlashAttribute("error", "La respuesta supera el máximo de 1500 caracteres.");
+	        attribute.addFlashAttribute("baseDeConocimiento", baseDeConocimiento);
+	        return "redirect:/baseDeConocimiento/";
+	    }
+
+	    // LÓGICA NORMAL
 	    if(baseDeConocimiento.getPregunta() != null && !baseDeConocimiento.getPregunta().isEmpty()){
 	        if(baseDeConocimientoService.buscarPorPreguntaExacta(baseDeConocimiento.getPregunta()) == null){
 	            baseDeConocimiento.setFechaCreacion(LocalDateTime.now());
@@ -81,7 +103,10 @@ public class BaseDeConocimientoController {
 	            duplicadas++;
 	        }
 	    }
-	    attribute.addFlashAttribute("success", String.format("%d entradas guardadas, %d duplicadas ignoradas", cargadas, duplicadas));
+
+	    attribute.addFlashAttribute("success",
+	            String.format("%d entradas guardadas, %d duplicadas ignoradas", cargadas, duplicadas));
+
 	    return "redirect:/baseDeConocimiento/lista";
 	}
 	
@@ -222,48 +247,87 @@ public class BaseDeConocimientoController {
     }
     
     @PostMapping("/uploadPreview")
-    public String uploadPreview(@RequestParam("file") MultipartFile file,
-                                Model model,
-                                RedirectAttributes attribute) {
-        if(file.isEmpty()){
-            attribute.addFlashAttribute("error","Archivo vacío.");
+    public String uploadPreview(
+            @RequestParam("file") MultipartFile file,
+            Model model,
+            RedirectAttributes attribute) {
+
+        if (file.isEmpty()) {
+            attribute.addFlashAttribute("error", "Archivo vacío.");
             return "redirect:/baseDeConocimiento/upload";
         }
 
-        List<Map<String,String>> preview = new ArrayList<>();
+        List<Map<String, String>> preview = new ArrayList<>();
         List<String> duplicadas = new ArrayList<>();
+        List<Integer> erroresLongitud = new ArrayList<>();
 
-        try(InputStream is = file.getInputStream()) {
+        try (InputStream is = file.getInputStream()) {
+
             String filename = file.getOriginalFilename();
-            if(filename.endsWith(".xlsx")){
+
+            if (filename.endsWith(".xlsx")) {
+
                 Workbook workbook = new XSSFWorkbook(is);
                 Sheet sheet = workbook.getSheetAt(0);
-                for(Row row : sheet){
-                    if(row.getRowNum() == 0) continue; // cabecera
-                    Cell preguntaCell = row.getCell(0);
-                    Cell respuestaCell = row.getCell(1);
-                    if(preguntaCell != null && respuestaCell != null){
-                        String pregunta = preguntaCell.getStringCellValue();
-                        String respuesta = respuestaCell.getStringCellValue();
-                        preview.add(Map.of("pregunta", pregunta, "respuesta", respuesta));
+
+                for (Row row : sheet) {
+                    if (row.getRowNum() == 0) continue;
+
+                    Cell cellPregunta = row.getCell(0);
+                    Cell cellRespuesta = row.getCell(1);
+
+                    if (cellPregunta != null && cellRespuesta != null) {
+
+                        String pregunta = cellPregunta.getStringCellValue().trim();
+                        String respuesta = cellRespuesta.getStringCellValue().trim();
+
+                        preview.add(Map.of(
+                                "pregunta", pregunta,
+                                "respuesta", respuesta
+                        ));
+
+                        int index = preview.size() - 1;
+
+                        // VALIDACIÓN 500 / 1500
+                        if (pregunta.length() > 500 || respuesta.length() > 1500) {
+                            erroresLongitud.add(index);
+                        }
+
                         if (!baseDeConocimientoService.buscarPorPregunta(pregunta, true).isEmpty()) {
                             duplicadas.add(pregunta);
                         }
                     }
                 }
                 workbook.close();
-            } else if(filename.endsWith(".csv")){
+
+            } else if (filename.endsWith(".csv")) {
+
                 BufferedReader reader = new BufferedReader(new InputStreamReader(is));
                 String line;
-                boolean firstLine = true;
-                while((line = reader.readLine()) != null){
-                    if(firstLine){ firstLine=false; continue; }
+                boolean first = true;
+
+                while ((line = reader.readLine()) != null) {
+                    if (first) { first = false; continue; }
+
                     String[] parts = line.split(",");
-                    if(parts.length >=2){
+                    if (parts.length >= 2) {
+
                         String pregunta = parts[0].trim();
                         String respuesta = parts[1].trim();
-                        preview.add(Map.of("pregunta", pregunta, "respuesta", respuesta));
-                        if(!baseDeConocimientoService.buscarPorPregunta(pregunta, true).isEmpty()){
+
+                        preview.add(Map.of(
+                                "pregunta", pregunta,
+                                "respuesta", respuesta
+                        ));
+
+                        int index = preview.size() - 1;
+
+                        // VALIDACIÓN 500 / 1500
+                        if (pregunta.length() > 500 || respuesta.length() > 1500) {
+                            erroresLongitud.add(index);
+                        }
+
+                        if (!baseDeConocimientoService.buscarPorPregunta(pregunta, true).isEmpty()) {
                             duplicadas.add(pregunta);
                         }
                     }
@@ -271,20 +335,20 @@ public class BaseDeConocimientoController {
                 reader.close();
             }
 
-            model.addAttribute("preview", preview);
-            model.addAttribute("duplicadas", duplicadas);
-            model.addAttribute("baseDeConocimiento", new BaseDeConocimiento());
-            model.addAttribute("titulo", "Preview de preguntas desde archivo");
-
-            if(!duplicadas.isEmpty()){
-                model.addAttribute("error", "Hay preguntas duplicadas marcadas en rojo.");
-            }
-
-        } catch(Exception e){
-            e.printStackTrace();
-            attribute.addFlashAttribute("error", "Error al procesar el archivo: " + e.getMessage());
+        } catch (Exception e) {
+            attribute.addFlashAttribute("error", "Error procesando archivo: " + e.getMessage());
             return "redirect:/baseDeConocimiento/upload";
         }
+
+        model.addAttribute("preview", preview);
+        model.addAttribute("duplicadas", duplicadas);
+        model.addAttribute("erroresLongitud", erroresLongitud);
+        model.addAttribute("titulo", "Preview de preguntas desde archivo");
+
+        if (!erroresLongitud.isEmpty()) {
+            model.addAttribute("error", "Se encontraron preguntas o respuestas que exceden el límite de caracteres.");
+        }
+
         return ViewRouteHelper.BASE_DE_CONOCIMIENTO_UPLOAD;
     }
 

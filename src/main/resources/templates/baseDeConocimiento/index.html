@@ -20,6 +20,17 @@
         <div class="container py-4">
             <h2 class="mb-4 text-center" th:text="${titulo}">Formulario</h2>
 
+            <!-- Mensajes -->
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
             <!-- Formulario -->
             <form th:action="@{/baseDeConocimiento/}" th:object="${baseDeConocimiento}" method="post">
                 <input type="hidden" th:field="*{id}" />
