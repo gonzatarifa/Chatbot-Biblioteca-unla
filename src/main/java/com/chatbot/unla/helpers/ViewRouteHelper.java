@@ -14,6 +14,7 @@ public class ViewRouteHelper {
 	public final static String USUARIO_REDIRECT_LISTA = "redirect:/usuarios/lista/";
 	public final static String USUARIO_ROOT = "/usuarios/";
 	public final static String ROUTE = "/index";
+	public final static String REDIRECT = "redirect:/";
 
 	public final static String USUARIO_LISTA = "usuario/lista";
 	public final static String USUARIO_FORM = "usuario/form";
@@ -23,9 +24,12 @@ public class ViewRouteHelper {
 	public final static String PERFIL_CREAR = "perfil/crear";	
 	public final static String BASE_DE_CONOCIMIENTO_LISTA = "baseDeConocimiento/lista";
 	public static final String BASE_DE_CONOCIMIENTO_INDEX = "baseDeConocimiento/index";
+	public static final String BASE_DE_CONOCIMIENTO_REDIRECT = "redirect:/baseDeConocimiento/";
 	public static final String BASE_DE_CONOCIMIENTO_REDIRECT_LISTA = "redirect:/baseDeConocimiento/lista";
 	public static final String BASE_DE_CONOCIMIENTO_REDIRECT_LISTA_DESHABILITADAS = "redirect:/baseDeConocimiento/lista?verDeshabilitadas=true";
 	public static final String BASE_DE_CONOCIMIENTO_UPLOAD = "baseDeConocimiento/upload";
-	 public static final String PREGUNTA_LISTA = "pregunta/lista";
-	 public static final String PREGUNTA_REDIRECT_LISTA = "redirect:/preguntas/lista";
+	public static final String BASE_DE_CONOCIMIENTO_REDIRECT_UPLOAD = "redirect:/baseDeConocimiento/upload";
+	public static final String PREGUNTA_LISTA = "pregunta/lista";
+	public static final String PREGUNTA_REDIRECT_LISTA = "redirect:/preguntas/lista";
+	public static final String PREGUNTA_RESPONDER = "pregunta/responder"; 
 }

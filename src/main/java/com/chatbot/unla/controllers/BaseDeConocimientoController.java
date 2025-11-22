@@ -81,14 +81,14 @@ public class BaseDeConocimientoController {
 	        // 👉 Mando de vuelta lo que el usuario escribió
 	        attribute.addFlashAttribute("baseDeConocimiento", baseDeConocimiento);
 
-	        return "redirect:/baseDeConocimiento/";
+	        return ViewRouteHelper.BASE_DE_CONOCIMIENTO_REDIRECT;
 	    }
 
 	    // VALIDACIÓN DE RESPUESTA
 	    if (baseDeConocimiento.getRespuesta() != null && baseDeConocimiento.getRespuesta().length() > 1500) {
 	        attribute.addFlashAttribute("error", "La respuesta supera el máximo de 1500 caracteres.");
 	        attribute.addFlashAttribute("baseDeConocimiento", baseDeConocimiento);
-	        return "redirect:/baseDeConocimiento/";
+	        return ViewRouteHelper.BASE_DE_CONOCIMIENTO_REDIRECT;
 	    }
 
 	    // LÓGICA NORMAL
@@ -107,7 +107,7 @@ public class BaseDeConocimientoController {
 	    attribute.addFlashAttribute("success",
 	            String.format("%d entradas guardadas, %d duplicadas ignoradas", cargadas, duplicadas));
 
-	    return "redirect:/baseDeConocimiento/lista";
+	    return ViewRouteHelper.BASE_DE_CONOCIMIENTO_REDIRECT_LISTA;
 	}
 	
 	@GetMapping("/lista")
@@ -254,7 +254,7 @@ public class BaseDeConocimientoController {
 
         if (file.isEmpty()) {
             attribute.addFlashAttribute("error", "Archivo vacío.");
-            return "redirect:/baseDeConocimiento/upload";
+            return ViewRouteHelper.BASE_DE_CONOCIMIENTO_REDIRECT_UPLOAD;
         }
 
         List<Map<String, String>> preview = new ArrayList<>();
@@ -337,7 +337,7 @@ public class BaseDeConocimientoController {
 
         } catch (Exception e) {
             attribute.addFlashAttribute("error", "Error procesando archivo: " + e.getMessage());
-            return "redirect:/baseDeConocimiento/upload";
+           return ViewRouteHelper.BASE_DE_CONOCIMIENTO_REDIRECT_UPLOAD;
         }
 
         model.addAttribute("preview", preview);
@@ -383,7 +383,7 @@ public class BaseDeConocimientoController {
             attribute.addFlashAttribute("success","Preguntas guardadas correctamente.");
         }
 
-        return "redirect:/baseDeConocimiento/lista";
+        return  ViewRouteHelper.BASE_DE_CONOCIMIENTO_REDIRECT_LISTA;
     }
     
     @GetMapping("/descargar-ejemplo")

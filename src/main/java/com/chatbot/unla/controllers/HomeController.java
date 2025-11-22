@@ -81,7 +81,7 @@ public class HomeController {
     	        redirectAttributes.addFlashAttribute("respuesta",
     	            "La pregunta supera el límite de 500 caracteres. Intentá reducirla.");
     	        redirectAttributes.addFlashAttribute("respuestaGenerica", false);
-    	        return "redirect:/";
+    	        return  ViewRouteHelper.REDIRECT;
     	    }
     	
         String username = "anonimo";
@@ -127,7 +127,7 @@ public class HomeController {
         redirectAttributes.addFlashAttribute("respuesta", respuestaFinal);
         redirectAttributes.addFlashAttribute("respuestaGenerica", respuestaGenerica);
 
-        return "redirect:/";
+        return ViewRouteHelper.REDIRECT;
     }
 
     @PostMapping("/feedback")
@@ -150,7 +150,7 @@ public class HomeController {
             redirectAttributes.addFlashAttribute("agradecimientoFeedback", "¡Gracias por tu feedback!");
             redirectAttributes.addFlashAttribute("respuesta", respuesta);
             redirectAttributes.addFlashAttribute("pregunta", pregunta);
-            return "redirect:/";
+            return ViewRouteHelper.REDIRECT;
         }
 
         FeedbackSession feedbackSession = new FeedbackSession();
@@ -176,7 +176,7 @@ public class HomeController {
         redirectAttributes.addFlashAttribute("respuesta", "Pendiente");
         redirectAttributes.addFlashAttribute("pregunta", pregunta);
         redirectAttributes.addFlashAttribute("showFeedbackForm", true);
-        return "redirect:/";
+        return ViewRouteHelper.REDIRECT;
     }
 	
 	@GetMapping("/chat/pdf")

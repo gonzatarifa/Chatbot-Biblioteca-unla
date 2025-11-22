@@ -90,10 +90,10 @@ public class PreguntaUsuarioController {
         PreguntaUsuario pregunta = preguntaUsuarioService.buscar(id);
         if (pregunta == null || !pregunta.isHabilitado()) {
             attr.addFlashAttribute("error", "Pregunta no encontrada");
-            return "redirect:/preguntas/lista";
+            return ViewRouteHelper.PREGUNTA_REDIRECT_LISTA;
         }
         model.addAttribute("pregunta", pregunta);
-        return "pregunta/responder"; 
+        return ViewRouteHelper.PREGUNTA_RESPONDER; 
     }
 
     // Procesar respuesta
@@ -108,7 +108,7 @@ public class PreguntaUsuarioController {
         PreguntaUsuario pregunta = preguntaUsuarioService.buscar(id);
         if (pregunta == null || !pregunta.isHabilitado()) {
             attr.addFlashAttribute("error", "Pregunta no encontrada o deshabilitada");
-            return "redirect:/preguntas/lista";
+            return ViewRouteHelper.PREGUNTA_REDIRECT_LISTA;
         }
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -117,7 +117,7 @@ public class PreguntaUsuarioController {
         Usuario usuarioRespondio = usuarioService.getByUsername(username);
         if (usuarioRespondio == null) {
             attr.addFlashAttribute("error", "Usuario autenticado no encontrado en el sistema");
-            return "redirect:/preguntas/lista";
+            return ViewRouteHelper.PREGUNTA_REDIRECT_LISTA;
         }
 
         pregunta.setRespuestaEnviada(true);
@@ -142,7 +142,7 @@ public class PreguntaUsuarioController {
         emailService.enviarCorreo(destino, asunto, cuerpoFinal);
 
         attr.addFlashAttribute("success", "Respuesta enviada, registrada y enviada por correo");
-        return "redirect:/preguntas/lista";
+        return ViewRouteHelper.PREGUNTA_REDIRECT_LISTA;
     }
     
     @GetMapping("/respondidas")
@@ -162,7 +162,7 @@ public class PreguntaUsuarioController {
         PreguntaUsuario pregunta = preguntaUsuarioService.buscar(id);
         if (pregunta == null || !pregunta.isHabilitado()) {
             attr.addFlashAttribute("error", "Pregunta no encontrada");
-            return "redirect:/preguntas/lista";
+            return ViewRouteHelper.PREGUNTA_REDIRECT_LISTA;
         }
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -186,7 +186,7 @@ public class PreguntaUsuarioController {
         }
 
         preguntaUsuarioService.save(pregunta);
-        return "redirect:/preguntas/lista";
+        return ViewRouteHelper.PREGUNTA_REDIRECT_LISTA;
     }
     
     private String generarEmbedding(String pregunta) {
