@@ -353,38 +353,65 @@ public class BaseDeConocimientoController {
     }
 
     @PostMapping("/saveFromPreview")
-    public String saveFromPreview(@RequestParam Map<String,String> params, RedirectAttributes attribute){
+    public String saveFromPreview(
+        @RequestParam Map<String, String> params,
+        RedirectAttributes redirect
+    ) {
+
         int total = Integer.parseInt(params.get("total"));
-        int saved = 0;
-        int duplicates = 0;
+        int cargadas = 0;
+        int duplicadas = 0;
+        List<String> errores = new ArrayList<>();
 
-        for(int i=0;i<total;i++){
-            String pregunta = params.get("pregunta_"+i);
-            String respuesta = params.get("respuesta_"+i);
-            if(pregunta==null || pregunta.isEmpty()) continue;
+        for (int i = 0; i < total; i++) {
 
-            if(baseDeConocimientoService.buscarPorPreguntaExacta(pregunta)==null){
-                BaseDeConocimiento bc = new BaseDeConocimiento();
-                bc.setPregunta(pregunta);
-                bc.setRespuesta(respuesta);
-                bc.setFechaCreacion(LocalDateTime.now());
-                bc.setHabilitado(true);
-                bc.setEmbedding(generarEmbedding(pregunta));
-                baseDeConocimientoService.save(bc);
-                saved++;
-            } else {
-                duplicates++;
+            String pregunta = params.get("pregunta_" + i);
+            String respuesta = params.get("respuesta_" + i);
+
+            if (pregunta == null || pregunta.trim().isEmpty()) {
+                errores.add("La fila " + (i+1) + " no tiene pregunta.");
+                continue;
             }
+            if (pregunta.length() > 500) {
+                errores.add("La pregunta de la fila " + (i+1) + " supera los 500 caracteres.");
+                continue;
+            }
+            if (respuesta == null || respuesta.trim().isEmpty()) {
+                errores.add("La fila " + (i+1) + " no tiene respuesta.");
+                continue;
+            }
+            if (respuesta.length() > 1500) {
+                errores.add("La respuesta de la fila " + (i+1) + " supera los 1500 caracteres.");
+                continue;
+            }
+
+            if (baseDeConocimientoService.buscarPorPreguntaExacta(pregunta) != null) {
+                duplicadas++;
+                continue;
+            }
+
+            BaseDeConocimiento nueva = new BaseDeConocimiento();
+            nueva.setPregunta(pregunta);
+            nueva.setRespuesta(respuesta);
+            nueva.setFechaCreacion(LocalDateTime.now());
+            nueva.setHabilitado(true);
+            nueva.setEmbedding(generarEmbedding(pregunta));
+
+            baseDeConocimientoService.save(nueva);
+            cargadas++;
         }
 
-        if(duplicates > 0){
-            attribute.addFlashAttribute("error","No se pudieron guardar "+duplicates+" preguntas duplicadas.");
+        if (!errores.isEmpty()) {
+            redirect.addFlashAttribute("error",
+                "Errores detectados:\n" + String.join("\n", errores));
         } else {
-            attribute.addFlashAttribute("success","Preguntas guardadas correctamente.");
+            redirect.addFlashAttribute("success", 
+                cargadas + " entradas guardadas, " + duplicadas + " duplicadas ignoradas.");
         }
 
-        return  ViewRouteHelper.BASE_DE_CONOCIMIENTO_REDIRECT_LISTA;
+        return ViewRouteHelper.BASE_DE_CONOCIMIENTO_REDIRECT_LISTA;
     }
+
     
     @GetMapping("/descargar-ejemplo")
     public ResponseEntity<Resource> descargarEjemplo() throws IOException {
