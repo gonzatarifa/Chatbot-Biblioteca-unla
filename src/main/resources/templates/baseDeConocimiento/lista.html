@@ -36,7 +36,7 @@
 
             <!-- Botón crear entrada -->
            <!-- Botón crear entrada manual y por archivo -->
-				<div class="mb-3" sec:authorize="hasAuthority('Administrador')">
+				<div class="mb-3" sec:authorize="hasAnyAuthority('Administrador','Operador')">
 					<!-- Entrada manual -->
 					<a class="btn btn-primary" th:href="@{/baseDeConocimiento/}"> <i
 						class="bi bi-plus-circle"></i> Agregar Pregunta
