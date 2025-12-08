@@ -23,4 +23,7 @@ public interface IUsuarioService {
 	public Usuario getByDni(@Param("documento") int documento);
 
 	public Usuario getByUsername(@Param("nombreDeUsuario") String nombreDeUsuario);
+	
+	public void actualizarSaludoYFirma(Long id, String saludo, String firma);
+
 }

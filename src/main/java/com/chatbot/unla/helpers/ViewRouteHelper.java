@@ -20,6 +20,7 @@ public class ViewRouteHelper {
 	public final static String USUARIO_FORM = "usuario/form";
 	public final static String USUARIO_INDEX = "usuario/index";
 	public final static String USUARIO_PASSWORD = "usuario/usuario-cambiar-contrasena";
+	public final static String USUARIO_FIRMA_SALUDO = "usuario/usuarios-cambiar-saludo-firma";
 	public final static String PERFIL_LISTA = "perfil/lista";
 	public final static String PERFIL_CREAR = "perfil/crear";	
 	public final static String BASE_DE_CONOCIMIENTO_LISTA = "baseDeConocimiento/lista";

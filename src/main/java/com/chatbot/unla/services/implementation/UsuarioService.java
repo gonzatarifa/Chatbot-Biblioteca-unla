@@ -49,5 +49,13 @@ public class UsuarioService implements IUsuarioService {
 	public Usuario getByUsername(@Param("nombreDeUsuario") String nombreDeUsuario) {
 		return usuarioRepository.getByUsername(nombreDeUsuario);
 	}
-	
+
+	@Override
+	public void actualizarSaludoYFirma(Long id, String saludo, String firma) {
+	    Usuario user = usuarioRepository.findById(id).orElseThrow();
+	    user.setSaludo(saludo);
+	    user.setFirma(firma);
+	    usuarioRepository.save(user);
+	}
+
 }

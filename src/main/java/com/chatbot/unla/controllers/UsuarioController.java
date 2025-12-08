@@ -247,4 +247,44 @@ public class UsuarioController {
 		return ViewRouteHelper.ROUTE_REDIRECT;
 	}
 	
+	@GetMapping("lista/cambiar-saludo-firma/{id}")
+	public String cambiarSaludoFirmaForm(@PathVariable("id") long id, Model model, Principal principal) {
+
+	    Usuario usuario = usuarioService.buscar(id);
+	    Usuario usuarioLogueado = usuarioService.getByUsername(principal.getName());
+	    boolean esAdministrador = usuarioLogueado.getPerfiles().getRol().equalsIgnoreCase("Administrador");
+
+	    // Un operador SOLO puede modificar su propio saludo/firma
+	    if (!esAdministrador && usuarioLogueado.getId() != id) {
+	        throw new AccessDeniedException("No tienes permiso para editar el saludo/firma de otro usuario");
+	    }
+
+	    model.addAttribute("titulo", "Editar Saludo y Firma");
+	    model.addAttribute("usuario", usuario);
+
+	    return ViewRouteHelper.USUARIO_FIRMA_SALUDO;
+	}
+
+	
+	@PostMapping("lista/cambiar-saludo-firma/{id}")
+	public String guardarSaludoFirma(@PathVariable("id") Long id,
+	                                 @ModelAttribute("usuario") Usuario usuarioForm,
+	                                 BindingResult result,
+	                                 RedirectAttributes redirect) {
+
+	    Usuario usuarioBD = usuarioService.buscar(id);
+
+      if (result.hasErrors()) {
+    	  return ViewRouteHelper.USUARIO_FIRMA_SALUDO;
+	    }
+
+	    usuarioBD.setSaludo(usuarioForm.getSaludo());
+	    usuarioBD.setFirma(usuarioForm.getFirma());
+	    usuarioService.save(usuarioBD);
+
+	    redirect.addFlashAttribute("success", "Saludo y firma actualizados correctamente.");
+	    return ViewRouteHelper.REDIRECT;
+	}
+
+	
 }
