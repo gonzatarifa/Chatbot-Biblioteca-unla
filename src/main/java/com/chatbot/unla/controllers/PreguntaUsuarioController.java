@@ -87,15 +87,25 @@ public class PreguntaUsuarioController {
     
     @GetMapping("/responder/{id}")
     public String mostrarFormularioRespuesta(@PathVariable("id") long id, Model model, RedirectAttributes attr) {
+
         PreguntaUsuario pregunta = preguntaUsuarioService.buscar(id);
         if (pregunta == null || !pregunta.isHabilitado()) {
             attr.addFlashAttribute("error", "Pregunta no encontrada");
             return ViewRouteHelper.PREGUNTA_REDIRECT_LISTA;
         }
-        model.addAttribute("pregunta", pregunta);
-        return ViewRouteHelper.PREGUNTA_RESPONDER; 
-    }
 
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        Usuario usuario = usuarioService.getByUsername(username);
+
+        model.addAttribute("saludoDefault", usuario.getSaludo());
+        model.addAttribute("firmaDefault", usuario.getFirma());
+
+        model.addAttribute("pregunta", pregunta);
+
+        return ViewRouteHelper.PREGUNTA_RESPONDER;
+    }
+    
     // Procesar respuesta
     @PostMapping("/responder")
     public String procesarRespuesta(

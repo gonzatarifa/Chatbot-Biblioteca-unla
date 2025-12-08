@@ -60,6 +60,12 @@ public class Usuario {
 	@Column(name = "deshabilitado")
 	private boolean deshabilitado;
 	
+	@Column(name = "saludo")
+	private String saludo;
+
+	@Column(name = "firma")
+	private String firma;
+	
 	@Transient
 	private String contrasenaActual;
 	@Transient

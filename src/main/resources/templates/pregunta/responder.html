@@ -40,13 +40,17 @@
                 <input type="hidden" name="id" th:value="${pregunta.id}" />
 
                 <!-- Saludo -->
-				<div class="mb-3">
-						<label for="saludo" class="form-label">Saludo inicial
-							(opcional)</label> <input type="text" class="form-control" id="saludo"
-							name="saludo" placeholder="Ej: Hola, gracias por tu consulta..." />
-				</div>
+                <div class="mb-3">
+                    <label for="saludo" class="form-label">Saludo inicial (opcional)</label>
+                    <input type="text"
+                           class="form-control"
+                           id="saludo"
+                           name="saludo"
+                           placeholder="Ej: Hola, gracias por tu consulta..."
+                           th:value="${saludoDefault}" />
+                </div>
 
-					<!-- Respuesta -->
+                <!-- Respuesta -->
                 <div class="mb-3">
                     <label for="respuesta" class="form-label">Respuesta</label>
                     <textarea class="form-control" id="respuesta" name="respuesta" rows="6" required></textarea>
@@ -54,23 +58,27 @@
                 </div>
 
                 <!-- Firma -->
-					<div class="mb-3">
-						<label for="firma" class="form-label">Firma (opcional)</label> <input
-							type="text" class="form-control" id="firma" name="firma"
-							placeholder="Ej: Atentamente, Soporte UNLA" />
-					</div>
+                <div class="mb-3">
+                    <label for="firma" class="form-label">Firma (opcional)</label>
+                    <input type="text"
+                           class="form-control"
+                           id="firma"
+                           name="firma"
+                           placeholder="Ej: Atentamente, Soporte UNLA"
+                           th:value="${firmaDefault}" />
+                </div>
 
-					<div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between">
                     <a th:href="@{/preguntas/lista}" class="btn btn-secondary">
                         <i class="bi bi-arrow-left"></i> Cancelar
                     </a>
                     <button type="submit"
-					        class="btn btn-primary"
-					        th:attr="onclick=${pregunta.usuarioRespondiendo != null and pregunta.usuarioRespondiendo.nombreDeUsuario != #authentication.name} ? 
-					                'return confirm(\'¿Estás seguro? Esta pregunta está siendo respondida por ' + (${pregunta.usuarioRespondiendo.nombreDeUsuario}) + '\')' : 
-					                'return true'">
-					    <i class="bi bi-send"></i> Enviar Respuesta
-					</button>
+                            class="btn btn-primary"
+                            th:attr="onclick=${pregunta.usuarioRespondiendo != null and pregunta.usuarioRespondiendo.nombreDeUsuario != #authentication.name} ? 
+                                    'return confirm(\'¿Estás seguro? Esta pregunta está siendo respondida por ' + (${pregunta.usuarioRespondiendo.nombreDeUsuario}) + '\')' : 
+                                    'return true'">
+                        <i class="bi bi-send"></i> Enviar Respuesta
+                    </button>
                 </div>
             </form>
         </div>
@@ -80,7 +88,7 @@
 <script>
 const sidebar = document.getElementById("sidebar");
 
-// Estado inicial: forzar cerrado si no existe key
+// Estado inicial
 if (!localStorage.getItem("sidebarState")) {
     localStorage.setItem("sidebarState", "collapsed");
 }
@@ -92,32 +100,27 @@ if (localStorage.getItem("sidebarState") === "collapsed") {
     sidebar.classList.remove("collapsed");
 }
 
-// Función botón hamburguesa
 function toggleSidebar() {
     sidebar.classList.toggle("collapsed");
-
-    // Guardar estado actualizado
-    if (sidebar.classList.contains("collapsed")) {
-        localStorage.setItem("sidebarState", "collapsed");
-    } else {
-        localStorage.setItem("sidebarState", "open");
-    }
+    localStorage.setItem("sidebarState",
+        sidebar.classList.contains("collapsed") ? "collapsed" : "open"
+    );
 }
 
-    // Bootstrap validation
-    (function () {
-        'use strict';
-        const forms = document.querySelectorAll('.needs-validation');
-        Array.from(forms).forEach(function (form) {
-            form.addEventListener('submit', function (event) {
-                if (!form.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            }, false);
-        });
-    })();
+// Bootstrap validation
+(function () {
+    'use strict';
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+})();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

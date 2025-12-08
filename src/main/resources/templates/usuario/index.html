@@ -102,7 +102,25 @@
                     <div class="invalid-feedback" th:if="${#fields.hasErrors('perfiles')}" th:errors="*{perfiles}"></div>
                 </div>
 
-                <div class="col-12">
+					<div class="col-md-4">
+						<label class="form-label"> Saludo: <i
+							class="bi bi-info-circle-fill text-primary"
+							data-bs-toggle="tooltip" data-bs-placement="right"
+							title="Este valor se usará automáticamente al responder consultas del chatbot y enviar correos electrónicos. No es obligatorio.">
+						</i>
+						</label> <input class="form-control" type="text" th:field="*{saludo}">
+					</div>
+
+					<div class="col-md-4">
+						<label class="form-label"> Firma: <i
+							class="bi bi-info-circle-fill text-primary"
+							data-bs-toggle="tooltip" data-bs-placement="right"
+							title="Este valor se usará automáticamente al responder consultas del chatbot y enviar correos electrónicos. No es obligatorio.">
+						</i>
+						</label> <input class="form-control" type="text" th:field="*{firma}">
+					</div>
+
+					<div class="col-12">
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </div>
             </form>

@@ -108,6 +108,8 @@ public class UsuarioController {
 		BCryptPasswordEncoder pe = new BCryptPasswordEncoder();
 		String passwordCrypt = pe.encode(usuario.getContrasena());
 		usuario.setContrasena(passwordCrypt);
+	    usuario.setSaludo(usuario.getSaludo());
+	    usuario.setFirma(usuario.getFirma());
 		usuarioService.save(usuario);
 		System.out.println("Usuario guardado con exito!");
 		attribute.addFlashAttribute("success","Usuario agregado con exito");
@@ -177,7 +179,9 @@ public class UsuarioController {
 	    usuarioBD.setCorreoElectronico(usuario.getCorreoElectronico());
 	    usuarioBD.setNombreDeUsuario(usuario.getNombreDeUsuario());
 	    usuarioBD.setPerfiles(usuario.getPerfiles());
-
+	    usuarioBD.setSaludo(usuario.getSaludo());
+	    usuarioBD.setFirma(usuario.getFirma());
+	    
 	    usuarioService.save(usuarioBD);
 	    attributes.addFlashAttribute("success", "Usuario actualizado con éxito");
 	    return ViewRouteHelper.USUARIO_REDIRECT_LISTA;
