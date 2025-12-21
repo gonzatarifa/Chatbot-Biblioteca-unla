@@ -39,36 +39,31 @@
             <form th:action="@{/preguntas/responder}" method="post" class="needs-validation" novalidate>
                 <input type="hidden" name="id" th:value="${pregunta.id}" />
 
-                <!-- Saludo -->
-                <div class="mb-3">
-                    <label for="saludo" class="form-label">Saludo inicial (opcional)</label>
-                    <input type="text"
-                           class="form-control"
-                           id="saludo"
-                           name="saludo"
-                           placeholder="Ej: Hola, gracias por tu consulta..."
-                           th:value="${saludoDefault}" />
-                </div>
+					<!-- Saludo -->
+					<div class="mb-3">
+						<label for="saludo" class="form-label">Saludo inicial (opcional)</label>
+						<textarea class="form-control" id="saludo" name="saludo" placeholder="Ej: Hola, gracias por tu consulta..." rows="3"
+							th:text="${saludoDefault}">
+    </textarea>
+					</div>
 
-                <!-- Respuesta -->
-                <div class="mb-3">
-                    <label for="respuesta" class="form-label">Respuesta</label>
-                    <textarea class="form-control" id="respuesta" name="respuesta" rows="6" required></textarea>
-                    <div class="invalid-feedback">Este campo es obligatorio</div>
-                </div>
+					<!-- Respuesta -->
+					<div class="mb-3">
+						<label for="respuesta" class="form-label">Respuesta</label>
+						<textarea class="form-control" id="respuesta" name="respuesta"
+							rows="6" required></textarea>
+						<div class="invalid-feedback">Este campo es obligatorio</div>
+					</div>
 
-                <!-- Firma -->
-                <div class="mb-3">
-                    <label for="firma" class="form-label">Firma (opcional)</label>
-                    <input type="text"
-                           class="form-control"
-                           id="firma"
-                           name="firma"
-                           placeholder="Ej: Atentamente, Soporte UNLA"
-                           th:value="${firmaDefault}" />
-                </div>
+					<!-- Firma -->
+					<div class="mb-3">
+						<label for="firma" class="form-label">Firma (opcional)</label>
+						<textarea class="form-control" id="firma" name="firma" placeholder="Ej: Atentamente, Soporte UNLA" rows="3"
+							th:text="${firmaDefault}">
+    </textarea>
+					</div>
 
-                <div class="d-flex justify-content-between">
+					<div class="d-flex justify-content-between">
                     <a th:href="@{/preguntas/lista}" class="btn btn-secondary">
                         <i class="bi bi-arrow-left"></i> Cancelar
                     </a>
