@@ -20,7 +20,7 @@ public interface IUsuarioService {
 	
 	public Usuario getByEmail(@Param("correoElectronico") String correoElectronico);
 	
-	public Usuario getByDni(@Param("documento") int documento);
+	public Usuario getByDni(@Param("documento") long documento);
 
 	public Usuario getByUsername(@Param("nombreDeUsuario") String nombreDeUsuario);
 	

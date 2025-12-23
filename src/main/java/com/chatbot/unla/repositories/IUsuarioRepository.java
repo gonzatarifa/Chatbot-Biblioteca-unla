@@ -17,7 +17,7 @@ public interface IUsuarioRepository extends JpaRepository<Usuario, Serializable>
 	public abstract Usuario getByEmail(@Param("correoElectronico") String correoElectronico);
 	
 	@Query("SELECT u FROM Usuario u WHERE u.documento = (:documento)")
-	public abstract Usuario getByDni(@Param("documento") int documento);
+	public abstract Usuario getByDni(@Param("documento") long documento);
 	
 	@Query("SELECT u FROM Usuario u WHERE u.nombreDeUsuario = (:nombreDeUsuario)")
 	public abstract Usuario getByUsername(@Param("nombreDeUsuario") String nombreDeUsuario);

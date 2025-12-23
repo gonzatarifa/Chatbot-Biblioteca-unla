@@ -38,7 +38,7 @@ public class UsuarioService implements IUsuarioService {
 		usuarioRepository.deleteById(id);
 	}
 
-	public Usuario getByDni(@Param("documento") int documento) {
+	public Usuario getByDni(@Param("documento") long documento) {
 		return usuarioRepository.getByDni(documento);
 	}
 	

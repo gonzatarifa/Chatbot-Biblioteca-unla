@@ -40,7 +40,7 @@ public class Usuario {
 
 	@Column(name = "documento")
 	@NotNull
-	private int documento;
+	private long documento;
 
 	@Column(name = "correoElectronico")
 	@Email
