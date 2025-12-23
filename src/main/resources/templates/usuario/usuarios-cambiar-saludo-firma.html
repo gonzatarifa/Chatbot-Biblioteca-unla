@@ -52,23 +52,34 @@
 					<div class="col-12 position-relative">
 						<label class="form-label">Saludo:</label>
 
-						<textarea th:field="*{saludo}" class="form-control" rows="3"
-							placeholder="Ej: Hola, buen día." required></textarea>
-
-						<small class="text-muted"> Este campo se utilizará como
-							saludo predeterminado al responder consultas y enviar correos. </small>
+						<textarea id="saludo" th:field="*{saludo}" class="form-control" rows="3"
+							placeholder="Ej: Hola, buen día."
+							maxlength="200" required></textarea>
+						<div class="d-flex justify-content-between">
+						    <small class="text-secondary">
+						        Este campo se utilizará como saludo predeterminado al responder consultas y enviar correos.
+						    </small>
+						    <small id="saludoCounter" class="text-secondary">
+							    <span id="saludoCount">0</span>/200
+							</small>
+						</div>
 					</div>
 
 					<!-- Firma -->
 					<div class="col-12 position-relative">
 						<label class="form-label">Firma:</label>
 
-						<textarea th:field="*{firma}" class="form-control" rows="4"
-							placeholder="Ej:&#10;Juan Pérez&#10;Soporte Técnico" required></textarea>
-
-						<small class="text-muted"> Este texto será tu firma por
-							defecto al cerrar un mensaje o correo generado desde el sistema.
-						</small>
+						<textarea id="firma" th:field="*{firma}" class="form-control" rows="4"
+							placeholder="Ej:&#10;Juan Pérez&#10;Soporte Técnico" 
+							maxlength="200" required></textarea>
+						<div class="d-flex justify-content-between">
+						    <small class="text-secondary">
+						        Este texto será tu firma por defecto al cerrar un mensaje o correo generado desde el sistema.
+						    </small>
+						    <small id="firmaCounter" class="text-secondary">
+							    <span id="firmaCount">0</span>/200
+							</small>
+						</div>
 					</div>
 
 					<!-- Botones -->
@@ -113,6 +124,32 @@
             localStorage.setItem("sidebarState", "open");
         }
     }
+    
+    // Función Para Contador Limite Caracteres
+    function setupCounter(textareaId, countId, counterWrapperId, max) {
+	    const textarea = document.getElementById(textareaId);
+	    const count = document.getElementById(countId);
+	    const wrapper = document.getElementById(counterWrapperId);
+	
+	    function updateCount() {
+	        const length = textarea.value.length;
+	        count.textContent = length;
+	
+	        if (length >= max) {
+	            wrapper.classList.remove("text-secondary");
+	            wrapper.classList.add("text-danger");
+	        } else {
+	            wrapper.classList.remove("text-danger");
+	            wrapper.classList.add("text-secondary");
+	        }
+	    }
+	
+	    textarea.addEventListener("input", updateCount);
+	    updateCount();
+	}
+	
+	setupCounter("saludo", "saludoCount", "saludoCounter", 200);
+	setupCounter("firma", "firmaCount", "firmaCounter", 200);
 </script>
 
 	<script

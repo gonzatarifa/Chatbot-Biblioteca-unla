@@ -72,6 +72,7 @@
                            class="form-control"
                            th:field="*{nombre}"
                            th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid'"
+                           maxlength="100"
                            required>
                     <div class="invalid-feedback"
                          th:if="${#fields.hasErrors('nombre')}"
@@ -85,6 +86,7 @@
                            class="form-control"
                            th:field="*{apellido}"
                            th:classappend="${#fields.hasErrors('apellido')} ? 'is-invalid'"
+                           maxlength="100"
                            required>
                     <div class="invalid-feedback"
                          th:if="${#fields.hasErrors('apellido')}"
@@ -115,6 +117,7 @@
                            class="form-control"
                            th:field="*{documento}"
                            th:classappend="${#fields.hasErrors('documento')} ? 'is-invalid'"
+                           maxlength="20"
                            required>
                     <div class="invalid-feedback"
                          th:if="${#fields.hasErrors('documento')}"
@@ -128,6 +131,7 @@
                            class="form-control"
                            th:field="*{correoElectronico}"
                            th:classappend="${#fields.hasErrors('correoElectronico')} ? 'is-invalid'"
+                           maxlength="100"
                            required>
                     <div class="invalid-feedback"
                          th:if="${#fields.hasErrors('correoElectronico')}"
@@ -141,6 +145,7 @@
                            class="form-control"
                            th:field="*{nombreDeUsuario}"
                            th:classappend="${#fields.hasErrors('nombreDeUsuario')} ? 'is-invalid'"
+                           maxlength="100"
                            required>
                     <div class="invalid-feedback"
                          th:if="${#fields.hasErrors('nombreDeUsuario')}"
@@ -176,9 +181,14 @@
                            title="Este saludo se insertará automáticamente al inicio de las respuestas del chatbot y de los correos enviados desde el sistema. No es obligatorio.">
                         </i>
                     </label>
-                    <textarea class="form-control"
+                    <textarea id="saludo"
+                              class="form-control"
                               th:field="*{saludo}"
-                              rows="3"></textarea>
+                              rows="3"
+                              maxlength="200"></textarea>
+                    <small id="saludoCounter" class="text-secondary">
+							    <span id="saludoCount">0</span>/200
+					</small>
                 </div>
 
                 <!-- Firma -->
@@ -191,9 +201,14 @@
                            title="Esta firma se agregará automáticamente al final de los mensajes y correos generados por el sistema. No es obligatorio.">
                         </i>
                     </label>
-                    <textarea class="form-control"
+                    <textarea id="firma"
+                              class="form-control"
                               th:field="*{firma}"
-                              rows="3"></textarea>
+                              rows="3"
+                              maxlength="200"></textarea>
+                    <small id="firmaCounter" class="text-secondary">
+					    <span id="firmaCount">0</span>/200
+					</small>
                 </div>
 
                 <!-- Cambiar contraseña -->
@@ -236,6 +251,32 @@
             sidebar.classList.contains("collapsed") ? "collapsed" : "open"
         );
     }
+    
+    // Función Para Contador Limite Caracteres
+    function setupCounter(textareaId, countId, counterWrapperId, max) {
+	    const textarea = document.getElementById(textareaId);
+	    const count = document.getElementById(countId);
+	    const wrapper = document.getElementById(counterWrapperId);
+	
+	    function updateCount() {
+	        const length = textarea.value.length;
+	        count.textContent = length;
+	
+	        if (length >= max) {
+	            wrapper.classList.remove("text-secondary");
+	            wrapper.classList.add("text-danger");
+	        } else {
+	            wrapper.classList.remove("text-danger");
+	            wrapper.classList.add("text-secondary");
+	        }
+	    }
+	
+	    textarea.addEventListener("input", updateCount);
+	    updateCount();
+	}
+	
+	setupCounter("saludo", "saludoCount", "saludoCounter", 200);
+	setupCounter("firma", "firmaCount", "firmaCounter", 200);
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
