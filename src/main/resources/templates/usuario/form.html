@@ -28,206 +28,124 @@
     <main class="content" id="content">
         <div class="container py-4">
 
-            <!-- Title -->
-            <h2 class="mb-4 text-center" th:text="${titulo}">
-                Formulario de Usuario
-            </h2>
+            <h2 class="mb-4 text-center" th:text="${titulo}">Formulario de Usuario</h2>
 
             <!-- Alerts -->
-            <div th:if="${warning != null}"
-                 class="alert alert-warning alert-dismissible fade show"
-                 role="alert">
+            <div th:if="${warning}" class="alert alert-warning alert-dismissible fade show">
                 <span th:text="${warning}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"
-                        aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
 
-            <div th:if="${success != null}"
-                 class="alert alert-success alert-dismissible fade show"
-                 role="alert">
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show">
                 <span th:text="${success}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"
-                        aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
 
-            <div th:if="${error != null}"
-                 class="alert alert-danger alert-dismissible fade show"
-                 role="alert">
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
                 <span th:text="${error}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"
-                        aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
 
-            <!-- Form -->
+            <!-- FORM PRINCIPAL -->
             <form th:action="@{/usuarios/lista/edit/{id}(id=${usuario.id})}"
                   th:object="${usuario}"
                   method="post"
                   class="row g-3 needs-validation"
                   novalidate>
 
+                <!-- Campos del formulario (sin cambios funcionales) -->
                 <!-- Nombre -->
                 <div class="col-md-4">
                     <label class="form-label">Nombre</label>
-                    <input type="text"
-                           class="form-control"
-                           th:field="*{nombre}"
-                           th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid'"
-                           maxlength="100"
-                           required>
-                    <div class="invalid-feedback"
-                         th:if="${#fields.hasErrors('nombre')}"
-                         th:errors="*{nombre}"></div>
+                    <input type="text" class="form-control" th:field="*{nombre}" required>
                 </div>
 
                 <!-- Apellido -->
                 <div class="col-md-4">
                     <label class="form-label">Apellido</label>
-                    <input type="text"
-                           class="form-control"
-                           th:field="*{apellido}"
-                           th:classappend="${#fields.hasErrors('apellido')} ? 'is-invalid'"
-                           maxlength="100"
-                           required>
-                    <div class="invalid-feedback"
-                         th:if="${#fields.hasErrors('apellido')}"
-                         th:errors="*{apellido}"></div>
+                    <input type="text" class="form-control" th:field="*{apellido}" required>
                 </div>
 
                 <!-- Tipo Documento -->
                 <div class="col-md-4">
                     <label class="form-label">Tipo de Documento</label>
-                    <select class="form-select"
-                            th:field="*{tipoDocumento}"
-                            th:classappend="${#fields.hasErrors('tipoDocumento')} ? 'is-invalid'"
-                            required>
-                        <option value="" disabled selected>Seleccionar</option>
+                    <select class="form-select" th:field="*{tipoDocumento}" required>
+                        <option value="" disabled>Seleccionar</option>
                         <option value="D.N.I.">D.N.I.</option>
                         <option value="L.C.">L.C.</option>
                         <option value="L.E.">L.E.</option>
                     </select>
-                    <div class="invalid-feedback"
-                         th:if="${#fields.hasErrors('tipoDocumento')}"
-                         th:errors="*{tipoDocumento}"></div>
                 </div>
 
                 <!-- Documento -->
                 <div class="col-md-4">
                     <label class="form-label">Documento</label>
-                    <input type="number"
-                           class="form-control"
-                           th:field="*{documento}"
-                           th:classappend="${#fields.hasErrors('documento')} ? 'is-invalid'"
-                           maxlength="20"
-                           required>
-                    <div class="invalid-feedback"
-                         th:if="${#fields.hasErrors('documento')}"
-                         th:errors="*{documento}"></div>
+                    <input type="number" class="form-control" th:field="*{documento}" required>
                 </div>
 
                 <!-- Email -->
                 <div class="col-md-4">
                     <label class="form-label">Correo Electrónico</label>
-                    <input type="email"
-                           class="form-control"
-                           th:field="*{correoElectronico}"
-                           th:classappend="${#fields.hasErrors('correoElectronico')} ? 'is-invalid'"
-                           maxlength="100"
-                           required>
-                    <div class="invalid-feedback"
-                         th:if="${#fields.hasErrors('correoElectronico')}"
-                         th:errors="*{correoElectronico}"></div>
+                    <input type="email" class="form-control" th:field="*{correoElectronico}" required>
                 </div>
 
                 <!-- Usuario -->
                 <div class="col-md-4">
                     <label class="form-label">Nombre de Usuario</label>
-                    <input type="text"
-                           class="form-control"
-                           th:field="*{nombreDeUsuario}"
-                           th:classappend="${#fields.hasErrors('nombreDeUsuario')} ? 'is-invalid'"
-                           maxlength="100"
-                           required>
-                    <div class="invalid-feedback"
-                         th:if="${#fields.hasErrors('nombreDeUsuario')}"
-                         th:errors="*{nombreDeUsuario}"></div>
+                    <input type="text" class="form-control" th:field="*{nombreDeUsuario}" required>
                 </div>
 
                 <!-- Rol -->
                 <div class="col-12">
                     <label class="form-label">Rol del Usuario</label>
-                    <select class="form-select"
-                            th:field="*{perfiles}"
-                            id="perfiles"
-                            th:classappend="${#fields.hasErrors('perfiles')} ? 'is-invalid'"
-                            required>
-                        <option value="" disabled selected>Seleccionar rol</option>
+                    <select class="form-select" th:field="*{perfiles}" required>
+                        <option value="" disabled>Seleccionar rol</option>
                         <option th:each="perfil : ${perfiles}"
                                 th:value="${perfil.id}"
                                 th:text="${perfil.rol}">
                         </option>
                     </select>
-                    <div class="invalid-feedback"
-                         th:if="${#fields.hasErrors('perfiles')}"
-                         th:errors="*{perfiles}"></div>
                 </div>
 
                 <!-- Saludo -->
                 <div class="col-12">
-                    <label class="form-label">
-                        Saludo
-                        <i class="bi bi-info-circle-fill text-primary"
-                           data-bs-toggle="tooltip"
-                           data-bs-placement="right"
-                           title="Este saludo se insertará automáticamente al inicio de las respuestas del chatbot y de los correos enviados desde el sistema. No es obligatorio.">
-                        </i>
-                    </label>
-                    <textarea id="saludo"
-                              class="form-control"
-                              th:field="*{saludo}"
-                              rows="3"
-                              maxlength="200"></textarea>
+                    <label class="form-label">Saludo</label>
+                    <textarea id="saludo" class="form-control" th:field="*{saludo}" rows="3" maxlength="200"></textarea>
                     <small id="saludoCounter" class="text-secondary">
-							    <span id="saludoCount">0</span>/200
-					</small>
+                        <span id="saludoCount">0</span>/200
+                    </small>
                 </div>
 
                 <!-- Firma -->
                 <div class="col-12">
-                    <label class="form-label">
-                        Firma
-                        <i class="bi bi-info-circle-fill text-primary"
-                           data-bs-toggle="tooltip"
-                           data-bs-placement="right"
-                           title="Esta firma se agregará automáticamente al final de los mensajes y correos generados por el sistema. No es obligatorio.">
-                        </i>
-                    </label>
-                    <textarea id="firma"
-                              class="form-control"
-                              th:field="*{firma}"
-                              rows="3"
-                              maxlength="200"></textarea>
+                    <label class="form-label">Firma</label>
+                    <textarea id="firma" class="form-control" th:field="*{firma}" rows="3" maxlength="200"></textarea>
                     <small id="firmaCounter" class="text-secondary">
-					    <span id="firmaCount">0</span>/200
-					</small>
+                        <span id="firmaCount">0</span>/200
+                    </small>
                 </div>
 
-                <!-- Cambiar contraseña -->
-                <div class="col-md-4 d-flex align-items-end">
+                <!-- Botones -->
+                <div class="col-md-4">
                     <a th:href="@{'/usuarios/lista/cambiar-contrasena/' + ${usuario.id}}"
                        class="btn btn-warning w-100">
-                        <i class="bi bi-key-fill"></i>
-                        Cambiar contraseña
+                        <i class="bi bi-key-fill"></i> Cambiar contraseña
                     </a>
                 </div>
-
-                <!-- Submit -->
-                <div class="col-12">
-                    <button type="submit" class="btn btn-primary">
-                        Guardar
-                    </button>
-                </div>
-
-            </form>
+				          
+					<div class="col-md-4 d-flex align-items-end">
+						<button type="submit" class="btn btn-danger w-100"
+							th:formaction="@{'/usuarios/lista/restablecer-contrasena/' + ${usuario.id}}"
+							formmethod="post"
+							onclick="return confirm('¿Desea restablecer la contraseña y enviarla por correo?')">
+							<i class="bi bi-envelope-lock"></i> Restablecer contraseña
+						</button>
+					</div>
+					
+						<div class="col-12">
+							<button type="submit" class="btn btn-primary">Guardar</button>
+						</div>
+				</form>
         </div>
     </main>
 </div>

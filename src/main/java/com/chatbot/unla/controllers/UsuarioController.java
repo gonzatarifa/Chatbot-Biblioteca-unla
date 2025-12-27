@@ -3,6 +3,7 @@ package com.chatbot.unla.controllers;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.validation.Valid;
 
@@ -25,6 +26,7 @@ import com.chatbot.unla.entities.Perfiles;
 import com.chatbot.unla.entities.PreguntaUsuario;
 import com.chatbot.unla.entities.Usuario;
 import com.chatbot.unla.helpers.ViewRouteHelper;
+import com.chatbot.unla.services.IEmailService;
 import com.chatbot.unla.services.IPerfilesService;
 import com.chatbot.unla.services.IPreguntaUsuarioService;
 import com.chatbot.unla.services.IUsuarioService;
@@ -46,6 +48,9 @@ public class UsuarioController {
 	@Autowired
 	@Qualifier("preguntaUsuarioService")
 	private IPreguntaUsuarioService preguntaUsuarioService;
+	
+	@Autowired
+	private IEmailService emailService;
 	
 	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
@@ -285,6 +290,53 @@ public class UsuarioController {
 	    redirect.addFlashAttribute("success", "Saludo y firma actualizados correctamente.");
 	    return ViewRouteHelper.REDIRECT;
 	}
-
 	
+	@PostMapping("lista/restablecer-contrasena/{id}")
+	public String restablecerContrasena(@PathVariable("id") long id,
+	                                    RedirectAttributes attributes,
+	                                    Principal principal) {
+
+	    Usuario usuario = usuarioService.buscar(id);
+	    Usuario usuarioLogueado = usuarioService.getByUsername(principal.getName());
+
+	    boolean esAdministrador = usuarioLogueado.getPerfiles()
+	            .getRol().equalsIgnoreCase("Administrador");
+
+	    if (!esAdministrador && usuarioLogueado.getId() != id) {
+	        throw new AccessDeniedException("No tienes permiso para esta acción");
+	    }
+
+	    String contrasenaTemporal = generarContrasenaTemporal();
+
+	    usuario.setContrasena(passwordEncoder.encode(contrasenaTemporal));
+	    usuarioService.save(usuario);
+
+	    String asunto = "Restablecimiento de contraseña";
+	    String cuerpo =
+	            "Hola " + usuario.getNombre() + ",\n\n" +
+	            "Tu contraseña ha sido restablecida correctamente.\n\n" +
+	            "Contraseña temporal: " + contrasenaTemporal + "\n\n" +
+	            "Te recomendamos ingresar al sistema y cambiarla a la brevedad.\n\n" +
+	            "Saludos.\nPreguntame UNLa";
+
+	    emailService.enviarCorreo(
+	            usuario.getCorreoElectronico(),
+	            asunto,
+	            cuerpo
+	    );
+
+	    attributes.addFlashAttribute(
+	            "success",
+	            "La contraseña fue restablecida y enviada por correo electrónico"
+	    );
+
+	    return ViewRouteHelper.USUARIO_REDIRECT_LISTA;
+	}
+	
+	private String generarContrasenaTemporal() {
+	    return UUID.randomUUID()
+	            .toString()
+	            .replace("-", "")
+	            .substring(0, 10);
+	}
 }
