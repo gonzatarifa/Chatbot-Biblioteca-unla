@@ -153,7 +153,11 @@
 						</i>
 						</label>
 
-						<textarea th:field="*{saludo}" class="form-control" rows="3" maxlength="200"></textarea>
+						<textarea th:field="*{saludo}" class="form-control" rows="3"
+							maxlength="200"></textarea>
+						<small id="saludoCounter" class="text-secondary"> <span
+							id="saludoCount">0</span>/200
+						</small>
 					</div>
 
 					<div class="col-12 position-relative">
@@ -166,6 +170,9 @@
 
 						<textarea th:field="*{firma}" class="form-control" rows="3" maxlength="200"></textarea>
 					</div>
+					<small id="firmaCounter" class="text-secondary">
+					    <span id="firmaCount">0</span>/200
+					</small>
 
 					<div class="col-12">
 						<button type="submit" class="btn btn-primary">Guardar</button>
@@ -202,6 +209,32 @@
 				localStorage.setItem("sidebarState", "open");
 			}
 		}
+		
+		// Función Para Contador Limite Caracteres
+	    function setupCounter(textareaId, countId, counterWrapperId, max) {
+		    const textarea = document.getElementById(textareaId);
+		    const count = document.getElementById(countId);
+		    const wrapper = document.getElementById(counterWrapperId);
+		
+		    function updateCount() {
+		        const length = textarea.value.length;
+		        count.textContent = length;
+		
+		        if (length >= max) {
+		            wrapper.classList.remove("text-secondary");
+		            wrapper.classList.add("text-danger");
+		        } else {
+		            wrapper.classList.remove("text-danger");
+		            wrapper.classList.add("text-secondary");
+		        }
+		    }
+		
+		    textarea.addEventListener("input", updateCount);
+		    updateCount();
+		}
+		
+		setupCounter("saludo", "saludoCount", "saludoCounter", 200);
+		setupCounter("firma", "firmaCount", "firmaCounter", 200);
 	</script>
 
 	<script
