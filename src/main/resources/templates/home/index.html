@@ -13,98 +13,118 @@
 
 <body>
     <div class="wrapper d-flex">
-        <div th:replace="fragments/sidebar :: sidebar"></div>
+		<div th:replace="fragments/sidebar :: sidebar"></div>
+		<div
+			class="content flex-grow-1 p-4 d-flex justify-content-center align-items-start">
+			<div id="chatbot-fixed" aria-live="polite" aria-label="Chatbot">
+				<div th:if="${success != null}"
+					class="alert alert-success alert-dismissible fade show mb-3"
+					role="alert">
+					<span th:text="${success}"></span>
+					<button type="button" class="btn-close" data-bs-dismiss="alert"
+						aria-label="Close"></button>
+				</div>
+				<!-- Header -->
+				<div
+					class="card-header d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+					<div class="d-flex align-items-center gap-2">
+						<h5 class="mb-0">📚 Preguntame – Biblioteca Puiggrós</h5>
+					</div>
+					<a href="/chat/pdf" class="btn btn-outline-danger btn-sm"
+						target="_blank" title="Descargar conversación en PDF"> <i
+						class="bi bi-file-earmark-pdf-fill"></i>
+					</a>
+				</div>
 
-        <div class="content flex-grow-1 p-4 d-flex justify-content-center align-items-start">
-            <div id="chatbot-fixed" aria-live="polite" aria-label="Chatbot">
+				<!-- Historial -->
+				<div id="chat-messages-scroll"
+					style="flex-grow: 1; overflow-y: auto; margin-bottom: 10px; display: flex; flex-direction: column;">
+					<div th:each="msg : ${historial}">
+						<div th:if="${msg.remitente == 'usuario'}" class="chat-user-msg">
+							<span th:text="${msg.contenido}"></span>
+						</div>
+						<div th:if="${msg.remitente == 'bot'}" class="chat-bot-msg">
+							<span th:text="${msg.contenido}"></span>
+						</div>
+					</div>
 
-                <!-- Header -->
-                <div class="card-header d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
-                    <div class="d-flex align-items-center gap-2">
-                        <h5 class="mb-0">📚 Preguntame – Biblioteca Puiggrós</h5>
-                    </div>
-                    <a href="/chat/pdf" class="btn btn-outline-danger btn-sm" target="_blank" title="Descargar conversación en PDF">
-                        <i class="bi bi-file-earmark-pdf-fill"></i>
-                    </a>
-                </div>
+					<!-- Spinner -->
+					<div id="loadingSpinner" class="text-center mb-3"
+						style="display: none;">
+						<div class="spinner-border text-dark" role="status"
+							style="width: 1.5rem; height: 1.5rem;">
+							<span class="visually-hidden">Cargando...</span>
+						</div>
+						<p class="mt-1" style="font-size: .85rem; color: #ccc;">Procesando
+							respuesta...</p>
+					</div>
+				</div>
 
-                <!-- Historial -->
-                <div id="chat-messages-scroll" style="flex-grow: 1; overflow-y: auto; margin-bottom: 10px; display: flex; flex-direction: column;">
-                    <div th:each="msg : ${historial}">
-                        <div th:if="${msg.remitente == 'usuario'}" class="chat-user-msg">
-                            <span th:text="${msg.contenido}"></span>
-                        </div>
-                        <div th:if="${msg.remitente == 'bot'}" class="chat-bot-msg">
-                            <span th:text="${msg.contenido}"></span>
-                        </div>
-                    </div>
+				<!-- Agradecimiento -->
+				<div th:if="${agradecimientoFeedback}" class="modern-card mb-3 p-3">
+					<p class="mb-1 text-success" th:text="${agradecimientoFeedback}"></p>
+				</div>
 
-                    <!-- Spinner -->
-                    <div id="loadingSpinner" class="text-center mb-3" style="display:none;">
-                        <div class="spinner-border text-dark" role="status" style="width: 1.5rem; height: 1.5rem;">
-                            <span class="visually-hidden">Cargando...</span>
-                        </div>
-                        <p class="mt-1" style="font-size: .85rem; color: #ccc;">Procesando respuesta...</p>
-                    </div>
-                </div>
+				<!-- Formulario Feedback -->
+				<div id="formularioFeedback" th:if="${respuestaGenerica}"
+					class="modern-card mt-3 p-3" style="display: block;">
+					<h6 class="card-title mb-2">Formulario</h6>
+					<p class="card-text text-info mb-3">Completá los datos para que
+						un bibliotecario pueda responder tu consulta por correo
+						electrónico.</p>
 
-                <!-- Agradecimiento -->
-                <div th:if="${agradecimientoFeedback}" class="modern-card mb-3 p-3">
-                    <p class="mb-1 text-success" th:text="${agradecimientoFeedback}"></p>
-                </div>
+					<form method="post" action="/feedback"
+						class="d-flex flex-column gap-2">
+						<input type="hidden" name="pregunta" th:value="${pregunta}">
 
-                <!-- Formulario Feedback -->
-                <div id="formularioFeedback" th:if="${respuestaGenerica}"
-                     class="modern-card mt-3 p-3" style="display:block;">
-                    <h6 class="card-title mb-2">Formulario</h6>
-                    <p class="card-text text-info mb-3">Completá los datos para que un bibliotecario pueda responder tu consulta por correo electrónico.</p>
+						<div class="row g-2">
+							<div class="col-md-6">
+								<input type="text" name="nombre"
+									class="form-control form-control-sm input-feedback"
+									placeholder="Nombre" required
+									th:value="${feedbackSession != null ? feedbackSession.nombre : ''}">
+							</div>
 
-                    <form method="post" action="/feedback" class="d-flex flex-column gap-2">
-                        <input type="hidden" name="pregunta" th:value="${pregunta}">
+							<div class="col-md-6">
+								<input type="text" name="apellido"
+									class="form-control form-control-sm input-feedback"
+									placeholder="Apellido" required
+									th:value="${feedbackSession != null ? feedbackSession.apellido : ''}">
+							</div>
+						</div>
 
-                        <div class="row g-2">
-                            <div class="col-md-6">
-                                <input type="text" name="nombre" class="form-control form-control-sm input-feedback"
-                                       placeholder="Nombre" required
-                                       th:value="${feedbackSession != null ? feedbackSession.nombre : ''}">
-                            </div>
+						<input type="email" name="email"
+							class="form-control form-control-sm input-feedback mt-2"
+							placeholder="Correo electrónico" required
+							th:value="${feedbackSession != null ? feedbackSession.email : ''}">
 
-                            <div class="col-md-6">
-                                <input type="text" name="apellido" class="form-control form-control-sm input-feedback"
-                                       placeholder="Apellido" required
-                                       th:value="${feedbackSession != null ? feedbackSession.apellido : ''}">
-                            </div>
-                        </div>
+						<button type="submit"
+							class="btn btn-feedback mt-2 align-self-start">Enviar
+							Formulario</button>
+					</form>
+				</div>
 
-                        <input type="email" name="email" class="form-control form-control-sm input-feedback mt-2"
-                               placeholder="Correo electrónico" required
-                               th:value="${feedbackSession != null ? feedbackSession.email : ''}">
+				<!-- Formulario Chat -->
+				<form id="chatForm" method="post" action="/"
+					style="display: flex; margin-top: 10px; align-items: center; gap: 5px;">
 
-                        <button type="submit" class="btn btn-feedback mt-2 align-self-start">
-                            Enviar Formulario
-                        </button>
-                    </form>
-                </div>
+					<textarea id="preguntaInput" name="pregunta"
+						placeholder="Escribí tu pregunta..." required autocomplete="off"
+						rows="1" maxlength="500" style="flex-grow: 1; resize: none;"></textarea>
 
-                <!-- Formulario Chat -->
-                <form id="chatForm" method="post" action="/" style="display:flex; margin-top:10px; align-items:center; gap:5px;">
+					<div id="charCount"
+						style="font-size: .75rem; color: #aaa; width: 70px; text-align: right;">
+						0 / 500</div>
 
-                    <textarea id="preguntaInput" name="pregunta" placeholder="Escribí tu pregunta..."
-                              required autocomplete="off" rows="1" maxlength="500"
-                              style="flex-grow:1; resize:none;"></textarea>
+					<button id="sendBtn" class="send-btn" type="submit" title="Enviar"
+						disabled>
+						<i id="sendIcon" class="bi bi-arrow-right-short"></i>
+					</button>
+				</form>
 
-                    <div id="charCount" style="font-size:.75rem; color:#aaa; width:70px; text-align:right;">
-                        0 / 500
-                    </div>
-
-                    <button id="sendBtn" class="send-btn" type="submit" title="Enviar" disabled>
-                        <i id="sendIcon" class="bi bi-arrow-right-short"></i>
-                    </button>
-                </form>
-
-            </div>
-        </div>
-    </div>
+			</div>
+		</div>
+	</div>
 
     <!-- ⭐ Sidebar Script con estado persistente -->
     <script>

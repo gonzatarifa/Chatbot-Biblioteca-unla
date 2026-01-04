@@ -82,25 +82,27 @@ public class UsuarioController {
 			}
 		}
 
-		if(usuarioService.getByDni(usuario.getDocumento())!=null && usuarioService.getByDni(usuario.getDocumento()).getId()!=usuario.getId()) 
-		{
-			FieldError error = new FieldError("usuario", "documento", "Ya existe un usuario con ese documento");
-			result.addError(error);
+		if (usuarioService.existeDniHabilitado(usuario.getDocumento(), usuario.getId())) {
+
+			result.addError(
+					new FieldError("usuario", "documento", "Ya existe un usuario habilitado con ese documento"));
 		}
-		
-		if(usuarioService.getByUsername(usuario.getNombreDeUsuario())!=null && usuarioService.getByUsername(usuario.getNombreDeUsuario()).getId()!=usuario.getId()) {
-			FieldError error = new FieldError("usuario", "nombreDeUsuario", "Ya existe un usuario con ese nombre de usuario");
-			result.addError(error);
+
+		if (usuarioService.existeUsuarioHabilitado(usuario.getNombreDeUsuario(), usuario.getId())) {
+
+			result.addError(new FieldError("usuario", "nombreDeUsuario",
+					"Ya existe un usuario habilitado con ese nombre de usuario"));
 		}
-		if(usuarioService.getByEmail(usuario.getCorreoElectronico())!=null && usuarioService.getByEmail(usuario.getCorreoElectronico()).getId()!=usuario.getId()) {
-			FieldError error = new FieldError("usuario", "correoElectronico", "Ya existe un usuario con ese correo electronico");
-			result.addError(error);
+
+		if (usuarioService.existeEmailHabilitado(usuario.getCorreoElectronico(), usuario.getId())) {
+
+			result.addError(new FieldError("usuario", "correoElectronico",
+					"Ya existe un usuario habilitado con ese correo electrónico"));
 		}
-		
-	    if (usuario.getContrasena() == null || usuario.getContrasena().trim().isEmpty()) {
-	        FieldError error = new FieldError("usuario", "contrasena", "La contraseña no puede estar vacía");
-	        result.addError(error);
-	    }
+
+		if (usuario.getContrasena() == null || usuario.getContrasena().trim().isEmpty()) {
+			result.addError(new FieldError("usuario", "contrasena", "La contraseña no puede estar vacía"));
+		}
 			
 		if(result.hasErrors()) {
 			model.addAttribute("titulo", "Formulario: Nuevo Usuario");
@@ -155,21 +157,23 @@ public class UsuarioController {
 
 	    List<Perfiles> listaPerfiles = perfilesService.getAll();
 	    
-		if(usuarioService.getByDni(usuario.getDocumento())!=null && usuarioService.getByDni(usuario.getDocumento()).getId()!=usuario.getId()) 
-		{
-			FieldError error = new FieldError("usuario", "documento", "Ya existe un usuario con ese documento");
-			result.addError(error);
+		if (usuarioService.existeDniHabilitado(usuario.getDocumento(), usuario.getId())) {
+
+			result.addError(
+					new FieldError("usuario", "documento", "Ya existe un usuario habilitado con ese documento"));
 		}
-		
-		if(usuarioService.getByUsername(usuario.getNombreDeUsuario())!=null && usuarioService.getByUsername(usuario.getNombreDeUsuario()).getId()!=usuario.getId()) {
-			FieldError error = new FieldError("usuario", "nombreDeUsuario", "Ya existe un usuario con ese nombre de usuario");
-			result.addError(error);
+
+		if (usuarioService.existeUsuarioHabilitado(usuario.getNombreDeUsuario(), usuario.getId())) {
+
+			result.addError(new FieldError("usuario", "nombreDeUsuario",
+					"Ya existe un usuario habilitado con ese nombre de usuario"));
 		}
-		if(usuarioService.getByEmail(usuario.getCorreoElectronico())!=null && usuarioService.getByEmail(usuario.getCorreoElectronico()).getId()!=usuario.getId()) {
-			FieldError error = new FieldError("usuario", "correoElectronico", "Ya existe un usuario con ese correo electronico");
-			result.addError(error);
+
+		if (usuarioService.existeEmailHabilitado(usuario.getCorreoElectronico(), usuario.getId())) {
+
+			result.addError(new FieldError("usuario", "correoElectronico",
+					"Ya existe un usuario habilitado con ese correo electrónico"));
 		}
-		
 	    if (result.hasErrors()) {
 	        model.addAttribute("titulo", "Editar usuario");
 	        model.addAttribute("usuario", usuario);
@@ -211,10 +215,14 @@ public class UsuarioController {
 	public String cambiarContrasena(@PathVariable("id") long id,
 	                                @ModelAttribute Usuario usuario,
 	                                BindingResult result,
-	                                RedirectAttributes attributes) {
+	                                RedirectAttributes attributes, Principal principal) {
 
 	    Usuario usuarioBD = usuarioService.buscar(id);
-
+	    Usuario usuarioLogueado = usuarioService.getByUsername(principal.getName());
+	    
+	    boolean esAdministrador = usuarioLogueado.getPerfiles()
+	            .getRol().equalsIgnoreCase("Administrador");
+	    
 	    if (usuario.getNuevaContrasena() != null && !usuario.getNuevaContrasena().isEmpty()) {
 	        if (!passwordEncoder.matches(usuario.getContrasenaActual(), usuarioBD.getContrasena())) {
 	            result.addError(new FieldError("usuario", "contrasenaActual", "Contraseña actual incorrecta"));
@@ -231,7 +239,11 @@ public class UsuarioController {
 
 	    usuarioService.save(usuarioBD);
 	    attributes.addFlashAttribute("success", "Contraseña cambiada con éxito");
-	    return ViewRouteHelper.USUARIO_REDIRECT_LISTA;
+	    if (esAdministrador) {
+	        return ViewRouteHelper.USUARIO_REDIRECT_LISTA;
+	    } else {
+	        return ViewRouteHelper.REDIRECT; 
+	    }
 	}
 
 	@GetMapping("lista/delete/{id}")

@@ -58,4 +58,25 @@ public class UsuarioService implements IUsuarioService {
 	    usuarioRepository.save(user);
 	}
 
+	@Override
+	public boolean existeEmailHabilitado(String email, Long id) {
+		if (email == null) return false;
+		return usuarioRepository
+                .existsByCorreoElectronicoAndDeshabilitadoTrueAndIdNot(email, id);
+	}
+
+	@Override
+	public boolean existeUsuarioHabilitado(String username, Long id) {
+		 if (username == null) return false; 
+		return usuarioRepository
+	                .existsByNombreDeUsuarioAndDeshabilitadoTrueAndIdNot(username, id);
+	}
+
+	@Override
+	public boolean existeDniHabilitado(long dni, Long id) {
+		if (dni <= 0) return false;
+		return usuarioRepository
+                .existsByDocumentoAndDeshabilitadoTrueAndIdNot(dni, id);
+    }
+
 }

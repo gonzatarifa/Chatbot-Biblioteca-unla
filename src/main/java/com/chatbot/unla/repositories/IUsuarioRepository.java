@@ -21,4 +21,19 @@ public interface IUsuarioRepository extends JpaRepository<Usuario, Serializable>
 	
 	@Query("SELECT u FROM Usuario u WHERE u.nombreDeUsuario = (:nombreDeUsuario)")
 	public abstract Usuario getByUsername(@Param("nombreDeUsuario") String nombreDeUsuario);
+	
+	 boolean existsByCorreoElectronicoAndDeshabilitadoTrueAndIdNot(
+	            String correoElectronico,
+	            Long id
+	    );
+
+	    boolean existsByDocumentoAndDeshabilitadoTrueAndIdNot(
+	            long documento,
+	            Long id
+	    );
+
+	    boolean existsByNombreDeUsuarioAndDeshabilitadoTrueAndIdNot(
+	            String nombreDeUsuario,
+	            Long id
+	    );
 }
