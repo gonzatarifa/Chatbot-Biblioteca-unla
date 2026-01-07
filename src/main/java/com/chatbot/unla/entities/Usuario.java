@@ -44,6 +44,7 @@ public class Usuario {
 
 	@Column(name = "correoElectronico")
 	@Email
+	@NotEmpty(message="el campo no debe estar vacio") 
 	private String correoElectronico;
 
 	@Column(name = "nombreDeUsuario")
