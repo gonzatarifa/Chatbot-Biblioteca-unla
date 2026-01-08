@@ -38,7 +38,7 @@
             <label class="form-label">Contraseña Actual:</label>
             <div class="input-group">
                 <input type="password" th:field="*{contrasenaActual}" class="form-control"
-                       th:classappend="${#fields.hasErrors('contrasenaActual')} ? ' is-invalid' : ''" required>
+                       th:classappend="${#fields.hasErrors('contrasenaActual')} ? ' is-invalid' : ''" required maxlength="200">
                 <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('contrasenaActual')">
                     <i class="bi bi-eye"></i>
                 </button>
@@ -51,7 +51,7 @@
             <label class="form-label">Nueva Contraseña:</label>
             <div class="input-group">
                 <input type="password" th:field="*{nuevaContrasena}" class="form-control"
-                       th:classappend="${#fields.hasErrors('nuevaContrasena')} ? ' is-invalid' : ''" required>
+                       th:classappend="${#fields.hasErrors('nuevaContrasena')} ? ' is-invalid' : ''" required maxlength="200">
                 <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('nuevaContrasena')">
                     <i class="bi bi-eye"></i>
                 </button>
@@ -64,7 +64,7 @@
             <label class="form-label">Confirmar Nueva Contraseña:</label>
             <div class="input-group">
                 <input type="password" th:field="*{confirmarContrasena}" class="form-control"
-                       th:classappend="${#fields.hasErrors('confirmarContrasena')} ? ' is-invalid' : ''" required>
+                       th:classappend="${#fields.hasErrors('confirmarContrasena')} ? ' is-invalid' : ''" required maxlength="200">
                 <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('confirmarContrasena')">
                     <i class="bi bi-eye"></i>
                 </button>

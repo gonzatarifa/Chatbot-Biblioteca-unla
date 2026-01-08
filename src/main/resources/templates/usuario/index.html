@@ -90,9 +90,11 @@
 
 					<div class="col-md-4">
 						<label class="form-label">Documento:</label> <input
-							class="form-control" type="number" th:field="*{documento}"
+							class="form-control" type="text" th:field="*{documento}"
 							th:classappend="${#fields.hasErrors('documento')} ? ' is-invalid' : ''"
-							maxlength="20"
+							inputmode="numeric"
+							pattern="[0-9]+"
+							maxlength="18"
 							required>
 						<div class="invalid-feedback"
 							th:if="${#fields.hasErrors('documento')}"
@@ -149,30 +151,40 @@
 						<label class="form-label"> Saludo: <i
 							class="bi bi-info-circle-fill text-primary"
 							data-bs-toggle="tooltip" data-bs-placement="right"
-							title="Este saludo se insertará automáticamente al inicio de las respuestas del chatbot y de los correos enviados desde el sistema. No es obligatorio">
+							title="Este saludo se insertará automáticamente al inicio de los correos enviados desde el sistema. No es obligatorio">
 						</i>
 						</label>
 
 						<textarea th:field="*{saludo}" class="form-control" rows="3"
-							maxlength="200"></textarea>
+							maxlength="200" 
+							th:classappend="${#fields.hasErrors('saludo')} ? ' is-invalid'">></textarea>
 						<small id="saludoCounter" class="text-secondary"> <span
 							id="saludoCount">0</span>/200
 						</small>
+						<div class="invalid-feedback"
+						     th:if="${#fields.hasErrors('saludo')}"
+						     th:errors="*{saludo}">
+						</div>
 					</div>
 
 					<div class="col-12 position-relative">
 						<label class="form-label"> Firma: <i
 							class="bi bi-info-circle-fill text-primary"
 							data-bs-toggle="tooltip" data-bs-placement="right"
-							title="Esta firma se agregará automáticamente al final de los mensajes y correos generados por el sistema. No es obligatorio">
+							title="Esta firma se agregará automáticamente al final de los correos generados por el sistema. No es obligatorio">
 						</i>
 						</label>
 
-						<textarea th:field="*{firma}" class="form-control" rows="3" maxlength="200"></textarea>
+						<textarea th:field="*{firma}" class="form-control" rows="3" maxlength="200"
+						th:classappend="${#fields.hasErrors('firma')} ? ' is-invalid'">></textarea>
 					</div>
 					<small id="firmaCounter" class="text-secondary">
 					    <span id="firmaCount">0</span>/200
 					</small>
+					<div class="invalid-feedback"
+					     th:if="${#fields.hasErrors('firma')}"
+					     th:errors="*{firma}">
+					</div>
 
 					<div class="col-12">
 						<button type="submit" class="btn btn-primary">Guardar</button>

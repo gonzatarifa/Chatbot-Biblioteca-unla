@@ -31,17 +31,17 @@
             <h2 class="mb-4 text-center" th:text="${titulo}">Formulario de Usuario</h2>
 
             <!-- Alerts -->
-            <div th:if="${warning}" class="alert alert-warning alert-dismissible fade show">
+            <div th:if="${warning}" class="alert alert-warning alert-dismissible fade show" role="alert">
                 <span th:text="${warning}"></span>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
 
-            <div th:if="${success}" class="alert alert-success alert-dismissible fade show">
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
                 <span th:text="${success}"></span>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
 
-            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
                 <span th:text="${error}"></span>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
@@ -57,72 +57,159 @@
                 <!-- Nombre -->
                 <div class="col-md-4">
                     <label class="form-label">Nombre</label>
-                    <input type="text" class="form-control" th:field="*{nombre}" required>
+                    <input type="text"
+                           class="form-control"
+                           th:field="*{nombre}"
+                           th:classappend="${#fields.hasErrors('nombre')} ? ' is-invalid'"
+                           maxlength="100"
+                           required>
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('nombre')}"
+                         th:errors="*{nombre}"></div>
                 </div>
 
                 <!-- Apellido -->
                 <div class="col-md-4">
                     <label class="form-label">Apellido</label>
-                    <input type="text" class="form-control" th:field="*{apellido}" required>
+                    <input type="text"
+                           class="form-control"
+                           th:field="*{apellido}"
+                           th:classappend="${#fields.hasErrors('apellido')} ? ' is-invalid'"
+                           maxlength="100"
+                           required>
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('apellido')}"
+                         th:errors="*{apellido}"></div>
                 </div>
 
                 <!-- Tipo Documento -->
                 <div class="col-md-4">
                     <label class="form-label">Tipo de Documento</label>
-                    <select class="form-select" th:field="*{tipoDocumento}" required>
-                        <option value="" disabled>Seleccionar</option>
+                    <select class="form-select"
+                            th:field="*{tipoDocumento}"
+                            th:classappend="${#fields.hasErrors('tipoDocumento')} ? ' is-invalid'"
+                            required>
+                        <option value="" disabled selected>Seleccionar</option>
                         <option value="D.N.I.">D.N.I.</option>
                         <option value="L.C.">L.C.</option>
                         <option value="L.E.">L.E.</option>
                     </select>
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('tipoDocumento')}"
+                         th:errors="*{tipoDocumento}"></div>
                 </div>
 
                 <!-- Documento -->
                 <div class="col-md-4">
                     <label class="form-label">Documento</label>
-                    <input type="number" class="form-control" th:field="*{documento}" required>
+                    <input type="text"
+					       class="form-control"
+					       th:field="*{documento}"
+					       inputmode="numeric"
+					       pattern="[0-9]+"
+					       maxlength="18"
+					       required
+					       th:classappend="${#fields.hasErrors('documento')} ? ' is-invalid'">
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('documento')}"
+                         th:errors="*{documento}"></div>
                 </div>
 
                 <!-- Email -->
                 <div class="col-md-4">
                     <label class="form-label">Correo Electrónico</label>
-                    <input type="email" class="form-control" th:field="*{correoElectronico}" required>
+                    <input type="email"
+                           class="form-control"
+                           th:field="*{correoElectronico}"
+                           th:classappend="${#fields.hasErrors('correoElectronico')} ? ' is-invalid'"
+                           maxlength="100"
+                           required>
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('correoElectronico')}"
+                         th:errors="*{correoElectronico}"></div>
                 </div>
 
                 <!-- Usuario -->
                 <div class="col-md-4">
                     <label class="form-label">Nombre de Usuario</label>
-                    <input type="text" class="form-control" th:field="*{nombreDeUsuario}" required>
+                    <input type="text"
+                           class="form-control"
+                           th:field="*{nombreDeUsuario}"
+                           th:classappend="${#fields.hasErrors('nombreDeUsuario')} ? ' is-invalid'"
+                           maxlength="100"
+                           required>
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('nombreDeUsuario')}"
+                         th:errors="*{nombreDeUsuario}"></div>
                 </div>
 
                 <!-- Rol -->
                 <div class="col-12">
                     <label class="form-label">Rol del Usuario</label>
-                    <select class="form-select" th:field="*{perfiles}" required>
-                        <option value="" disabled>Seleccionar rol</option>
+                    <select class="form-select"
+                            th:field="*{perfiles}"
+                            id="perfiles"
+                            th:classappend="${#fields.hasErrors('perfiles')} ? ' is-invalid'"
+                            required>
+                        <option value="" disabled selected>Seleccionar rol</option>
                         <option th:each="perfil : ${perfiles}"
                                 th:value="${perfil.id}"
                                 th:text="${perfil.rol}">
                         </option>
                     </select>
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('perfiles')}"
+                         th:errors="*{perfiles}"></div>
                 </div>
 
                 <!-- Saludo -->
                 <div class="col-12">
-                    <label class="form-label">Saludo</label>
-                    <textarea id="saludo" class="form-control" th:field="*{saludo}" rows="3" maxlength="200"></textarea>
+                    <label class="form-label">
+                        Saludo
+                        <i class="bi bi-info-circle-fill text-primary"
+                           data-bs-toggle="tooltip"
+                           data-bs-placement="right"
+                           title="Este saludo se insertará automáticamente al inicio de los correos enviados desde el sistema. No es obligatorio.">
+                        </i>
+                    </label>
+                    <textarea id="saludo"
+                              class="form-control"
+                              th:field="*{saludo}"
+                              rows="3"
+                              maxlength="200"
+                              th:classappend="${#fields.hasErrors('saludo')} ? ' is-invalid'">></textarea>
                     <small id="saludoCounter" class="text-secondary">
                         <span id="saludoCount">0</span>/200
                     </small>
+                    <div class="invalid-feedback"
+					     th:if="${#fields.hasErrors('saludo')}"
+					     th:errors="*{saludo}">
+					</div>
                 </div>
 
                 <!-- Firma -->
                 <div class="col-12">
-                    <label class="form-label">Firma</label>
-                    <textarea id="firma" class="form-control" th:field="*{firma}" rows="3" maxlength="200"></textarea>
+                    <label class="form-label">
+                        Firma
+                        <i class="bi bi-info-circle-fill text-primary"
+                           data-bs-toggle="tooltip"
+                           data-bs-placement="right"
+                           title="Esta firma se agregará automáticamente al final de los correos generados por el sistema. No es obligatorio.">
+                        </i>
+                    </label>
+                    <textarea id="firma"
+                              class="form-control"
+                              th:field="*{firma}"
+                              rows="3"
+                              maxlength="200"
+                              th:classappend="${#fields.hasErrors('firma')} ? ' is-invalid'">></textarea>
                     <small id="firmaCounter" class="text-secondary">
                         <span id="firmaCount">0</span>/200
                     </small>
+                    <div class="invalid-feedback"
+					     th:if="${#fields.hasErrors('firma')}"
+					     th:errors="*{firma}">
+					</div>
                 </div>
 
                 <!-- Botones -->

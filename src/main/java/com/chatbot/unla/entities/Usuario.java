@@ -10,9 +10,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.Digits;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,10 +31,12 @@ public class Usuario {
 
 	@Column(name = "nombre")
 	@NotEmpty(message="el campo no debe estar vacio") 
+	@Size(max = 100)
 	private String nombre;
 
 	@Column(name = "apellido")
 	@NotEmpty(message="el campo no debe estar vacio") 
+	@Size(max = 100)
 	private String apellido;
 	
 	@Column(name = "tipoDocumento")
@@ -40,18 +44,22 @@ public class Usuario {
 
 	@Column(name = "documento")
 	@NotNull
+	@Digits(integer = 18, fraction = 0)
 	private long documento;
 
 	@Column(name = "correoElectronico")
 	@Email
 	@NotEmpty(message="el campo no debe estar vacio") 
+	@Size(max = 100)
 	private String correoElectronico;
 
 	@Column(name = "nombreDeUsuario")
 	@NotEmpty(message="el campo no debe estar vacio") 
+	@Size(max = 100)
 	private String nombreDeUsuario;
 
 	@Column(name = "contrasena")
+	@Size(max = 200)
 	private String contrasena;
 
 	@ManyToOne
@@ -62,9 +70,11 @@ public class Usuario {
 	private boolean deshabilitado;
 	
 	@Column(name = "saludo")
+	@Size(max = 200)
 	private String saludo;
 
 	@Column(name = "firma")
+	@Size(max = 200)
 	private String firma;
 	
 	@Transient
