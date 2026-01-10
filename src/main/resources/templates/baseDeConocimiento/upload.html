@@ -114,51 +114,40 @@
 	                        </div>
                             <!-- ================= CONFLICTO EMBEBIDO ================= -->
 							<div th:if="${conflictos != null}">
-							
-							    <div th:each="conf : ${conflictos}"
-							         th:if="${conf.pregunta == item.pregunta}"
-							         class="mt-3 border-top pt-3">
-							
-							        <p class="text-warning fw-bold mb-2">
-							            Pregunta existente deshabilitada
-							        </p>
-							
-							        <div class="row">
-							            <div class="col-md-6">
-							                <label class="form-label">Respuesta actual</label>
-							                <textarea class="form-control" rows="3" disabled
-							                          th:text="${conf.respuestaExistente}"></textarea>
-							            </div>
-							
-							            <div class="col-md-6">
-							                <label class="form-label">Nueva respuesta</label>
-							                <textarea class="form-control" rows="3" disabled
-							                          th:text="${conf.respuestaNueva}"></textarea>
-							            </div>
-							        </div>
-							
-							        <div class="form-check mt-2">
-							            <input class="form-check-input"
-							                   type="checkbox"
-							                   th:name="${'confirmar_' + iterStat.index}"
-							                   value="true">
-							            <label class="form-check-label">
-							                Actualizar y habilitar esta pregunta
-							            </label>
-							        </div>
-							
-							        <input type="hidden"
-							               th:name="${'conflicto_pregunta_' + iterStat.index}"
-							               th:value="${conf.pregunta}" />
-							
-							        <input type="hidden"
-							               th:name="${'conflicto_respuesta_' + iterStat.index}"
-							               th:value="${conf.respuestaNueva}" />
-							    </div>
-							</div>
 
-                            
-                        </div>
+									<div th:each="conf : ${conflictos}"
+										th:if="${conf.pregunta == item.pregunta}"
+										class="mt-3 border-top pt-3">
+
+										<p class="text-warning fw-bold mb-2">Pregunta existente
+											deshabilitada</p>
+
+										<div class="row">
+											<div class="col-md-6">
+												<label class="form-label">Respuesta actual</label>
+												<textarea class="form-control" rows="3" disabled
+													th:text="${conf.respuestaExistente}"></textarea>
+											</div>
+
+											<div class="col-md-6">
+												<label class="form-label">Nueva respuesta</label>
+												<textarea class="form-control" rows="3" disabled
+													th:text="${conf.respuestaNueva}"></textarea>
+											</div>
+										</div>
+
+										<div class="form-check mt-2 d-flex align-items-center gap-2">
+											<input class="form-check-input" type="checkbox"
+												name="confirmar_conflicto" th:value="${conf.pregunta}">
+
+											<span class="form-check-label"> Actualizar y habilitar
+												esta pregunta </span> <input type="hidden"
+												name="conflicto_respuesta" th:value="${conf.respuestaNueva}" />
+										</div>
+									</div>
+
+
+								</div>
 
                     </div>
 

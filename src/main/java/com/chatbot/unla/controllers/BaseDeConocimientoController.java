@@ -395,6 +395,8 @@ public class BaseDeConocimientoController {
     @PostMapping("/saveFromPreview")
     public String saveFromPreview(
             @RequestParam Map<String, String> params,
+            @RequestParam(required = false, name = "confirmar_conflicto") List<String> confirmarConflictos,
+            @RequestParam(required = false, name = "conflicto_respuesta") List<String> respuestasConflicto,
             RedirectAttributes redirect) {
 
         int total = Integer.parseInt(params.getOrDefault("total", "0"));
@@ -411,9 +413,7 @@ public class BaseDeConocimientoController {
             BaseDeConocimiento existente =
                     baseDeConocimientoService.buscarPorPreguntaExacta(pregunta);
 
-            if (existente != null) {
-                continue;
-            }
+            if (existente != null) continue;
 
             BaseDeConocimiento nueva = new BaseDeConocimiento();
             nueva.setPregunta(pregunta);
@@ -426,28 +426,26 @@ public class BaseDeConocimientoController {
             cargadas++;
         }
 
-        /* ----------- RESOLVER CONFLICTOS CONFIRMADOS ----------- */
+        /* ----------- RESOLVER CONFLICTOS ----------- */
+        if (confirmarConflictos != null && respuestasConflicto != null) {
 
-        for (int i = 0; i < total; i++) {
+            for (int i = 0; i < confirmarConflictos.size(); i++) {
 
-            if (params.get("confirmar_" + i) == null) continue;
+                String pregunta = confirmarConflictos.get(i);
+                String respuestaNueva = respuestasConflicto.get(i);
 
-            String pregunta = params.get("conflicto_pregunta_" + i);
-            String respuestaNueva = params.get("respuesta_" + i);
+                BaseDeConocimiento existente =
+                        baseDeConocimientoService.buscarPorPreguntaExacta(pregunta);
 
-            if (pregunta == null || respuestaNueva == null) continue;
+                if (existente != null && !existente.isHabilitado()) {
+                    existente.setRespuesta(respuestaNueva);
+                    existente.setHabilitado(true);
+                    existente.setFechaActualizacion(LocalDateTime.now());
+                    existente.setEmbedding(generarEmbedding(pregunta));
 
-            BaseDeConocimiento existente =
-                    baseDeConocimientoService.buscarPorPreguntaExacta(pregunta);
-
-            if (existente != null && !existente.isHabilitado()) {
-                existente.setRespuesta(respuestaNueva);
-                existente.setHabilitado(true);
-                existente.setFechaActualizacion(LocalDateTime.now());
-                existente.setEmbedding(generarEmbedding(pregunta));
-
-                baseDeConocimientoService.save(existente);
-                cargadas++;
+                    baseDeConocimientoService.save(existente);
+                    cargadas++;
+                }
             }
         }
 
@@ -458,6 +456,7 @@ public class BaseDeConocimientoController {
 
         return ViewRouteHelper.BASE_DE_CONOCIMIENTO_REDIRECT_LISTA;
     }
+
 
     
     @GetMapping("/descargar-ejemplo")
