@@ -41,6 +41,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.chatbot.unla.entities.BaseDeConocimiento;
+import com.chatbot.unla.entities.model.ConflictoBC;
 import com.chatbot.unla.helpers.ViewRouteHelper;
 import com.chatbot.unla.services.IBaseDeConocimientoService;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -66,49 +67,105 @@ public class BaseDeConocimientoController {
 	
 	@PostMapping("/")
 	public String guardar(
-	        @RequestParam(value="preguntasCargadasJson", required=false) String preguntasJson,
+	        @RequestParam(value = "confirmarActualizacion", required = false) Boolean confirmar,
 	        @Valid @ModelAttribute BaseDeConocimiento baseDeConocimiento,
 	        BindingResult result,
 	        RedirectAttributes attribute) {
 
-	    int cargadas = 0;
-	    int duplicadas = 0;
+	    // Validaciones
+	    if (baseDeConocimiento.getPregunta() != null &&
+	        baseDeConocimiento.getPregunta().length() > 500) {
 
-	    // VALIDACIÓN DE PREGUNTA
-	    if (baseDeConocimiento.getPregunta() != null && baseDeConocimiento.getPregunta().length() > 500) {
-	        attribute.addFlashAttribute("error", "La pregunta supera el máximo de 500 caracteres.");
-
-	        // 👉 Mando de vuelta lo que el usuario escribió
-	        attribute.addFlashAttribute("baseDeConocimiento", baseDeConocimiento);
-
-	        return ViewRouteHelper.BASE_DE_CONOCIMIENTO_REDIRECT;
-	    }
-
-	    // VALIDACIÓN DE RESPUESTA
-	    if (baseDeConocimiento.getRespuesta() != null && baseDeConocimiento.getRespuesta().length() > 1500) {
-	        attribute.addFlashAttribute("error", "La respuesta supera el máximo de 1500 caracteres.");
+	        attribute.addFlashAttribute("error",
+	                "La pregunta supera el máximo de 500 caracteres.");
 	        attribute.addFlashAttribute("baseDeConocimiento", baseDeConocimiento);
 	        return ViewRouteHelper.BASE_DE_CONOCIMIENTO_REDIRECT;
 	    }
 
-	    // LÓGICA NORMAL
-	    if(baseDeConocimiento.getPregunta() != null && !baseDeConocimiento.getPregunta().isEmpty()){
-	        if(baseDeConocimientoService.buscarPorPreguntaExacta(baseDeConocimiento.getPregunta()) == null){
-	            baseDeConocimiento.setFechaCreacion(LocalDateTime.now());
-	            baseDeConocimiento.setHabilitado(true);
-	            baseDeConocimiento.setEmbedding(generarEmbedding(baseDeConocimiento.getPregunta()));
-	            baseDeConocimientoService.save(baseDeConocimiento);
-	            cargadas++;
-	        } else {
-	            duplicadas++;
-	        }
+	    if (baseDeConocimiento.getRespuesta() != null &&
+	        baseDeConocimiento.getRespuesta().length() > 1500) {
+
+	        attribute.addFlashAttribute("error",
+	                "La respuesta supera el máximo de 1500 caracteres.");
+	        attribute.addFlashAttribute("baseDeConocimiento", baseDeConocimiento);
+	        return ViewRouteHelper.BASE_DE_CONOCIMIENTO_REDIRECT;
 	    }
 
-	    attribute.addFlashAttribute("success",
-	            String.format("%d entradas guardadas, %d duplicadas ignoradas", cargadas, duplicadas));
+	    if (baseDeConocimiento.getPregunta() == null ||
+	        baseDeConocimiento.getPregunta().trim().isEmpty()) {
 
-	    return ViewRouteHelper.BASE_DE_CONOCIMIENTO_REDIRECT_LISTA;
+	        attribute.addFlashAttribute("error", "La pregunta no puede estar vacía.");
+	        return ViewRouteHelper.BASE_DE_CONOCIMIENTO_REDIRECT;
+	    }
+
+	    BaseDeConocimiento existente =
+	            baseDeConocimientoService.buscarPorPreguntaExacta(
+	                    baseDeConocimiento.getPregunta().trim()
+	            );
+
+	    // EXISTE Y ESTÁ DESHABILITADA → PEDIR CONFIRMACIÓN
+	    if (existente != null && !existente.isHabilitado() && confirmar == null) {
+
+	        attribute.addFlashAttribute(
+	                "warning",
+	                "Ya existe una pregunta deshabilitada en la base de conocimiento. ¿Desea actualizarla y habilitarla nuevamente?"
+	        );
+	        attribute.addFlashAttribute("requiereConfirmacion", true);
+	        attribute.addFlashAttribute("baseDeConocimiento", baseDeConocimiento);
+	        attribute.addFlashAttribute("respuestaAnterior", existente.getRespuesta());
+	        attribute.addFlashAttribute("preguntaExistente", existente.getPregunta());
+
+
+	        return ViewRouteHelper.BASE_DE_CONOCIMIENTO_REDIRECT;
+	    }
+
+	    // CONFIRMADO → ACTUALIZAR
+	    if (existente != null && !existente.isHabilitado() && Boolean.TRUE.equals(confirmar)) {
+
+	        existente.setRespuesta(baseDeConocimiento.getRespuesta());
+	        existente.setHabilitado(true);
+	        existente.setFechaActualizacion(LocalDateTime.now());
+	        existente.setEmbedding(generarEmbedding(existente.getPregunta()));
+
+	        baseDeConocimientoService.save(existente);
+
+	        attribute.addFlashAttribute(
+	                "success",
+	                "La pregunta fue actualizada y habilitada correctamente."
+	        );
+
+	        return ViewRouteHelper.BASE_DE_CONOCIMIENTO_REDIRECT_LISTA;
+	    }
+
+	    // NO EXISTE → CREAR NUEVA
+	    if (existente == null) {
+
+	        baseDeConocimiento.setFechaCreacion(LocalDateTime.now());
+	        baseDeConocimiento.setFechaActualizacion(LocalDateTime.now());
+	        baseDeConocimiento.setHabilitado(true);
+	        baseDeConocimiento.setEmbedding(
+	                generarEmbedding(baseDeConocimiento.getPregunta())
+	        );
+
+	        baseDeConocimientoService.save(baseDeConocimiento);
+
+	        attribute.addFlashAttribute(
+	                "success",
+	                "Entrada creada correctamente."
+	        );
+
+	        return ViewRouteHelper.BASE_DE_CONOCIMIENTO_REDIRECT_LISTA;
+	    }
+
+	    // EXISTE Y ESTÁ HABILITADA
+	    attribute.addFlashAttribute(
+	            "error",
+	            "La pregunta ya existe y se encuentra habilitada."
+	    );
+
+	    return ViewRouteHelper.BASE_DE_CONOCIMIENTO_REDIRECT;
 	}
+
 	
 	@GetMapping("/lista")
 	public String listar(@RequestParam(name = "verDeshabilitadas", required = false, defaultValue = "false") boolean verDeshabilitadas, Model model) {
@@ -260,132 +317,89 @@ public class BaseDeConocimientoController {
         List<Map<String, String>> preview = new ArrayList<>();
         List<String> duplicadas = new ArrayList<>();
         List<Integer> erroresLongitud = new ArrayList<>();
+        List<ConflictoBC> conflictos = new ArrayList<>();
 
         try (InputStream is = file.getInputStream()) {
 
             String filename = file.getOriginalFilename();
 
-            if (filename.endsWith(".xlsx")) {
+            Workbook workbook = filename.endsWith(".xlsx")
+                    ? new XSSFWorkbook(is)
+                    : null;
 
-                Workbook workbook = new XSSFWorkbook(is);
+            if (workbook != null) {
+
                 Sheet sheet = workbook.getSheetAt(0);
 
                 for (Row row : sheet) {
                     if (row.getRowNum() == 0) continue;
 
-                    Cell cellPregunta = row.getCell(0);
-                    Cell cellRespuesta = row.getCell(1);
+                    Cell cp = row.getCell(0);
+                    Cell cr = row.getCell(1);
+                    if (cp == null || cr == null) continue;
 
-                    if (cellPregunta != null && cellRespuesta != null) {
+                    String pregunta = cp.getStringCellValue().trim();
+                    String respuesta = cr.getStringCellValue().trim();
 
-                        String pregunta = cellPregunta.getStringCellValue().trim();
-                        String respuesta = cellRespuesta.getStringCellValue().trim();
+                    preview.add(Map.of("pregunta", pregunta, "respuesta", respuesta));
+                    int index = preview.size() - 1;
 
-                        preview.add(Map.of(
-                                "pregunta", pregunta,
-                                "respuesta", respuesta
-                        ));
+                    if (pregunta.length() > 500 || respuesta.length() > 1500) {
+                        erroresLongitud.add(index);
+                    }
 
-                        int index = preview.size() - 1;
+                    BaseDeConocimiento existente =
+                            baseDeConocimientoService.buscarPorPreguntaExacta(pregunta);
 
-                        // VALIDACIÓN 500 / 1500
-                        if (pregunta.length() > 500 || respuesta.length() > 1500) {
-                            erroresLongitud.add(index);
-                        }
-
-                        if (!baseDeConocimientoService.buscarPorPregunta(pregunta, true).isEmpty()) {
+                    if (existente != null) {
+                        if (!existente.isHabilitado()) {
+                            ConflictoBC c = new ConflictoBC();
+                            c.setPregunta(pregunta);
+                            c.setRespuestaExistente(existente.getRespuesta());
+                            c.setRespuestaNueva(respuesta);
+                            conflictos.add(c);
+                        } else {
                             duplicadas.add(pregunta);
                         }
                     }
                 }
                 workbook.close();
-
-            } else if (filename.endsWith(".csv")) {
-
-                BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-                String line;
-                boolean first = true;
-
-                while ((line = reader.readLine()) != null) {
-                    if (first) { first = false; continue; }
-
-                    String[] parts = line.split(",");
-                    if (parts.length >= 2) {
-
-                        String pregunta = parts[0].trim();
-                        String respuesta = parts[1].trim();
-
-                        preview.add(Map.of(
-                                "pregunta", pregunta,
-                                "respuesta", respuesta
-                        ));
-
-                        int index = preview.size() - 1;
-
-                        // VALIDACIÓN 500 / 1500
-                        if (pregunta.length() > 500 || respuesta.length() > 1500) {
-                            erroresLongitud.add(index);
-                        }
-
-                        if (!baseDeConocimientoService.buscarPorPregunta(pregunta, true).isEmpty()) {
-                            duplicadas.add(pregunta);
-                        }
-                    }
-                }
-                reader.close();
             }
 
         } catch (Exception e) {
-            attribute.addFlashAttribute("error", "Error procesando archivo: " + e.getMessage());
-           return ViewRouteHelper.BASE_DE_CONOCIMIENTO_REDIRECT_UPLOAD;
+            attribute.addFlashAttribute("error", "Error procesando archivo.");
+            return ViewRouteHelper.BASE_DE_CONOCIMIENTO_REDIRECT_UPLOAD;
         }
 
         model.addAttribute("preview", preview);
         model.addAttribute("duplicadas", duplicadas);
         model.addAttribute("erroresLongitud", erroresLongitud);
+        model.addAttribute("conflictos", conflictos);
         model.addAttribute("titulo", "Preview de preguntas desde archivo");
-
-        if (!erroresLongitud.isEmpty()) {
-            model.addAttribute("error", "Se encontraron preguntas o respuestas que exceden el límite de caracteres.");
-        }
 
         return ViewRouteHelper.BASE_DE_CONOCIMIENTO_UPLOAD;
     }
 
     @PostMapping("/saveFromPreview")
     public String saveFromPreview(
-        @RequestParam Map<String, String> params,
-        RedirectAttributes redirect
-    ) {
+            @RequestParam Map<String, String> params,
+            RedirectAttributes redirect) {
 
         int total = Integer.parseInt(params.get("total"));
         int cargadas = 0;
         int duplicadas = 0;
-        List<String> errores = new ArrayList<>();
 
         for (int i = 0; i < total; i++) {
 
             String pregunta = params.get("pregunta_" + i);
             String respuesta = params.get("respuesta_" + i);
 
-            if (pregunta == null || pregunta.trim().isEmpty()) {
-                errores.add("La fila " + (i+1) + " no tiene pregunta.");
-                continue;
-            }
-            if (pregunta.length() > 500) {
-                errores.add("La pregunta de la fila " + (i+1) + " supera los 500 caracteres.");
-                continue;
-            }
-            if (respuesta == null || respuesta.trim().isEmpty()) {
-                errores.add("La fila " + (i+1) + " no tiene respuesta.");
-                continue;
-            }
-            if (respuesta.length() > 1500) {
-                errores.add("La respuesta de la fila " + (i+1) + " supera los 1500 caracteres.");
-                continue;
-            }
+            if (pregunta == null || respuesta == null) continue;
 
-            if (baseDeConocimientoService.buscarPorPreguntaExacta(pregunta) != null) {
+            BaseDeConocimiento existente =
+                    baseDeConocimientoService.buscarPorPreguntaExacta(pregunta);
+
+            if (existente != null) {
                 duplicadas++;
                 continue;
             }
@@ -401,13 +415,35 @@ public class BaseDeConocimientoController {
             cargadas++;
         }
 
-        if (!errores.isEmpty()) {
-            redirect.addFlashAttribute("error",
-                "Errores detectados:\n" + String.join("\n", errores));
-        } else {
-            redirect.addFlashAttribute("success", 
-                cargadas + " entradas guardadas, " + duplicadas + " duplicadas ignoradas.");
+        /* ----------- RESOLVER CONFLICTOS CONFIRMADOS ----------- */
+
+        int totalConflictos = Integer.parseInt(
+                params.getOrDefault("totalConflictos", "0")
+        );
+
+        for (int i = 0; i < totalConflictos; i++) {
+
+            if (params.get("confirmar_" + i) == null) continue;
+
+            String pregunta = params.get("conflicto_pregunta_" + i);
+            String respuestaNueva = params.get("conflicto_respuesta_" + i);
+
+            BaseDeConocimiento existente =
+                    baseDeConocimientoService.buscarPorPreguntaExacta(pregunta);
+
+            if (existente != null && !existente.isHabilitado()) {
+                existente.setRespuesta(respuestaNueva);
+                existente.setHabilitado(true);
+                existente.setFechaActualizacion(LocalDateTime.now());
+                existente.setEmbedding(generarEmbedding(pregunta));
+
+                baseDeConocimientoService.save(existente);
+                cargadas++;
+            }
         }
+
+        redirect.addFlashAttribute("success",
+                cargadas + " entradas guardadas correctamente.");
 
         return ViewRouteHelper.BASE_DE_CONOCIMIENTO_REDIRECT_LISTA;
     }

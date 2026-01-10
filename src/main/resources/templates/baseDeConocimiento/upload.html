@@ -93,7 +93,65 @@
 
                     </div>
 
-                    <input type="hidden" name="total" id="totalPreview" th:value="${preview != null ? preview.size() : 0}" />
+                                      <input type="hidden" name="total" id="totalPreview"
+                           th:value="${preview.size()}" />
+
+                    <!-- ================= CONFLICTOS ================= -->
+                    <div th:if="${conflictos != null and !conflictos.isEmpty()}" class="mt-4">
+
+                        <div class="alert alert-warning">
+                            Existen preguntas deshabilitadas en la base de conocimiento.
+                            Revise los cambios antes de confirmar.
+                        </div>
+
+                        <div th:each="c, i : ${conflictos}"
+                             class="card mb-3 border-warning">
+
+                            <div class="card-body">
+
+                                <h6 class="text-warning fw-bold">Pregunta existente deshabilitada</h6>
+
+                                <p><strong>Pregunta:</strong>
+                                    <span th:text="${c.pregunta}"></span>
+                                </p>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Respuesta actual</label>
+                                        <textarea class="form-control" rows="3" disabled
+                                                  th:text="${c.respuestaExistente}"></textarea>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label>Nueva respuesta</label>
+                                        <textarea class="form-control" rows="3" disabled
+                                                  th:text="${c.respuestaNueva}"></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="form-check mt-3">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           th:name="${'confirmar_' + i.index}"
+                                           value="true">
+                                    <label class="form-check-label">
+                                        Actualizar y habilitar esta pregunta
+                                    </label>
+                                </div>
+
+                                <input type="hidden"
+                                       th:name="${'conflicto_pregunta_' + i.index}"
+                                       th:value="${c.pregunta}" />
+
+                                <input type="hidden"
+                                       th:name="${'conflicto_respuesta_' + i.index}"
+                                       th:value="${c.respuestaNueva}" />
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="totalConflictos"
+                               th:value="${conflictos.size()}" />
+                    </div>
 
                     <button type="submit" class="btn btn-success mt-3" id="saveAllBtn"
                             th:disabled="${duplicadas != null and !#lists.isEmpty(duplicadas)}">
