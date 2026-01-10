@@ -98,14 +98,12 @@
 	                                <div class="char-counter pregunta-counter"></div>
 	
 	                                <!-- RESPUESTA -->
-	                                <input type="text"
-	                                       th:name="${'respuesta_' + iterStat.index}"
-	                                       th:value="${item.respuesta}"
-	                                       class="form-control preview-input mt-2"
-	                                       maxlength="1500"
-	                                       title="Límite de 1500 caracteres" />
-	
-	                                <div class="char-counter respuesta-counter"></div>
+										<input type="text" th:name="${'respuesta_' + iterStat.index}"
+											th:value="${item.respuesta}"
+											class="form-control preview-input mt-2 respuesta-editable"
+											maxlength="1500" title="Límite de 1500 caracteres" />
+
+										<div class="char-counter respuesta-counter"></div>
 	                                
 	                                
 	                            </div>
@@ -117,7 +115,7 @@
 
 									<div th:each="conf : ${conflictos}"
 										th:if="${conf.pregunta == item.pregunta}"
-										class="mt-3 border-top pt-3">
+										class="mt-3 border-top pt-3 conflicto-block">
 
 										<p class="text-warning fw-bold mb-2">Pregunta existente
 											deshabilitada</p>
@@ -131,8 +129,11 @@
 
 											<div class="col-md-6">
 												<label class="form-label">Nueva respuesta</label>
-												<textarea class="form-control" rows="3" disabled
-													th:text="${conf.respuestaNueva}"></textarea>
+												<textarea class="form-control respuesta-preview" rows="3"
+													disabled></textarea>
+
+												<input type="hidden" name="conflicto_respuesta"
+													class="conflicto-hidden-respuesta" />
 											</div>
 										</div>
 
@@ -173,32 +174,6 @@
 </div>
 
 <script>
-const sidebar = document.getElementById("sidebar");
-
-// Estado inicial: forzar cerrado si no existe key
-if (!localStorage.getItem("sidebarState")) {
-    localStorage.setItem("sidebarState", "collapsed");
-}
-
-// Aplicar estado guardado
-if (localStorage.getItem("sidebarState") === "collapsed") {
-    sidebar.classList.add("collapsed");
-} else {
-    sidebar.classList.remove("collapsed");
-}
-
-// Función botón hamburguesa
-function toggleSidebar() {
-    sidebar.classList.toggle("collapsed");
-
-    // Guardar estado actualizado
-    if (sidebar.classList.contains("collapsed")) {
-        localStorage.setItem("sidebarState", "collapsed");
-    } else {
-        localStorage.setItem("sidebarState", "open");
-    }
-}
-
 const previewBody = document.getElementById('previewBody');
 const totalInput = document.getElementById('totalPreview');
 const saveBtn = document.getElementById('saveAllBtn');
@@ -217,20 +192,58 @@ previewBody?.addEventListener('click', e => {
 
 /* ---------------- ESCUCHAR CAMBIOS ---------------- */
 previewBody?.addEventListener('input', e => {
+
     if (e.target.classList.contains('preview-input')) {
-        updateTotal();
         validarTodo();
+    }
+
+    /* --------- RESPUESTA EN TIEMPO REAL --------- */
+    if (e.target.classList.contains('respuesta-editable')) {
+        const card = e.target.closest('.card-preview');
+        if (!card) return;
+
+        const value = e.target.value;
+
+        const textareaPreview = card.querySelector('.respuesta-preview');
+        const hidden = card.querySelector('.conflicto-hidden-respuesta');
+
+        if (textareaPreview) textareaPreview.value = value;
+        if (hidden) hidden.value = value;
+    }
+
+    /* --------- PREGUNTA → MOSTRAR / OCULTAR CONFLICTO --------- */
+    if (e.target.name?.startsWith('pregunta_')) {
+        manejarConflictoPregunta(e.target);
     }
 });
 
+/* ---------------- CONFLICTO DINÁMICO ---------------- */
+function manejarConflictoPregunta(preguntaInput) {
+    const card = preguntaInput.closest('.card-preview');
+    if (!card) return;
+
+    const original = (preguntaInput.dataset.original || '').trim();
+    const actual = preguntaInput.value.trim();
+
+    const conflictoBlock = card.querySelector('.conflicto-block');
+    if (!conflictoBlock) return;
+
+    if (actual === original) {
+        conflictoBlock.style.display = '';
+    } else {
+        conflictoBlock.style.display = 'none';
+
+        // limpiar estado al ocultar
+        const checkbox = conflictoBlock.querySelector('input[type="checkbox"]');
+        if (checkbox) checkbox.checked = false;
+    }
+}
+
 /* ---------------- VALIDACIÓN COMPLETA ---------------- */
 function validarTodo() {
-    if (!previewBody) return;
-
     const cards = Array.from(previewBody.querySelectorAll('.card-preview'));
     let hayInvalidos = false;
 
-    /* recorrer cada fila */
     cards.forEach(card => {
         const preguntaInput = card.querySelector('input[name^="pregunta_"]');
         const respuestaInput = card.querySelector('input[name^="respuesta_"]');
@@ -238,99 +251,82 @@ function validarTodo() {
         const pregunta = preguntaInput.value.trim();
         const respuesta = respuestaInput.value.trim();
 
-        /* ----------------- VALIDACIÓN PREGUNTA ------------------- */
+        const original = (preguntaInput.dataset.original || '').trim();
+        const duplicadoInicial = preguntaInput.dataset.duplicadoInicial === "true";
 
-        const original = (preguntaInput.getAttribute("data-original") || "").trim();
-        const duplicadoInicial = preguntaInput.getAttribute("data-duplicado-inicial") === "true";
-
-        const todasPreguntas = Array.from(previewBody.querySelectorAll('input[name^="pregunta_"]'))
-                                   .map(p => p.value.trim());
+        const todas = cards.map(c =>
+            c.querySelector('input[name^="pregunta_"]').value.trim()
+        );
 
         let esDuplicado = false;
-
         if (pregunta === original) {
             esDuplicado = duplicadoInicial;
         } else {
-            const ocurrencias = todasPreguntas.filter(v => v === pregunta).length;
-            esDuplicado = pregunta && ocurrencias > 1;
+            esDuplicado = todas.filter(v => v === pregunta).length > 1;
         }
 
-        const superaLimitePregunta = pregunta.length > 500;
+        const invalidaPregunta = esDuplicado || pregunta.length > 500;
+        const invalidaRespuesta = respuesta.length > 1500;
 
-        const invalidoPregunta = esDuplicado || superaLimitePregunta;
-        preguntaInput.classList.toggle("is-invalid", invalidoPregunta);
+        preguntaInput.classList.toggle("is-invalid", invalidaPregunta);
+        respuestaInput.classList.toggle("is-invalid", invalidaRespuesta);
 
-        /* tooltip pregunta */
-        if (esDuplicado) {
-            preguntaInput.title = "Pregunta duplicada";
-        } else if (superaLimitePregunta) {
-            preguntaInput.title = "Supera el máximo de 500 caracteres";
-        } else {
-            preguntaInput.title = "Límite de 500 caracteres";
-        }
-
-        /* ----------------- VALIDACIÓN RESPUESTA ------------------- */
-
-        const superaLimiteRespuesta = respuesta.length > 1500;
-
-        respuestaInput.classList.toggle("is-invalid", superaLimiteRespuesta);
-
-        /* tooltip respuesta */
-        if (superaLimiteRespuesta) {
-            respuestaInput.title = "Supera el máximo de 1500 caracteres";
-        } else {
-            respuestaInput.title = "Límite de 1500 caracteres";
-        }
-
-        /* si alguna está mal, bloquear botón */
-        if (invalidoPregunta || superaLimiteRespuesta) {
+        if (invalidaPregunta || invalidaRespuesta) {
             hayInvalidos = true;
         }
     });
 
-    /* ----------------- CONTROL BOTÓN ------------------- */
     saveBtn.disabled = hayInvalidos || cards.length === 0;
-
     actualizarContadores();
 }
 
 /* ---------------- CONTADORES ---------------- */
 function actualizarContadores() {
     previewBody.querySelectorAll('.card-preview').forEach(card => {
-
         const pregunta = card.querySelector('input[name^="pregunta_"]');
         const respuesta = card.querySelector('input[name^="respuesta_"]');
 
-        const pc = card.querySelector(".pregunta-counter");
-        const rc = card.querySelector(".respuesta-counter");
-
-        pc.textContent = `${pregunta.value.length} / 500`;
-        rc.textContent = `${respuesta.value.length} / 1500`;
-
-        pc.classList.toggle("exceeded", pregunta.value.length > 500);
-        rc.classList.toggle("exceeded", respuesta.value.length > 1500);
+        card.querySelector('.pregunta-counter').textContent =
+            `${pregunta.value.length} / 500`;
+        card.querySelector('.respuesta-counter').textContent =
+            `${respuesta.value.length} / 1500`;
     });
 }
 
 /* ---------------- REINDEX ---------------- */
 function reindexInputs() {
-    const cards = previewBody.querySelectorAll('.card-preview');
-    cards.forEach((card, index) => {
-        const preguntaInput = card.querySelector('input[name^="pregunta_"]');
-        const respuestaInput = card.querySelector('input[name^="respuesta_"]');
-
-        preguntaInput.name = `pregunta_${index}`;
-        respuestaInput.name = `respuesta_${index}`;
+    previewBody.querySelectorAll('.card-preview').forEach((card, i) => {
+        card.querySelector('input[name^="pregunta_"]').name = `pregunta_${i}`;
+        card.querySelector('input[name^="respuesta_"]').name = `respuesta_${i}`;
     });
-    totalInput.value = cards.length;
+    updateTotal();
 }
 
 function updateTotal() {
-    if (totalInput) totalInput.value = previewBody.children.length;
+    totalInput.value = previewBody.children.length;
 }
 
-/* Inicializar */
+/* ---------------- INIT ---------------- */
+document.querySelectorAll('input[name^="pregunta_"]').forEach(manejarConflictoPregunta);
 validarTodo();
+
+document.querySelectorAll('.card-preview').forEach(card => {
+    const respuestaInput = card.querySelector('.respuesta-editable');
+    const textareaPreview = card.querySelector('.respuesta-preview');
+    const hidden = card.querySelector('.conflicto-hidden-respuesta');
+
+    if (!respuestaInput) return;
+
+    const valorInicial = respuestaInput.value;
+
+    if (textareaPreview && textareaPreview.value === '') {
+        textareaPreview.value = valorInicial;
+    }
+
+    if (hidden && hidden.value === '') {
+        hidden.value = valorInicial;
+    }
+});
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
