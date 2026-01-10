@@ -428,16 +428,14 @@ public class BaseDeConocimientoController {
 
         /* ----------- RESOLVER CONFLICTOS CONFIRMADOS ----------- */
 
-        int totalConflictos = Integer.parseInt(
-                params.getOrDefault("totalConflictos", "0")
-        );
-
-        for (int i = 0; i < totalConflictos; i++) {
+        for (int i = 0; i < total; i++) {
 
             if (params.get("confirmar_" + i) == null) continue;
 
             String pregunta = params.get("conflicto_pregunta_" + i);
-            String respuestaNueva = params.get("conflicto_respuesta_" + i);
+            String respuestaNueva = params.get("respuesta_" + i);
+
+            if (pregunta == null || respuestaNueva == null) continue;
 
             BaseDeConocimiento existente =
                     baseDeConocimientoService.buscarPorPreguntaExacta(pregunta);
