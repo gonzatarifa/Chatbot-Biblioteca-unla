@@ -1,9 +1,7 @@
 package com.chatbot.unla.controllers;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -300,8 +298,15 @@ public class BaseDeConocimientoController {
     public String uploadForm(Model model) {
         model.addAttribute("titulo", "Crear Entradas por Archivo");
         model.addAttribute("baseDeConocimiento", new BaseDeConocimiento());
-        return ViewRouteHelper.BASE_DE_CONOCIMIENTO_UPLOAD; 
+
+        model.addAttribute("preview", null);
+        model.addAttribute("duplicadas", null);
+        model.addAttribute("erroresLongitud", null);
+        model.addAttribute("conflictos", null);
+
+        return ViewRouteHelper.BASE_DE_CONOCIMIENTO_UPLOAD;
     }
+
     
     @PostMapping("/uploadPreview")
     public String uploadPreview(
@@ -323,7 +328,7 @@ public class BaseDeConocimientoController {
 
             String filename = file.getOriginalFilename();
 
-            Workbook workbook = filename.endsWith(".xlsx")
+            Workbook workbook = filename != null && filename.endsWith(".xlsx")
                     ? new XSSFWorkbook(is)
                     : null;
 
@@ -341,7 +346,11 @@ public class BaseDeConocimientoController {
                     String pregunta = cp.getStringCellValue().trim();
                     String respuesta = cr.getStringCellValue().trim();
 
-                    preview.add(Map.of("pregunta", pregunta, "respuesta", respuesta));
+                    preview.add(Map.of(
+                            "pregunta", pregunta,
+                            "respuesta", respuesta
+                    ));
+
                     int index = preview.size() - 1;
 
                     if (pregunta.length() > 500 || respuesta.length() > 1500) {
@@ -363,6 +372,7 @@ public class BaseDeConocimientoController {
                         }
                     }
                 }
+
                 workbook.close();
             }
 
@@ -371,24 +381,26 @@ public class BaseDeConocimientoController {
             return ViewRouteHelper.BASE_DE_CONOCIMIENTO_REDIRECT_UPLOAD;
         }
 
+        // 🔹 Datos para la vista
         model.addAttribute("preview", preview);
         model.addAttribute("duplicadas", duplicadas);
         model.addAttribute("erroresLongitud", erroresLongitud);
         model.addAttribute("conflictos", conflictos);
-        model.addAttribute("titulo", "Preview de preguntas desde archivo");
+        model.addAttribute("titulo", "Previsualización de preguntas");
 
         return ViewRouteHelper.BASE_DE_CONOCIMIENTO_UPLOAD;
     }
+
 
     @PostMapping("/saveFromPreview")
     public String saveFromPreview(
             @RequestParam Map<String, String> params,
             RedirectAttributes redirect) {
 
-        int total = Integer.parseInt(params.get("total"));
+        int total = Integer.parseInt(params.getOrDefault("total", "0"));
         int cargadas = 0;
-        int duplicadas = 0;
 
+        /* ----------- GUARDAR NUEVAS ----------- */
         for (int i = 0; i < total; i++) {
 
             String pregunta = params.get("pregunta_" + i);
@@ -400,7 +412,6 @@ public class BaseDeConocimientoController {
                     baseDeConocimientoService.buscarPorPreguntaExacta(pregunta);
 
             if (existente != null) {
-                duplicadas++;
                 continue;
             }
 
@@ -442,8 +453,10 @@ public class BaseDeConocimientoController {
             }
         }
 
-        redirect.addFlashAttribute("success",
-                cargadas + " entradas guardadas correctamente.");
+        redirect.addFlashAttribute(
+                "success",
+                cargadas + " entradas guardadas correctamente."
+        );
 
         return ViewRouteHelper.BASE_DE_CONOCIMIENTO_REDIRECT_LISTA;
     }

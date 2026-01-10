@@ -32,29 +32,47 @@
             <div th:if="${success != null}" class="alert alert-success" th:text="${success}"></div>
 
             <!-- Subir Archivo -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h5 class="card-title">Cargar Archivo CSV / Excel</h5>
-                    <form th:action="@{/baseDeConocimiento/uploadPreview}" method="post" enctype="multipart/form-data">
-                        <div class="mb-3">
-                            <input type="file" name="file" class="form-control" accept=".csv,.xlsx" />
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-upload"></i> Cargar archivo
-                            </button>
+				<div class="card mb-4"
+					th:if="${preview == null or preview.isEmpty()}">
+					<div class="card-body">
+						<h5 class="card-title">Cargar Archivo CSV / Excel</h5>
 
-                            <a href="/baseDeConocimiento/descargar-ejemplo" class="btn btn-outline-secondary">
-                                <i class="bi bi-download"></i> Descargar ejemplo
-                            </a>
-                        </div>
-                    </form>
-                </div>
-            </div>
+						<form th:action="@{/baseDeConocimiento/uploadPreview}"
+							method="post" enctype="multipart/form-data">
 
-            <!-- Preview de archivo -->
+							<div class="mb-3">
+								<input type="file" name="file" class="form-control"
+									accept=".csv,.xlsx" />
+							</div>
+
+							<!-- Acciones -->
+							<div
+								class="d-flex justify-content-between align-items-center mt-3">
+
+								<!-- Izquierda: volver -->
+								<a class="btn btn-outline-secondary btn-sm"
+									th:href="@{/baseDeConocimiento/lista}"> <i
+									class="bi bi-arrow-left"></i> Volver
+								</a>
+
+								<!-- Derecha: acciones principales -->
+								<div class="d-flex gap-2">
+									<a href="/baseDeConocimiento/descargar-ejemplo"
+										class="btn btn-outline-secondary btn-sm"> <i
+										class="bi bi-download"></i> Descargar ejemplo
+									</a>
+
+									<button type="submit" class="btn btn-primary btn-sm">
+										<i class="bi bi-upload"></i> Cargar archivo
+									</button>
+								</div>
+
+							</div>
+						</form>
+					</div>
+				</div>
+				<!-- Preview de archivo -->
             <div id="previewContainer" th:if="${preview != null and !preview.isEmpty()}">
-                <h4 class="mb-3">Previsualización de Preguntas</h4>
 
                 <form id="previewForm" th:action="@{/baseDeConocimiento/saveFromPreview}" method="post">
                     <div id="previewBody">
@@ -152,11 +170,18 @@
                         <input type="hidden" name="totalConflictos"
                                th:value="${conflictos.size()}" />
                     </div>
+					<div class="d-flex justify-content-between align-items-center mt-3">
 
+								<!-- Izquierda: volver -->
+								<a class="btn btn-outline-secondary btn-sm"
+									th:href="@{/baseDeConocimiento/upload}"> <i
+									class="bi bi-arrow-left"></i> Volver
+								</a>
                     <button type="submit" class="btn btn-success mt-3" id="saveAllBtn"
                             th:disabled="${duplicadas != null and !#lists.isEmpty(duplicadas)}">
                         Guardar todas
                     </button>
+                    </div>
                 </form>
             </div>
         </div>

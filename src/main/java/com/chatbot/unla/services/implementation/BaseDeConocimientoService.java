@@ -7,11 +7,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.chatbot.unla.entities.BaseDeConocimiento;
-import com.chatbot.unla.entities.PreguntaUsuario;
 import com.chatbot.unla.repositories.IBaseDeConocimientoRepository;
-import com.chatbot.unla.repositories.IPreguntaUsuarioRepository;
 import com.chatbot.unla.services.IBaseDeConocimientoService;
-import com.chatbot.unla.services.IPreguntaUsuarioService;
 
 @Service("baseDeConocimientoService")
 public class BaseDeConocimientoService implements IBaseDeConocimientoService {
