@@ -75,84 +75,123 @@
             <div id="previewContainer" th:if="${preview != null and !preview.isEmpty()}">
 
                 <form id="previewForm" th:action="@{/baseDeConocimiento/saveFromPreview}" method="post">
-                    <div id="previewBody">
+						<div id="previewBody">
 
-                        <div th:each="item, iterStat : ${preview}"
-                             class="card card-preview p-3">
-                             
-                             <div class="d-flex align-items-center">
+							<div th:each="item, iterStat : ${preview}"
+     class="card card-preview mb-2">
 
-	                            <div class="flex-grow-1 me-2">
-	
-	                                <!-- PREGUNTA -->
-	                                <input type="text"
-	                                       th:name="${'pregunta_' + iterStat.index}"
-	                                       th:value="${item.pregunta}"
-	                                       class="form-control preview-input mb-1"
-	                                       maxlength="500"
-	                                       title="Límite de 500 caracteres"
-	                                       th:classappend="${duplicadas != null and #lists.contains(duplicadas, item.pregunta)} ? 'is-invalid' : ''"
-	                                       th:attr="data-original=${item.pregunta},
-	                                                data-duplicado-inicial=${duplicadas != null and #lists.contains(duplicadas, item.pregunta)}" />
-	
-	                                <div class="char-counter pregunta-counter"></div>
-	
-	                                <!-- RESPUESTA -->
-										<input type="text" th:name="${'respuesta_' + iterStat.index}"
-											th:value="${item.respuesta}"
-											class="form-control preview-input mt-2 respuesta-editable"
-											maxlength="1500" title="Límite de 1500 caracteres" />
+    <!-- HEADER -->
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <small class="fw-semibold text-secondary">
+            <i class="bi bi-chat-left-text me-1"></i>
+            Entrada #[[${iterStat.index + 1}]]
+        </small>
 
-										<div class="char-counter respuesta-counter"></div>
-	                                
-	                                
-	                            </div>
-	                            
-	                            <button type="button" class="btn btn-danger btn-sm delete-btn ms-2">Eliminar</button>
-	                        </div>
-                            <!-- ================= CONFLICTO EMBEBIDO ================= -->
-							<div th:if="${conflictos != null}">
+        <button type="button"
+                class="btn btn-outline-danger btn-sm delete-btn"
+                title="Eliminar">
+            <i class="bi bi-trash"></i>
+        </button>
+    </div>
 
-									<div th:each="conf : ${conflictos}"
-										th:if="${conf.pregunta == item.pregunta}"
-										class="mt-3 border-top pt-3 conflicto-block">
+    <!-- BODY -->
+    <div class="card-body">
 
-										<p class="text-warning fw-bold mb-2">Pregunta existente
-											deshabilitada</p>
+        <!-- PREGUNTA -->
+        <div class="mb-1">
+            <label class="form-label fw-semibold small">
+                Pregunta
+            </label>
 
-										<div class="row">
-											<div class="col-md-6">
-												<label class="form-label">Respuesta actual</label>
-												<textarea class="form-control" rows="3" disabled
-													th:text="${conf.respuestaExistente}"></textarea>
-											</div>
+            <input type="text"
+                   th:name="${'pregunta_' + iterStat.index}"
+                   th:value="${item.pregunta}"
+                   class="form-control form-control-sm preview-input"
+                   maxlength="500"
+                   th:classappend="${duplicadas != null and #lists.contains(duplicadas, item.pregunta)} ? 'is-invalid' : ''"
+                   th:attr="data-original=${item.pregunta},
+                            data-duplicado-inicial=${duplicadas != null and #lists.contains(duplicadas, item.pregunta)}" />
 
-											<div class="col-md-6">
-												<label class="form-label">Nueva respuesta</label>
-												<textarea class="form-control respuesta-preview" rows="3"
-													disabled></textarea>
+            <div class="char-counter pregunta-counter text-end"></div>
+        </div>
 
-												<input type="hidden" name="conflicto_respuesta"
-													class="conflicto-hidden-respuesta" />
-											</div>
-										</div>
+        <!-- RESPUESTA -->
+        <div class="mb-1">
+            <label class="form-label fw-semibold small">
+                Respuesta
+            </label>
 
-										<div class="form-check mt-2 d-flex align-items-center gap-2">
-											<input class="form-check-input" type="checkbox"
-												name="confirmar_conflicto" th:value="${conf.pregunta}">
+            <input type="text"
+                   th:name="${'respuesta_' + iterStat.index}"
+                   th:value="${item.respuesta}"
+                   class="form-control form-control-sm preview-input respuesta-editable"
+                   maxlength="1500" />
 
-											<span class="form-check-label"> Actualizar y habilitar
-												esta pregunta </span> <input type="hidden"
-												name="conflicto_respuesta" th:value="${conf.respuestaNueva}" />
-										</div>
-									</div>
+            <div class="char-counter respuesta-counter text-end"></div>
+        </div>
 
+        <!-- CONFLICTO -->
+        <div th:if="${conflictos != null}">
+            <div th:each="conf : ${conflictos}"
+                 th:if="${conf.pregunta == item.pregunta}"
+                 class="alert alert-warning mt-2 conflicto-block">
 
-								</div>
+                <div class="d-flex align-items-center mb-1">
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                    <small class="fw-semibold">
+                        Pregunta existente deshabilitada
+                    </small>
+                </div>
 
+                <div class="row g-1">
+                    <div class="col-md-6">
+                        <label class="form-label small text-muted">
+                            Respuesta en la base de conocimiento
+                        </label>
+                        <textarea class="form-control form-control-sm"
+                                  rows="2"
+                                  disabled
+                                  th:text="${conf.respuestaExistente}"></textarea>
                     </div>
 
-                                      <input type="hidden" name="total" id="totalPreview"
+                    <div class="col-md-6">
+                        <label class="form-label small text-muted">
+                            Nueva respuesta
+                        </label>
+                        <textarea class="form-control form-control-sm respuesta-preview"
+                                  rows="2"
+                                  disabled></textarea>
+
+                        <input type="hidden"
+                               name="conflicto_respuesta"
+                               class="conflicto-hidden-respuesta" />
+                    </div>
+                </div>
+
+                <div class="form-check mt-1">
+                    <input class="form-check-input"
+                           type="checkbox"
+                           name="confirmar_conflicto"
+                           th:value="${conf.pregunta}"
+                           id="conflictCheck__[[${iterStat.index}]]">
+
+                    <label class="form-check-label small fw-semibold"
+                           th:for="'conflictCheck__' + ${iterStat.index}">
+                        Actualizar y habilitar esta pregunta
+                    </label>
+
+                    <input type="hidden"
+                           name="conflicto_respuesta"
+                           th:value="${conf.respuestaNueva}" />
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+						</div>
+
+						<input type="hidden" name="total" id="totalPreview"
                            th:value="${preview.size()}" />
 
 					<div class="d-flex justify-content-between align-items-center mt-3">
@@ -174,6 +213,26 @@
 </div>
 
 <script>
+const sidebar = document.getElementById("sidebar");
+
+if (!localStorage.getItem("sidebarState")) {
+    localStorage.setItem("sidebarState", "collapsed");
+}
+
+if (localStorage.getItem("sidebarState") === "collapsed") {
+    sidebar.classList.add("collapsed");
+} else {
+    sidebar.classList.remove("collapsed");
+}
+
+function toggleSidebar() {
+    sidebar.classList.toggle("collapsed");
+    localStorage.setItem(
+        "sidebarState",
+        sidebar.classList.contains("collapsed") ? "collapsed" : "open"
+    );
+}
+
 const previewBody = document.getElementById('previewBody');
 const totalInput = document.getElementById('totalPreview');
 const saveBtn = document.getElementById('saveAllBtn');
