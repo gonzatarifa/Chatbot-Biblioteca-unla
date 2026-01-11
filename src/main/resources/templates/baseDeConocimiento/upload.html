@@ -341,7 +341,22 @@ function validarTodo() {
 
         preguntaInput.classList.toggle("is-invalid", invalidaPregunta);
         respuestaInput.classList.toggle("is-invalid", invalidaRespuesta);
+		
+        if (esDuplicado) {
+            preguntaInput.title = "Pregunta duplicada";
+        } else if (pregunta.length > 500) {
+            preguntaInput.title = "Supera el máximo de 500 caracteres";
+        } else {
+            preguntaInput.title = "Límite de 500 caracteres";
+        }
 
+        /* ---------- TOOLTIP RESPUESTA ---------- */
+        if (respuesta.length > 1500) {
+            respuestaInput.title = "Supera el máximo de 1500 caracteres";
+        } else {
+            respuestaInput.title = "Límite de 1500 caracteres";
+        }
+        
         if (invalidaPregunta || invalidaRespuesta) {
             hayInvalidos = true;
         }
