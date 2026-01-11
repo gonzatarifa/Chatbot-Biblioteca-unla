@@ -239,13 +239,14 @@ const saveBtn = document.getElementById('saveAllBtn');
 
 /* ---------------- ELIMINAR FILA ---------------- */
 previewBody?.addEventListener('click', e => {
-    if (e.target.classList.contains('delete-btn')) {
-        if (confirm('¿Está seguro que desea eliminar esta pregunta?')) {
-            e.target.closest('.card-preview').remove();
-            reindexInputs();
-            updateTotal();
-            validarTodo();
-        }
+    const btn = e.target.closest('.delete-btn');
+    if (!btn) return;
+
+    if (confirm('¿Está seguro que desea eliminar esta pregunta?')) {
+        btn.closest('.card-preview').remove();
+        reindexInputs();
+        updateTotal();
+        validarTodo();
     }
 });
 
@@ -323,6 +324,17 @@ function validarTodo() {
         } else {
             esDuplicado = todas.filter(v => v === pregunta).length > 1;
         }
+        
+        const conflictoBlock = card.querySelector('.conflicto-block');
+		if (conflictoBlock) {
+		    const checkbox = conflictoBlock.querySelector('input[type="checkbox"]');
+		
+		    if (pregunta === original) {
+		        if (!checkbox || !checkbox.checked) {
+		            esDuplicado = true;
+		        }
+		    }
+		}
 
         const invalidaPregunta = esDuplicado || pregunta.length > 500;
         const invalidaRespuesta = respuesta.length > 1500;
@@ -364,6 +376,12 @@ function reindexInputs() {
 function updateTotal() {
     totalInput.value = previewBody.children.length;
 }
+
+previewBody?.addEventListener('change', e => {
+    if (e.target.name === 'confirmar_conflicto') {
+        validarTodo();
+    }
+});
 
 /* ---------------- INIT ---------------- */
 document.querySelectorAll('input[name^="pregunta_"]').forEach(manejarConflictoPregunta);
