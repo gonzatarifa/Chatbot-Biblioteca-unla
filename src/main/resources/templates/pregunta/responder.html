@@ -22,7 +22,7 @@
 
             <div class="card shadow-sm mb-4">
                 <div class="card-body">
-                    <h5 class="card-title text-primary" th:text="${pregunta.pregunta}">Pregunta del usuario</h5>
+                    <h5 class="card-title text-primary" id="preguntaOriginal" th:text="${pregunta.pregunta}">Pregunta del usuario</h5>
                     <p class="mb-1">
                         <i class="bi bi-person-fill"></i>
                         <strong>Usuario:</strong>
@@ -36,8 +36,16 @@
                 </div>
             </div>
 
-            <form th:action="@{/preguntas/responder}" method="post" class="needs-validation" novalidate>
+            <form th:action="@{/preguntas/responder}" method="post" class="needs-validation" novalidate id="respuestaForm">
                 <input type="hidden" name="id" th:value="${pregunta.id}" />
+                
+                <input type="hidden" id="usuarioActual" th:value="${#authentication.name}" />
+				<input type="hidden" id="hayUsuarioRespondiendo" th:value="${pregunta.usuarioRespondiendo != null}" />
+				<input type="hidden" id="nombreUsuarioRespondiendo" th:value="${pregunta.usuarioRespondiendo?.nombreDeUsuario}" />
+                
+                <input type="hidden" name="preguntaEditada" id="preguntaEditada" />
+                <input type="hidden" name="respuestaEditada" id="respuestaEditada" />
+                <input type="hidden" name="guardarEnBaseConocimiento" id="guardarEnBaseConocimiento" value="false" />
 
 					<!-- Saludo -->
 					<div class="mb-3">
@@ -67,11 +75,7 @@
                     <a th:href="@{/preguntas/lista}" class="btn btn-secondary">
                         <i class="bi bi-arrow-left"></i> Cancelar
                     </a>
-                    <button type="submit"
-                            class="btn btn-primary"
-                            th:attr="onclick=${pregunta.usuarioRespondiendo != null and pregunta.usuarioRespondiendo.nombreDeUsuario != #authentication.name} ? 
-                                    'return confirm(\'¿Estás seguro? Esta pregunta está siendo respondida por ' + (${pregunta.usuarioRespondiendo.nombreDeUsuario}) + '\')' : 
-                                    'return true'">
+                    <button type="button" class="btn btn-primary" id="btnEnviar">
                         <i class="bi bi-send"></i> Enviar Respuesta
                     </button>
                 </div>
@@ -79,8 +83,42 @@
         </div>
     </div>
 </div>
-
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">¿Guardar en Base de Conocimientos?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Deseas guardar esta pregunta y respuesta en la base de conocimientos para futuras consultas?</p>
+                
+                <div class="mb-3">
+                    <label for="preguntaModal" class="form-label fw-bold">Pregunta (puedes editarla):</label>
+                    <textarea class="form-control" id="preguntaModal" rows="3"></textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="respuestaModal" class="form-label fw-bold">Respuesta (puedes editarla):</label>
+                    <textarea class="form-control" id="respuestaModal" rows="5"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="btnNoGuardar" data-bs-dismiss="modal">
+                    No guardar
+                </button>
+                <button type="button" class="btn btn-primary" id="btnSiGuardar">
+                    Sí, guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
+const usuarioActual = document.getElementById('usuarioActual')?.value || '';
+const hayUsuarioRespondiendo = document.getElementById('hayUsuarioRespondiendo')?.value === 'true';
+const nombreUsuarioRespondiendo = document.getElementById('nombreUsuarioRespondiendo')?.value || '';
+
 const sidebar = document.getElementById("sidebar");
 
 // Estado inicial
@@ -116,6 +154,52 @@ function toggleSidebar() {
         }, false);
     });
 })();
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('respuestaForm');
+    const btnEnviar = document.getElementById('btnEnviar');
+    const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+    
+    const preguntaOriginal = document.querySelector('.card-title').textContent.trim();
+    const respuestaInput = document.getElementById('respuesta');
+    
+    btnEnviar.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            return;
+        }
+        
+	    if (hayUsuarioRespondiendo && nombreUsuarioRespondiendo && nombreUsuarioRespondiendo !== usuarioActual) {
+            const confirmacion = confirm(`¿Estás seguro? Esta pregunta está siendo respondida por ${nombreUsuarioRespondiendo}`);
+            if (!confirmacion) {
+                console.log('Usuario canceló debido a que otro está respondiendo');
+                return;
+            }
+        }
+        
+        document.getElementById('preguntaModal').value = preguntaOriginal;
+        document.getElementById('respuestaModal').value = respuestaInput.value;
+        confirmModal.show();
+    });
+    
+    document.getElementById('btnSiGuardar').addEventListener('click', function() {
+        document.getElementById('preguntaEditada').value = document.getElementById('preguntaModal').value;
+        document.getElementById('respuestaEditada').value = document.getElementById('respuestaModal').value;
+        document.getElementById('guardarEnBaseConocimiento').value = 'true';
+        
+        confirmModal.hide();
+        form.submit();
+    });
+    
+    document.getElementById('btnNoGuardar').addEventListener('click', function() {
+        document.getElementById('preguntaEditada').value = '';
+        document.getElementById('respuestaEditada').value = '';
+        document.getElementById('guardarEnBaseConocimiento').value = 'false';
+        
+        form.submit();
+    });
+});
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

@@ -113,6 +113,9 @@ public class PreguntaUsuarioController {
             @RequestParam("respuesta") String respuesta,
             @RequestParam(name = "saludo", required = false) String saludo,
             @RequestParam(name = "firma", required = false) String firma,
+            @RequestParam(name = "preguntaEditada", required = false) String preguntaEditada,
+            @RequestParam(name = "respuestaEditada", required = false) String respuestaEditada,
+            @RequestParam(name = "guardarEnBaseConocimiento", defaultValue = "false") boolean guardarEnBaseConocimiento,
             RedirectAttributes attr) {
 
         PreguntaUsuario pregunta = preguntaUsuarioService.buscar(id);
@@ -134,14 +137,6 @@ public class PreguntaUsuarioController {
         pregunta.setFechaEnvioRespuesta(LocalDateTime.now());
         pregunta.setUsuarioRespondio(usuarioRespondio); 
         preguntaUsuarioService.save(pregunta);
-
-        String embedding = generarEmbedding(pregunta.getPregunta());
-        BaseDeConocimiento base = new BaseDeConocimiento();
-        base.setPregunta(pregunta.getPregunta());
-        base.setRespuesta(respuesta);
-        base.setEmbedding(embedding);
-        base.setPreguntaUsuario(pregunta);
-        baseDeConocimientoService.save(base);
         
         //enviar email
         saludo = saludo != null ? saludo : "";
@@ -150,8 +145,36 @@ public class PreguntaUsuarioController {
         String destino = pregunta.getEmail();
         String asunto = "Respuesta a tu consulta: " + pregunta.getPregunta();
         emailService.enviarCorreo(destino, asunto, cuerpoFinal);
+        
+        if (guardarEnBaseConocimiento) {
+            String preguntaParaGuardar = (preguntaEditada != null && !preguntaEditada.trim().isEmpty()) 
+                ? preguntaEditada 
+                : pregunta.getPregunta();
+            
+            String respuestaParaGuardar = (respuestaEditada != null && !respuestaEditada.trim().isEmpty()) 
+                ? respuestaEditada 
+                : respuesta;
+            
+            BaseDeConocimiento preguntaExistente = baseDeConocimientoService.buscarPorPreguntaExacta(preguntaParaGuardar);
+            if (preguntaExistente != null) {
+                attr.addFlashAttribute("warning", 
+                    "La pregunta ya existe en la base de conocimientos. No se guardó duplicado.");
+            } else {
+                String embedding = generarEmbedding(preguntaParaGuardar);
+                
+                BaseDeConocimiento base = new BaseDeConocimiento();
+                base.setPregunta(preguntaParaGuardar);
+                base.setRespuesta(respuestaParaGuardar);
+                base.setEmbedding(embedding);
+                base.setPreguntaUsuario(pregunta);
+                baseDeConocimientoService.save(base);
+                
+                attr.addFlashAttribute("success", "Respuesta enviada, registrada y guardada en base de conocimientos");
+            }
+        } else {
+            attr.addFlashAttribute("success", "Respuesta enviada y registrada");
+        }
 
-        attr.addFlashAttribute("success", "Respuesta enviada, registrada y enviada por correo");
         return ViewRouteHelper.PREGUNTA_REDIRECT_LISTA;
     }
     
