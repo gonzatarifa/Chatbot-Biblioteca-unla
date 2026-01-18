@@ -147,32 +147,39 @@ public class PreguntaUsuarioController {
         emailService.enviarCorreo(destino, asunto, cuerpoFinal);
         
         if (guardarEnBaseConocimiento) {
-            String preguntaParaGuardar = (preguntaEditada != null && !preguntaEditada.trim().isEmpty()) 
-                ? preguntaEditada 
-                : pregunta.getPregunta();
-            
-            String respuestaParaGuardar = (respuestaEditada != null && !respuestaEditada.trim().isEmpty()) 
-                ? respuestaEditada 
-                : respuesta;
-            
-            BaseDeConocimiento preguntaExistente = baseDeConocimientoService.buscarPorPreguntaExacta(preguntaParaGuardar);
-            if (preguntaExistente != null) {
-                attr.addFlashAttribute("warning", 
-                    "La pregunta ya existe en la base de conocimientos. No se guardó duplicado.");
-            } else {
-                String embedding = generarEmbedding(preguntaParaGuardar);
-                
+
+            String preguntaParaGuardar =
+                    (preguntaEditada != null && !preguntaEditada.trim().isEmpty())
+                            ? preguntaEditada.trim()
+                            : pregunta.getPregunta();
+
+            String respuestaParaGuardar =
+                    (respuestaEditada != null && !respuestaEditada.trim().isEmpty())
+                            ? respuestaEditada.trim()
+                            : respuesta;
+
+            BaseDeConocimiento existente =
+                    baseDeConocimientoService.buscarPorPreguntaExacta(preguntaParaGuardar);
+
+            if (existente == null) {
+
                 BaseDeConocimiento base = new BaseDeConocimiento();
                 base.setPregunta(preguntaParaGuardar);
                 base.setRespuesta(respuestaParaGuardar);
-                base.setEmbedding(embedding);
+                base.setEmbedding(generarEmbedding(preguntaParaGuardar));
                 base.setPreguntaUsuario(pregunta);
+
                 baseDeConocimientoService.save(base);
-                
-                attr.addFlashAttribute("success", "Respuesta enviada, registrada y guardada en base de conocimientos");
+
+                attr.addFlashAttribute("success",
+                        "Respuesta enviada y guardada en base de conocimientos");
+            } else {
+                attr.addFlashAttribute("warning",
+                        "La pregunta ya existe en la base de conocimientos");
             }
+
         } else {
-            attr.addFlashAttribute("success", "Respuesta enviada y registrada");
+            attr.addFlashAttribute("success", "Respuesta enviada correctamente");
         }
 
         return ViewRouteHelper.PREGUNTA_REDIRECT_LISTA;

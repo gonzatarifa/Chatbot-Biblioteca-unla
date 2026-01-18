@@ -12,22 +12,31 @@
 </head>
 <body>
 <div class="wrapper d-flex">
+
     <!-- Sidebar -->
-    <div th:replace="fragments/sidebar :: sidebar"></div>
+    <div th:replace="fragments/sidebar :: sidebar" id="sidebar"></div>
 
     <!-- Contenido -->
     <div class="content p-4 w-100">
         <div class="container">
+
             <h2 class="mb-4 text-center fw-bold">✉️ Responder Pregunta</h2>
 
+            <!-- DATOS DE LA PREGUNTA -->
             <div class="card shadow-sm mb-4">
                 <div class="card-body">
-                    <h5 class="card-title text-primary" id="preguntaOriginal" th:text="${pregunta.pregunta}">Pregunta del usuario</h5>
+                    <h5 class="card-title text-primary"
+                        id="preguntaOriginal"
+                        th:text="${pregunta.pregunta}">
+                        Pregunta del usuario
+                    </h5>
+
                     <p class="mb-1">
                         <i class="bi bi-person-fill"></i>
                         <strong>Usuario:</strong>
                         <span th:text="${pregunta.nombre} + ' ' + ${pregunta.apellido}"></span>
                     </p>
+
                     <p class="mb-1">
                         <i class="bi bi-envelope-at-fill"></i>
                         <strong>Email:</strong>
@@ -36,97 +45,163 @@
                 </div>
             </div>
 
-            <form th:action="@{/preguntas/responder}" method="post" class="needs-validation" novalidate id="respuestaForm">
+            <!-- FORM -->
+            <form th:action="@{/preguntas/responder}"
+                  method="post"
+                  id="respuestaForm"
+                  class="needs-validation"
+                  novalidate>
+
+                <!-- IDs -->
                 <input type="hidden" name="id" th:value="${pregunta.id}" />
-                
+
+                <!-- Control concurrencia -->
                 <input type="hidden" id="usuarioActual" th:value="${#authentication.name}" />
-				<input type="hidden" id="hayUsuarioRespondiendo" th:value="${pregunta.usuarioRespondiendo != null}" />
-				<input type="hidden" id="nombreUsuarioRespondiendo" th:value="${pregunta.usuarioRespondiendo?.nombreDeUsuario}" />
-                
+                <input type="hidden" id="hayUsuarioRespondiendo"
+                       th:value="${pregunta.usuarioRespondiendo != null}" />
+                <input type="hidden" id="nombreUsuarioRespondiendo"
+                       th:value="${pregunta.usuarioRespondiendo?.nombreDeUsuario}" />
+
+                <!-- Campos base conocimiento -->
                 <input type="hidden" name="preguntaEditada" id="preguntaEditada" />
                 <input type="hidden" name="respuestaEditada" id="respuestaEditada" />
-                <input type="hidden" name="guardarEnBaseConocimiento" id="guardarEnBaseConocimiento" value="false" />
+                <input type="hidden"
+                       name="guardarEnBaseConocimiento"
+                       id="guardarEnBaseConocimiento"
+                       value="false" />
 
-					<!-- Saludo -->
+                <!-- SALUDO -->
 					<div class="mb-3">
-						<label for="saludo" class="form-label">Saludo inicial (opcional)</label>
-						<textarea class="form-control" id="saludo" name="saludo" placeholder="Ej: Hola, gracias por tu consulta..." rows="3"
-							th:text="${saludoDefault}">
-    </textarea>
+						<label for="saludo" class="form-label">Saludo inicial
+							(opcional)</label>
+						<textarea class="form-control" id="saludo" name="saludo"
+							placeholder="Ej: Hola, gracias por tu consulta..." rows="3"
+							th:text="${saludoDefault}"  maxlength="200">
+   						 </textarea>
 					</div>
 
-					<!-- Respuesta -->
-					<div class="mb-3">
-						<label for="respuesta" class="form-label">Respuesta</label>
-						<textarea class="form-control" id="respuesta" name="respuesta"
-							rows="6" required></textarea>
-						<div class="invalid-feedback">Este campo es obligatorio</div>
-					</div>
+					<!-- RESPUESTA -->
+                <div class="mb-3">
+                    <label for="respuesta" class="form-label">
+                        Respuesta
+                    </label>
+                    <textarea class="form-control"
+                              id="respuesta"
+                              name="respuesta"
+                              rows="6"
+                              required  maxlength="1500"></textarea>
+                    <div class="invalid-feedback">
+                        Este campo es obligatorio
+                    </div>
+                </div>
 
-					<!-- Firma -->
 					<div class="mb-3">
 						<label for="firma" class="form-label">Firma (opcional)</label>
-						<textarea class="form-control" id="firma" name="firma" placeholder="Ej: Atentamente, Soporte UNLA" rows="3"
-							th:text="${firmaDefault}">
-    </textarea>
+						<textarea class="form-control" id="firma" name="firma"
+							placeholder="Ej: Atentamente, Soporte UNLA" rows="3"
+							th:text="${firmaDefault}"  maxlength="200">
+    					</textarea>
 					</div>
 
-					<div class="d-flex justify-content-between">
+					<!-- CHECK BASE CONOCIMIENTO -->
+					<div class="form-check mb-4">
+						<input class="form-check-input" type="checkbox" id="chkGuardarBK"
+							checked> <label class="form-check-label"
+							for="chkGuardarBK"> Guardar respuesta en
+							la base de conocimiento </label>
+					</div>
+
+					<!-- ACCIONES -->
+                <div class="d-flex justify-content-between">
                     <a th:href="@{/preguntas/lista}" class="btn btn-secondary">
                         <i class="bi bi-arrow-left"></i> Cancelar
                     </a>
-                    <button type="button" class="btn btn-primary" id="btnEnviar">
-                        <i class="bi bi-send"></i> Enviar Respuesta
+
+                    <button type="submit" class="btn btn-primary" id="btnEnviar">
+                        <i class="bi bi-send"></i>
+                        <span class="btn-text">Enviar Respuesta</span>
                     </button>
                 </div>
+
             </form>
         </div>
     </div>
 </div>
-<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+
+<!-- MODAL BASE CONOCIMIENTO -->
+<div class="modal fade"
+     id="modalGuardarBK"
+     tabindex="-1"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
+
             <div class="modal-header">
-                <h5 class="modal-title" id="confirmModalLabel">¿Guardar en Base de Conocimientos?</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title">
+                    Guardar en base de conocimiento
+                </h5>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"></button>
             </div>
+
             <div class="modal-body">
-                <p>¿Deseas guardar esta pregunta y respuesta en la base de conocimientos para futuras consultas?</p>
-                
+
                 <div class="mb-3">
-                    <label for="preguntaModal" class="form-label fw-bold">Pregunta (puedes editarla):</label>
-                    <textarea class="form-control" id="preguntaModal" rows="3"></textarea>
+                    <label class="form-label">Pregunta</label>
+                    <textarea class="form-control"
+                              id="preguntaModal"
+                              rows="3"
+                              maxlength="500"></textarea>
                 </div>
-                
+
                 <div class="mb-3">
-                    <label for="respuestaModal" class="form-label fw-bold">Respuesta (puedes editarla):</label>
-                    <textarea class="form-control" id="respuestaModal" rows="5"></textarea>
+                    <label class="form-label">Respuesta</label>
+                    <textarea class="form-control"
+                              id="respuestaModal"
+                              rows="4"
+                              maxlength="1500"></textarea>
                 </div>
+
+                <p class="text-white small mb-0">
+                    Esta información será utilizada por el chatbot para futuras consultas.
+                </p>
+
             </div>
+
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="btnNoGuardar" data-bs-dismiss="modal">
-                    No guardar
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Cancelar
                 </button>
-                <button type="button" class="btn btn-primary" id="btnSiGuardar">
-                    Sí, guardar
+
+                <button type="button"
+                        id="btnConfirmarGuardar"
+                        class="btn btn-success">
+                    Enviar y guardar
                 </button>
             </div>
+
         </div>
     </div>
 </div>
+
 <script>
 const usuarioActual = document.getElementById('usuarioActual')?.value || '';
-const hayUsuarioRespondiendo = document.getElementById('hayUsuarioRespondiendo')?.value === 'true';
-const nombreUsuarioRespondiendo = document.getElementById('nombreUsuarioRespondiendo')?.value || '';
+const hayUsuarioRespondiendo =
+    document.getElementById('hayUsuarioRespondiendo')?.value === 'true';
+const nombreUsuarioRespondiendo =
+    document.getElementById('nombreUsuarioRespondiendo')?.value || '';
 
 const sidebar = document.getElementById("sidebar");
 
-// Estado inicial
+/* ================= SIDEBAR ================= */
 if (!localStorage.getItem("sidebarState")) {
     localStorage.setItem("sidebarState", "collapsed");
 }
 
-// Aplicar estado guardado
 if (localStorage.getItem("sidebarState") === "collapsed") {
     sidebar.classList.add("collapsed");
 } else {
@@ -135,16 +210,16 @@ if (localStorage.getItem("sidebarState") === "collapsed") {
 
 function toggleSidebar() {
     sidebar.classList.toggle("collapsed");
-    localStorage.setItem("sidebarState",
+    localStorage.setItem(
+        "sidebarState",
         sidebar.classList.contains("collapsed") ? "collapsed" : "open"
     );
 }
 
-// Bootstrap validation
 (function () {
     'use strict';
     const forms = document.querySelectorAll('.needs-validation');
-    Array.from(forms).forEach(function (form) {
+    Array.from(forms).forEach(form => {
         form.addEventListener('submit', function (event) {
             if (!form.checkValidity()) {
                 event.preventDefault();
@@ -154,51 +229,83 @@ function toggleSidebar() {
         }, false);
     });
 })();
-document.addEventListener('DOMContentLoaded', function() {
+
+/* ================= LÓGICA PRINCIPAL ================= */
+document.addEventListener('DOMContentLoaded', () => {
+
     const form = document.getElementById('respuestaForm');
     const btnEnviar = document.getElementById('btnEnviar');
-    const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
-    
-    const preguntaOriginal = document.querySelector('.card-title').textContent.trim();
+    const chkGuardarBK = document.getElementById('chkGuardarBK');
+    const hiddenGuardarBK = document.getElementById('guardarEnBaseConocimiento');
+
+    const preguntaOriginal =
+        document.getElementById('preguntaOriginal').innerText.trim();
     const respuestaInput = document.getElementById('respuesta');
-    
-    btnEnviar.addEventListener('click', function(e) {
+
+    const modal = new bootstrap.Modal(
+        document.getElementById('modalGuardarBK')
+    );
+
+    const btnConfirmar = document.getElementById('btnConfirmarGuardar');
+
+    /* ===== CLICK EN ENVIAR ===== */
+    btnEnviar.addEventListener('click', function (e) {
         e.preventDefault();
-        
+
         if (!form.checkValidity()) {
             form.classList.add('was-validated');
             return;
         }
-        
-	    if (hayUsuarioRespondiendo && nombreUsuarioRespondiendo && nombreUsuarioRespondiendo !== usuarioActual) {
-            const confirmacion = confirm(`¿Estás seguro? Esta pregunta está siendo respondida por ${nombreUsuarioRespondiendo}`);
+
+        /* 🔴 VALIDACIÓN: OTRO USUARIO RESPONDIENDO */
+        if (
+            hayUsuarioRespondiendo &&
+            nombreUsuarioRespondiendo &&
+            nombreUsuarioRespondiendo !== usuarioActual
+        ) {
+            const confirmacion = confirm(
+                `¿Estás seguro? Esta pregunta está siendo respondida por ${nombreUsuarioRespondiendo}`
+            );
+
             if (!confirmacion) {
-                console.log('Usuario canceló debido a que otro está respondiendo');
                 return;
             }
         }
-        
-        document.getElementById('preguntaModal').value = preguntaOriginal;
-        document.getElementById('respuestaModal').value = respuestaInput.value;
-        confirmModal.show();
+
+        /* ===== DECISIÓN SEGÚN CHECK ===== */
+        if (chkGuardarBK.checked) {
+            hiddenGuardarBK.value = 'true';
+
+            document.getElementById('preguntaModal').value = preguntaOriginal;
+            document.getElementById('respuestaModal').value = respuestaInput.value;
+
+            modal.show();
+        } else {
+            hiddenGuardarBK.value = 'false';
+            bloquearEnvio();
+            form.submit();
+        }
     });
-    
-    document.getElementById('btnSiGuardar').addEventListener('click', function() {
-        document.getElementById('preguntaEditada').value = document.getElementById('preguntaModal').value;
-        document.getElementById('respuestaEditada').value = document.getElementById('respuestaModal').value;
-        document.getElementById('guardarEnBaseConocimiento').value = 'true';
-        
-        confirmModal.hide();
+
+    /* ===== CONFIRMAR DESDE MODAL ===== */
+    btnConfirmar.addEventListener('click', function () {
+
+        document.getElementById('preguntaEditada').value =
+            document.getElementById('preguntaModal').value;
+
+        document.getElementById('respuestaEditada').value =
+            document.getElementById('respuestaModal').value;
+
+        bloquearEnvio();
+        modal.hide();
         form.submit();
     });
-    
-    document.getElementById('btnNoGuardar').addEventListener('click', function() {
-        document.getElementById('preguntaEditada').value = '';
-        document.getElementById('respuestaEditada').value = '';
-        document.getElementById('guardarEnBaseConocimiento').value = 'false';
-        
-        form.submit();
-    });
+
+    /* ===== BLOQUEO DE DOBLE ENVÍO ===== */
+    function bloquearEnvio() {
+        btnEnviar.disabled = true;
+        btnEnviar.querySelector('.btn-text').innerText = 'Enviando...';
+    }
 });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
