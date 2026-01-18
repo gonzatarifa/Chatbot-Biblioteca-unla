@@ -629,3 +629,16 @@ body {
 #modalGuardarBK .btn-close {
     filter: invert(1) grayscale(100%) brightness(200%);
 }
+
+#modalGuardarBK .input-claro {
+    background-color: #ffffff;
+    color: #000000;
+    border: 1px solid #ced4da;
+}
+
+#modalGuardarBK .input-claro:focus {
+    background-color: #ffffff;
+    color: #000000;
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.2rem rgba(13,110,253,.25);
+}
