@@ -83,7 +83,7 @@
 					<!-- RESPUESTA -->
                 <div class="mb-3">
                     <label for="respuesta" class="form-label">
-                        Respuesta
+                        Respuesta al usuario (se envía por email)
                     </label>
                     <textarea class="form-control"
                               id="respuesta"
@@ -93,6 +93,9 @@
                     <div class="invalid-feedback">
                         Este campo es obligatorio
                     </div>
+                    <small class="text-secondary" id="ayudaRespuestaBK">
+						Esta respuesta será enviada tal como está al usuario. Las modificaciones para la base de conocimiento se realizan en el siguiente paso.
+					</small>
                 </div>
 
 					<div class="mb-3">
@@ -139,7 +142,7 @@
 
             <div class="modal-header">
                 <h5 class="modal-title">
-                    Guardar en base de conocimiento
+                    Adaptar contenido para la base de conocimiento
                 </h5>
                 <button type="button"
                         class="btn-close"
@@ -147,9 +150,15 @@
             </div>
 
             <div class="modal-body">
+            
+            <div class="alert alert-info mb-4" role="alert">
+			    <strong>Importante:</strong><br>
+			    Los cambios que hagas aquí <strong>NO afectan</strong> el mail enviado al usuario.<br>
+			    Esta información será usada únicamente para la <strong>base de conocimiento</strong>.
+			</div>
 
                 <div class="mb-3">
-                    <label class="form-label">Pregunta</label>
+                    <label class="form-label">Pregunta (versión para la base de conocimiento)</label>
                     <textarea class="form-control input-claro"
                               id="preguntaModal"
                               rows="3"
@@ -157,7 +166,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Respuesta</label>
+                    <label class="form-label">Respuesta (versión para la base de conocimiento)</label>
                     <textarea class="form-control input-claro"
                               id="respuestaModal"
                               rows="4"
@@ -237,6 +246,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnEnviar = document.getElementById('btnEnviar');
     const chkGuardarBK = document.getElementById('chkGuardarBK');
     const hiddenGuardarBK = document.getElementById('guardarEnBaseConocimiento');
+    
+    const ayudaRespuestaBK = document.getElementById('ayudaRespuestaBK');
+
+	ayudaRespuestaBK.style.display = chkGuardarBK.checked ? 'block' : 'none';
+	
+	chkGuardarBK.addEventListener('change', () => {
+	    ayudaRespuestaBK.style.display = chkGuardarBK.checked ? 'block' : 'none';
+	});
 
     const preguntaOriginal =
         document.getElementById('preguntaOriginal').innerText.trim();
