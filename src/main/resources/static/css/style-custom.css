@@ -642,3 +642,48 @@ body {
     border-color: #86b7fe;
     box-shadow: 0 0 0 0.2rem rgba(13,110,253,.25);
 }
+
+.preview-only {
+    max-height: 200px;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+
+    text-align: left;
+
+    font-size: 0.875rem;
+    line-height: 0.3;
+}
+
+.preview-only * {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: inherit;
+}
+
+
+.preview-block {
+    display: block;
+}
+
+.preview-title {
+    display: block;
+    font-weight: 700;
+    font-size: 0.8rem;
+    margin-bottom: 3px !important;
+}
+
+
+.preview-text {
+    font-size: 0.9rem;
+	line-height:1.5;
+}
+
+
+.preview-separator {
+    height: 1px;
+    background-color: #dee2e6;    
+}

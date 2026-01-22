@@ -13,16 +13,16 @@
 <body>
 <div class="wrapper d-flex">
 
-    <!-- Sidebar -->
+    <!-- SIDEBAR -->
     <div th:replace="fragments/sidebar :: sidebar" id="sidebar"></div>
 
-    <!-- Contenido -->
+    <!-- CONTENIDO -->
     <div class="content p-4 w-100">
         <div class="container">
 
             <h2 class="mb-4 text-center fw-bold">✉️ Responder Pregunta</h2>
 
-            <!-- DATOS DE LA PREGUNTA -->
+            <!-- PREGUNTA -->
             <div class="card shadow-sm mb-4">
                 <div class="card-body">
                     <h5 class="card-title text-primary"
@@ -52,35 +52,34 @@
                   class="needs-validation"
                   novalidate>
 
-                <!-- IDs -->
                 <input type="hidden" name="id" th:value="${pregunta.id}" />
 
-                <!-- Control concurrencia -->
                 <input type="hidden" id="usuarioActual" th:value="${#authentication.name}" />
                 <input type="hidden" id="hayUsuarioRespondiendo"
                        th:value="${pregunta.usuarioRespondiendo != null}" />
                 <input type="hidden" id="nombreUsuarioRespondiendo"
                        th:value="${pregunta.usuarioRespondiendo?.nombreDeUsuario}" />
 
-                <!-- Campos base conocimiento -->
+                <!-- BASE CONOCIMIENTO -->
                 <input type="hidden" name="preguntaEditada" id="preguntaEditada" />
                 <input type="hidden" name="respuestaEditada" id="respuestaEditada" />
-                <input type="hidden"
-                       name="guardarEnBaseConocimiento"
+                <input type="hidden" name="guardarEnBaseConocimiento"
                        id="guardarEnBaseConocimiento"
                        value="false" />
 
                 <!-- SALUDO -->
-					<div class="mb-3">
-						<label for="saludo" class="form-label">Saludo inicial
-							(opcional)</label>
-						<textarea class="form-control" id="saludo" name="saludo"
-							placeholder="Ej: Hola, gracias por tu consulta..." rows="3"
-							th:text="${saludoDefault}"  maxlength="200">
-   						 </textarea>
-					</div>
+                <div class="mb-3">
+                    <label for="saludo" class="form-label">Saludo inicial (opcional)</label>
+                    <textarea class="form-control"
+                              id="saludo"
+                              name="saludo"
+                              rows="3"
+                              maxlength="200"
+                              th:text="${saludoDefault}"
+                              placeholder="Ej: Hola, gracias por tu consulta..."></textarea>
+                </div>
 
-					<!-- RESPUESTA -->
+                <!-- RESPUESTA -->
                 <div class="mb-3">
                     <label for="respuesta" class="form-label">
                         Respuesta al usuario (se envía por email)
@@ -89,42 +88,48 @@
                               id="respuesta"
                               name="respuesta"
                               rows="6"
-                              required  maxlength="1500"></textarea>
+                              maxlength="1500"
+                              required></textarea>
+
                     <div class="invalid-feedback">
                         Este campo es obligatorio
                     </div>
-                    <small class="text-secondary" id="ayudaRespuestaBK">
-						Esta respuesta será enviada tal como está al usuario. Las modificaciones para la base de conocimiento se realizan en el siguiente paso.
+
+                    <small class="text-warning" id="ayudaRespuestaBK">
+						Esta respuesta será enviada tal como la definas aqui. Las modificaciones para la base de conocimiento puedes realizarlas en el siguiente paso.
 					</small>
                 </div>
 
-					<div class="mb-3">
-						<label for="firma" class="form-label">Firma (opcional)</label>
-						<textarea class="form-control" id="firma" name="firma"
-							placeholder="Ej: Atentamente, Soporte UNLA" rows="3"
-							th:text="${firmaDefault}"  maxlength="200">
-    					</textarea>
-					</div>
+                <!-- FIRMA -->
+                <div class="mb-3">
+                    <label for="firma" class="form-label">Firma (opcional)</label>
+                    <textarea class="form-control"
+                              id="firma"
+                              name="firma"
+                              rows="3"
+                              maxlength="200"
+                              th:text="${firmaDefault}"
+                              placeholder="Ej: Atentamente, Soporte UNLA"></textarea>
+                </div>
 
-					<!-- CHECK BASE CONOCIMIENTO -->
-					<div class="form-check mb-4">
-						<input class="form-check-input" type="checkbox" id="chkGuardarBK"
-							checked> <label class="form-check-label"
-							for="chkGuardarBK"> Guardar respuesta en
-							la base de conocimiento </label>
-					</div>
+                <!-- CHECK BK -->
+                <div class="form-check mb-4">
+                    <input class="form-check-input" type="checkbox" id="chkGuardarBK" checked>
+                    <label class="form-check-label" for="chkGuardarBK">
+                        Guardar esta respuesta en la base de conocimiento
+                    </label>
+                </div>
 
-					<!-- ACCIONES -->
+                <!-- BOTONES -->
                 <div class="d-flex justify-content-between">
                     <a th:href="@{/preguntas/lista}" class="btn btn-secondary">
                         <i class="bi bi-arrow-left"></i> Cancelar
                     </a>
 
-                    <button type="submit" class="btn btn-primary" id="btnEnviar">
-                        <i class="bi bi-send"></i>
-                        <span class="btn-text">Enviar Respuesta</span>
-                    </button>
-                </div>
+						<button type="submit" class="btn btn-primary" id="btnEnviar">
+							<i class="bi bi-arrow-right-circle"></i> <span class="btn-text">Continuar</span>
+						</button>
+					</div>
 
             </form>
         </div>
@@ -132,70 +137,92 @@
 </div>
 
 <!-- MODAL BASE CONOCIMIENTO -->
-<div class="modal fade"
-     id="modalGuardarBK"
-     tabindex="-1"
-     aria-hidden="true">
-
+<div class="modal fade" id="modalGuardarBK" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
 
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    Adaptar contenido para la base de conocimiento
-                </h5>
-                <button type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"></button>
-            </div>
-
             <div class="modal-body">
-            
-            <div class="alert alert-info mb-4" role="alert">
-			    <strong>Importante:</strong><br>
-			    Los cambios que hagas aquí <strong>NO afectan</strong> el mail enviado al usuario.<br>
-			    Esta información será usada únicamente para la <strong>base de conocimiento</strong>.
-			</div>
 
+                <!-- CONTEXTO -->
+                <div class="alert alert-info small mb-3">
+                    <strong>✔ El correo al usuario ya está definido.</strong><br>
+                    Aquí podés adaptar el contenido para reutilizarlo en la base de
+                    conocimiento.
+                </div>
+
+                <!-- RESUMEN MAIL (COLAPSABLE) -->
+                <p class="mb-2">
+						<a class="link-white small" id="togglePreviewMail"
+							data-bs-toggle="collapse" href="#previewMail" role="button"
+							aria-expanded="false"> 👁 Ver correo que se enviará al
+							usuario </a>
+					</p>
+
+					<div class="collapse mb-3" id="previewMail">
+						<div
+							class="border rounded p-2 bg-light small text-dark preview-only">
+
+							<div class="preview-block">
+								<span class="preview-title">Pregunta:</span>
+								<div class="preview-text" id="previewPregunta"></div>
+							</div>
+
+							<div class="preview-separator"></div>
+
+							<div class="preview-block">
+								<span class="preview-title">Respuesta:</span>
+								<div class="preview-text" id="previewRespuesta"></div>
+							</div>
+
+						</div>
+					</div>
+					<!-- EDICIÓN BK -->
                 <div class="mb-3">
-                    <label class="form-label">Pregunta (versión para la base de conocimiento)</label>
-                    <textarea class="form-control input-claro"
+                    <label class="form-label fw-semibold">
+                        📚 Pregunta (base de conocimiento)
+                    </label>
+                    <textarea class="form-control"
                               id="preguntaModal"
                               rows="3"
-                              maxlength="500"></textarea>
+                              maxlength="500"
+                              placeholder="Generalizá la pregunta para que sirva a otros usuarios..."></textarea>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Respuesta (versión para la base de conocimiento)</label>
-                    <textarea class="form-control input-claro"
+                    <label class="form-label fw-semibold">
+                        📘 Respuesta (base de conocimiento)
+                    </label>
+                    <textarea class="form-control"
                               id="respuestaModal"
                               rows="4"
-                              maxlength="1500"></textarea>
+                              maxlength="1500"
+                              placeholder="Quitá datos personales y hacé la respuesta reutilizable..."></textarea>
                 </div>
 
                 <p class="text-white small mb-0">
                     Esta información será utilizada por el chatbot para futuras consultas.
                 </p>
 
-            </div>
+            </div> <!-- ✅ cierre correcto modal-body -->
 
             <div class="modal-footer">
                 <button type="button"
                         class="btn btn-secondary"
                         data-bs-dismiss="modal">
-                    Cancelar
+                    Volver
                 </button>
 
                 <button type="button"
                         id="btnConfirmarGuardar"
                         class="btn btn-success">
-                    Enviar y guardar
+                    Enviar y guardar respuesta
                 </button>
             </div>
 
         </div>
     </div>
 </div>
+
 
 <script>
 const usuarioActual = document.getElementById('usuarioActual')?.value || '';
@@ -225,6 +252,7 @@ function toggleSidebar() {
     );
 }
 
+/* ================= VALIDACIÓN BOOTSTRAP ================= */
 (function () {
     'use strict';
     const forms = document.querySelectorAll('.needs-validation');
@@ -246,14 +274,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnEnviar = document.getElementById('btnEnviar');
     const chkGuardarBK = document.getElementById('chkGuardarBK');
     const hiddenGuardarBK = document.getElementById('guardarEnBaseConocimiento');
-    
+
     const ayudaRespuestaBK = document.getElementById('ayudaRespuestaBK');
 
-	ayudaRespuestaBK.style.display = chkGuardarBK.checked ? 'block' : 'none';
-	
-	chkGuardarBK.addEventListener('change', () => {
-	    ayudaRespuestaBK.style.display = chkGuardarBK.checked ? 'block' : 'none';
-	});
+    /* ===== TEXTO DINÁMICO DEL BOTÓN (UX) ===== */
+    function actualizarTextoBoton() {
+        const texto = btnEnviar.querySelector('.btn-text');
+        texto.innerText = chkGuardarBK.checked
+            ? 'Continuar'
+            : 'Enviar respuesta al usuario';
+    }
+
+    actualizarTextoBoton();
+
+    ayudaRespuestaBK.style.display = chkGuardarBK.checked ? 'block' : 'none';
+
+    chkGuardarBK.addEventListener('change', () => {
+        ayudaRespuestaBK.style.display = chkGuardarBK.checked ? 'block' : 'none';
+        actualizarTextoBoton();
+    });
 
     const preguntaOriginal =
         document.getElementById('preguntaOriginal').innerText.trim();
@@ -265,7 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const btnConfirmar = document.getElementById('btnConfirmarGuardar');
 
-    /* ===== CLICK EN ENVIAR ===== */
+    /* ===== CLICK EN BOTÓN PRINCIPAL ===== */
     btnEnviar.addEventListener('click', function (e) {
         e.preventDefault();
 
@@ -295,7 +334,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             document.getElementById('preguntaModal').value = preguntaOriginal;
             document.getElementById('respuestaModal').value = respuestaInput.value;
+			
+            const previewPregunta = document.getElementById('previewPregunta');
+            const previewRespuesta = document.getElementById('previewRespuesta');
 
+            if (previewPregunta) {
+                previewPregunta.innerText = preguntaOriginal;
+            }
+            if (previewRespuesta) {
+                previewRespuesta.innerText = respuestaInput.value;
+            }
             modal.show();
         } else {
             hiddenGuardarBK.value = 'false';
@@ -306,7 +354,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* ===== CONFIRMAR DESDE MODAL ===== */
     btnConfirmar.addEventListener('click', function () {
-
+    	document.getElementById('respuestaUsuarioPreview').value = respuestaInput.value;
+    	document.getElementById('respuestaModal').value = respuestaInput.value;
+    	
         document.getElementById('preguntaEditada').value =
             document.getElementById('preguntaModal').value;
 
@@ -323,6 +373,25 @@ document.addEventListener('DOMContentLoaded', () => {
         btnEnviar.disabled = true;
         btnEnviar.querySelector('.btn-text').innerText = 'Enviando...';
     }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const previewCollapse = document.getElementById('previewMail');
+    const togglePreviewLink = document.getElementById('togglePreviewMail');
+
+    if (!previewCollapse || !togglePreviewLink) return;
+
+    previewCollapse.addEventListener('show.bs.collapse', function () {
+        togglePreviewLink.innerHTML =
+            '<i class="bi bi-eye-slash me-1"></i> Ocultar correo que se enviara al usuario';
+    });
+
+    previewCollapse.addEventListener('hide.bs.collapse', function () {
+        togglePreviewLink.innerHTML =
+            '<i class="bi bi-eye me-1"></i> Ver correo que se enviara al usuario';
+    });
+
 });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
