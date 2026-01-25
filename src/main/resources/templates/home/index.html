@@ -73,6 +73,9 @@
 						un bibliotecario pueda responder tu consulta por correo
 						electrónico.</p>
 
+					<div th:if="${errorFeedback}" class="alert alert-danger small mb-2">
+						<span th:text="${errorFeedback}"></span>
+					</div>
 					<form method="post" action="/feedback"
 						class="d-flex flex-column gap-2">
 						<input type="hidden" name="pregunta" th:value="${pregunta}">
@@ -81,21 +84,25 @@
 							<div class="col-md-6">
 								<input type="text" name="nombre"
 									class="form-control form-control-sm input-feedback"
-									placeholder="Nombre" required
+									placeholder="Nombre" required maxlength="50"
+									pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
+									title="Solo letras y espacios"
 									th:value="${feedbackSession != null ? feedbackSession.nombre : ''}">
 							</div>
 
 							<div class="col-md-6">
 								<input type="text" name="apellido"
 									class="form-control form-control-sm input-feedback"
-									placeholder="Apellido" required
+									placeholder="Apellido" required maxlength="50"
+									pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
+       								title="Solo letras y espacios"
 									th:value="${feedbackSession != null ? feedbackSession.apellido : ''}">
 							</div>
 						</div>
 
 						<input type="email" name="email"
 							class="form-control form-control-sm input-feedback mt-2"
-							placeholder="Correo electrónico" required
+							placeholder="Correo electrónico" required maxlength="100"
 							th:value="${feedbackSession != null ? feedbackSession.email : ''}">
 
 						<button type="submit"

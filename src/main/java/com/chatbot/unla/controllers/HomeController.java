@@ -149,7 +149,38 @@ public class HomeController {
             redirectAttributes.addFlashAttribute("pregunta", pregunta);
             return ViewRouteHelper.REDIRECT;
         }
+        
+        if (nombre != null && nombre.length() > 50) {
+            redirectAttributes.addFlashAttribute(
+                "errorFeedback", "El nombre no puede superar los 50 caracteres."
+            );
+            redirectAttributes.addFlashAttribute("showFeedbackForm", true);
+            redirectAttributes.addFlashAttribute("respuestaGenerica", true);
+            redirectAttributes.addFlashAttribute("pregunta", pregunta);
+            return ViewRouteHelper.REDIRECT;
+        }
 
+        if (apellido != null && apellido.length() > 50) {
+            redirectAttributes.addFlashAttribute(
+                "errorFeedback", "El apellido no puede superar los 50 caracteres."
+            );
+            redirectAttributes.addFlashAttribute("showFeedbackForm", true);
+            redirectAttributes.addFlashAttribute("respuestaGenerica", true);
+            redirectAttributes.addFlashAttribute("pregunta", pregunta);
+            return ViewRouteHelper.REDIRECT;
+        }
+
+        if (email != null && email.length() > 100) {
+            redirectAttributes.addFlashAttribute(
+                "errorFeedback", "El email no puede superar los 100 caracteres."
+            );
+            redirectAttributes.addFlashAttribute("showFeedbackForm", true);
+            redirectAttributes.addFlashAttribute("respuestaGenerica", true);
+            redirectAttributes.addFlashAttribute("pregunta", pregunta);
+            return ViewRouteHelper.REDIRECT;
+        }
+
+        
         FeedbackSession feedbackSession = new FeedbackSession();
         feedbackSession.setNombre(nombre);
         feedbackSession.setApellido(apellido);
