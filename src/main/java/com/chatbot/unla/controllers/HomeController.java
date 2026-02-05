@@ -131,7 +131,7 @@ public class HomeController {
     public String recibirFeedback(@RequestParam("pregunta") String pregunta,
                                   @RequestParam(value = "nombre", required = false) String nombre,
                                   @RequestParam(value = "apellido", required = false) String apellido,
-                                  @RequestParam(value = "email", required = false) String email,
+                                  @RequestParam(value = "email", required = true) String email,
                                   @RequestParam(value = "util", required = false) String util,
                                   @RequestParam(value = "respuesta", required = false) String respuesta,
                                   RedirectAttributes redirectAttributes,
@@ -163,6 +163,16 @@ public class HomeController {
         if (apellido != null && apellido.length() > 50) {
             redirectAttributes.addFlashAttribute(
                 "errorFeedback", "El apellido no puede superar los 50 caracteres."
+            );
+            redirectAttributes.addFlashAttribute("showFeedbackForm", true);
+            redirectAttributes.addFlashAttribute("respuestaGenerica", true);
+            redirectAttributes.addFlashAttribute("pregunta", pregunta);
+            return ViewRouteHelper.REDIRECT;
+        }
+        
+        if (email == null || email.trim().isEmpty()) {
+            redirectAttributes.addFlashAttribute(
+                "errorFeedback", "El correo electrónico es obligatorio."
             );
             redirectAttributes.addFlashAttribute("showFeedbackForm", true);
             redirectAttributes.addFlashAttribute("respuestaGenerica", true);

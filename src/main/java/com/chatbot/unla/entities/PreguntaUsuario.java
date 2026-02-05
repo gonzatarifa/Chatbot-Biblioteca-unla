@@ -31,6 +31,7 @@ public class PreguntaUsuario {
 
     @Column(name = "email")
     @Email(message = "Debe ser un email válido")
+    @NotEmpty(message = "El campo email no debe estar vacío")
     private String email;
 
     @Column(name = "fecha_envio_pregunta")
