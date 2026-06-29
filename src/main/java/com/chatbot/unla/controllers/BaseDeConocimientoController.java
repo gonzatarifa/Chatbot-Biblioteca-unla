@@ -70,7 +70,7 @@ public class BaseDeConocimientoController {
 	        BindingResult result,
 	        RedirectAttributes attribute) {
 
-	    // Validaciones
+		// Validaciones
 	    if (baseDeConocimiento.getPregunta() != null &&
 	        baseDeConocimiento.getPregunta().length() > 500) {
 
@@ -92,38 +92,48 @@ public class BaseDeConocimientoController {
 	    if (baseDeConocimiento.getPregunta() == null ||
 	        baseDeConocimiento.getPregunta().trim().isEmpty()) {
 
-	        attribute.addFlashAttribute("error", "La pregunta no puede estar vacía.");
+	    	attribute.addFlashAttribute("error", "La pregunta no puede estar vacía.");
 	        return ViewRouteHelper.BASE_DE_CONOCIMIENTO_REDIRECT;
 	    }
 
+	    baseDeConocimiento.setPregunta(
+	            baseDeConocimiento.getPregunta().trim()
+	    );
+
 	    BaseDeConocimiento existente =
 	            baseDeConocimientoService.buscarPorPreguntaExacta(
-	                    baseDeConocimiento.getPregunta().trim()
+	                    baseDeConocimiento.getPregunta()
 	            );
 
-	    // EXISTE Y ESTÁ DESHABILITADA → PEDIR CONFIRMACIÓN
-	    if (existente != null && !existente.isHabilitado() && confirmar == null) {
+	    boolean esEdicion =
+	            baseDeConocimiento.getId() > 0 &&
+	            existente != null &&
+	            existente.getId() == baseDeConocimiento.getId();
 
-	        attribute.addFlashAttribute(
-	                "warning",
-	                "Ya existe una pregunta deshabilitada en la base de conocimiento. ¿Desea actualizarla y habilitarla nuevamente?"
-	        );
+
+	    if (existente != null &&
+	        !existente.isHabilitado() &&
+	        !esEdicion &&
+	        confirmar == null) {
+
+			attribute.addFlashAttribute("warning", "Ya existe una pregunta deshabilitada en la base de conocimiento. "
+					+ "¿Desea actualizarla y habilitarla nuevamente?");
 	        attribute.addFlashAttribute("requiereConfirmacion", true);
 	        attribute.addFlashAttribute("baseDeConocimiento", baseDeConocimiento);
 	        attribute.addFlashAttribute("respuestaAnterior", existente.getRespuesta());
 	        attribute.addFlashAttribute("preguntaExistente", existente.getPregunta());
 
-
 	        return ViewRouteHelper.BASE_DE_CONOCIMIENTO_REDIRECT;
 	    }
 
 	    // CONFIRMADO → ACTUALIZAR
-	    if (existente != null && !existente.isHabilitado() && Boolean.TRUE.equals(confirmar)) {
+
+		if (existente != null && !existente.isHabilitado() && !esEdicion && Boolean.TRUE.equals(confirmar)) {
 
 	        existente.setRespuesta(baseDeConocimiento.getRespuesta());
 	        existente.setHabilitado(true);
 	        existente.setFechaActualizacion(LocalDateTime.now());
-	        existente.setEmbedding(generarEmbedding(existente.getPregunta()));
+			existente.setEmbedding(generarEmbedding(existente.getPregunta()));
 
 	        baseDeConocimientoService.save(existente);
 
@@ -135,7 +145,24 @@ public class BaseDeConocimientoController {
 	        return ViewRouteHelper.BASE_DE_CONOCIMIENTO_REDIRECT_LISTA;
 	    }
 
-	    // NO EXISTE → CREAR NUEVA
+	    if (esEdicion) {
+
+	        existente.setPregunta(baseDeConocimiento.getPregunta());
+	        existente.setRespuesta(baseDeConocimiento.getRespuesta());
+	        existente.setFechaActualizacion(LocalDateTime.now());
+			existente.setEmbedding(generarEmbedding(baseDeConocimiento.getPregunta()));
+
+	        baseDeConocimientoService.save(existente);
+
+			attribute.addFlashAttribute("success", "La entrada fue actualizada correctamente.");
+
+	        return ViewRouteHelper.BASE_DE_CONOCIMIENTO_REDIRECT_LISTA;
+	    }
+
+	    /* =====================
+	       CREAR NUEVA
+	       ===================== */
+
 	    if (existente == null) {
 
 	        baseDeConocimiento.setFechaCreacion(LocalDateTime.now());
@@ -147,23 +174,15 @@ public class BaseDeConocimientoController {
 
 	        baseDeConocimientoService.save(baseDeConocimiento);
 
-	        attribute.addFlashAttribute(
-	                "success",
-	                "Entrada creada correctamente."
-	        );
+			attribute.addFlashAttribute("success", "Entrada creada correctamente.");
 
 	        return ViewRouteHelper.BASE_DE_CONOCIMIENTO_REDIRECT_LISTA;
 	    }
 
-	    // EXISTE Y ESTÁ HABILITADA
-	    attribute.addFlashAttribute(
-	            "error",
-	            "La pregunta ya existe y se encuentra habilitada."
-	    );
+		attribute.addFlashAttribute("error", "La pregunta ya existe y se encuentra habilitada.");
 
 	    return ViewRouteHelper.BASE_DE_CONOCIMIENTO_REDIRECT;
 	}
-
 	
 	@GetMapping("/lista")
 	public String listar(@RequestParam(name = "verDeshabilitadas", required = false, defaultValue = "false") boolean verDeshabilitadas, Model model) {
